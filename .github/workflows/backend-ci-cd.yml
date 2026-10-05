@@ -1,6 +1,7 @@
 name: Backend CI/CD (Test, Container Build & Deploy)
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:

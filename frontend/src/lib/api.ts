@@ -1,0 +1,128 @@
+import { QuotaStatus } from '../types';
+
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
+export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus> {
+  const headers: Record<string, string> = {};
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/leads/quota`, { headers });
+    if (!res.ok) {
+      return {
+        authenticated: !!authToken,
+        tier: authToken ? 'authenticated' : 'anonymous',
+        limit: authToken ? 30 : 5,
+        remaining: authToken ? 30 : 5,
+        reset_seconds: 86400
+      };
+    }
+    return await res.json();
+  } catch (e) {
+    return {
+      authenticated: !!authToken,
+      tier: authToken ? 'authenticated' : 'anonymous',
+      limit: authToken ? 30 : 5,
+      remaining: authToken ? 30 : 5,
+      reset_seconds: 86400
+    };
+  }
+}
+
+export interface StreamChatParams {
+  question: string;
+  history?: { role: string; content: string }[];
+  authToken?: string | null;
+  onSources?: (sources: any[]) => void;
+  onToken?: (token: string) => void;
+  onDone?: (remaining: number) => void;
+  onError?: (err: any) => void;
+}
+
+export async function streamChat({
+  question,
+  history = [],
+  authToken,
+  onSources,
+  onToken,
+  onDone,
+  onError
+}: StreamChatParams): Promise<void> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json'
+  };
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        messages: history,
+        question
+      })
+    });
+
+    if (response.status === 429) {
+      const errData = await response.json();
+      if (onError) onError(errData.detail || errData);
+      return;
+    }
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Chat stream request failed with status: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (!line.trim()) continue;
+
+        let eventType = 'message';
+        let dataStr = '';
+
+        const eventMatch = line.match(/^event:\s*(\w+)/m);
+        if (eventMatch) {
+          eventType = eventMatch[1];
+        }
+
+        const dataMatch = line.match(/^data:\s*(.+)$/m);
+        if (dataMatch) {
+          dataStr = dataMatch[1];
+        }
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          if (eventType === 'sources' && onSources) {
+            onSources(parsed.sources || []);
+          } else if (eventType === 'token' && onToken) {
+            onToken(parsed.token || '');
+          } else if (eventType === 'done' && onDone) {
+            onDone(parsed.remaining ?? 0);
+          }
+        } catch (e) {
+          // Fallback if raw text
+          if (eventType === 'token' && onToken) {
+            onToken(dataStr);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    if (onError) onError(error);
+  }
+}

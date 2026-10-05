@@ -1,0 +1,126 @@
+{
+  "source_type": "local_yaml",
+  "file_name": "experience.yaml",
+  "raw_hash": "2273663beaf25a8ee5bc10aebf8fe19ee52cc38e823ee464412dcd0b3f67b724",
+  "ingested_at": "2026-10-05T21:34:34.393318Z",
+  "payload": {
+    "milestones": [
+      {
+        "id": "exp-eks-migration",
+        "category": "distributed_systems",
+        "title": "Large-Scale Microservices Migration to EKS & GitOps",
+        "role": "Lead Platform Engineer",
+        "summary": "Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA).\n",
+        "impact_metrics": [
+          "30+ microservices migrated with zero customer downtime",
+          "Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)",
+          "Consolidated multi-account AWS and acquisition workloads into unified, secure architectures"
+        ],
+        "technologies": [
+          "Kubernetes",
+          "AWS EKS",
+          "ArgoCD",
+          "Terraform",
+          "Docker",
+          "Helm"
+        ]
+      },
+      {
+        "id": "exp-cicd-github-migration",
+        "category": "platform_engineering",
+        "title": "Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
+        "role": "Principal Infrastructure / DevOps Lead",
+        "summary": "Engineered and executed an enterprise migration of 100+ repositories from Bitbucket to GitHub and GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\n",
+        "impact_metrics": [
+          "100+ repositories seamlessly migrated",
+          "Build reliability increased to 99.8%",
+          "Eliminated vendor fragmentation and boosted developer velocity across the organization"
+        ],
+        "technologies": [
+          "GitHub Actions",
+          "Bitbucket",
+          "Docker",
+          "Bash",
+          "Python",
+          "Security Scanning (Trivy/Snyk)"
+        ]
+      },
+      {
+        "id": "exp-terraform-platform",
+        "category": "platform_engineering",
+        "title": "Enterprise Terraform Module Platform & Multi-Cloud Automation",
+        "role": "Senior Platform Architect",
+        "summary": "Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails.\n",
+        "impact_metrics": [
+          "Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms",
+          "Automated compliance and drift detection for hundreds of cloud resources",
+          "Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
+        ],
+        "technologies": [
+          "Terraform",
+          "Go",
+          "AWS",
+          "Snowflake",
+          "Confluent Cloud",
+          "Databricks",
+          "Datadog"
+        ]
+      },
+      {
+        "id": "exp-kafka-confluent-migration",
+        "category": "data_platform",
+        "title": "Streaming Platform Modernization: AWS MSK to Confluent Cloud",
+        "role": "Staff Data Infrastructure Engineer",
+        "summary": "Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, improving schema registry governance, and streamlining Terraform automation for event-driven microservices.\n",
+        "impact_metrics": [
+          "Eliminated broker patch downtime and storage rebalancing toil",
+          "Enforced Avro/Protobuf schema evolution governance across producers and consumers",
+          "Significantly lowered infrastructure maintenance overhead"
+        ],
+        "technologies": [
+          "Apache Kafka",
+          "Confluent Cloud",
+          "AWS MSK",
+          "Schema Registry",
+          "Terraform"
+        ]
+      },
+      {
+        "id": "exp-security-appmesh-mtls",
+        "category": "distributed_systems",
+        "title": "Zero-Trust Service Mesh & mTLS with AWS App Mesh",
+        "role": "Senior Distributed Systems Engineer",
+        "summary": "Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across 30+ Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\n",
+        "impact_metrics": [
+          "100% encrypted in-transit mTLS traffic across internal service graph",
+          "Centralized cryptographic identity without modifying application code",
+          "Enhanced observability via Envoy distributed tracing headers"
+        ],
+        "technologies": [
+          "AWS App Mesh",
+          "Envoy Proxy",
+          "mTLS",
+          "Kubernetes",
+          "AWS Certificate Manager (ACM)"
+        ]
+      },
+      {
+        "id": "exp-finops-optimization",
+        "category": "finops",
+        "title": "Cloud FinOps & Infrastructure Cost Rationalization",
+        "role": "Lead Platform Engineer",
+        "summary": "Initiated and executed comprehensive cloud cost-optimization across compute, storage, and networking tiers. Eliminated idle resources, rightsized Kubernetes requests/limits, rationalized third-party SaaS contracts, and tuned data retention policies.\n",
+        "impact_metrics": [
+          "Saved over $10,000/month in cloud infrastructure costs within the first 60 days",
+          "Implemented automated tagging, cost allocation budgets, and anomaly alerts"
+        ],
+        "technologies": [
+          "AWS Cost Explorer",
+          "Kubernetes Karpenter / Cluster Autoscaler",
+          "Terraform",
+          "Datadog FinOps"
+        ]
+      }
+    ]
+  }
+}

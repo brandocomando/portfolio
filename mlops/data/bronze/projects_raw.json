@@ -1,0 +1,138 @@
+{
+  "source_type": "local_yaml",
+  "file_name": "projects.yaml",
+  "raw_hash": "f77b3f817129c3cea9e539cdd5ec219b074828f6c57c4df0fb71e261d961d4eb",
+  "ingested_at": "2026-10-05T21:34:34.384045Z",
+  "payload": {
+    "projects": [
+      {
+        "id": "proj-my-agentic-team",
+        "name": "My Agentic Team",
+        "repo": "brandocomando/my_agentic_team",
+        "url": "https://github.com/brandocomando/my_agentic_team",
+        "category": "ai_infra",
+        "tagline": "A production-minded, local-first compilation of autonomous AI agents automating real-world daily workflows.",
+        "summary": "A sophisticated multi-agent system featuring specialized agents running locally with Ollama and browser automation. Includes a Campsite Finder Agent (automated availability scanner across ReserveCalifornia and Recreation.gov using Chrome DevTools Protocol (CDP), batch grid endpoints, and AI scoring), a Gmail Inbox Triage Agent (sub-50ms priority labeling, noise archiving, daily executive summaries), a Personal Finance Agent (CSV ingestion, deterministic transaction categorization), and a Survey Copilot Chrome extension. Currently integrating Laya for System-1 fast inference decisions.\n",
+        "highlights": [
+          "Local-first LLM inference using Ollama, eliminating external API latency and privacy risks",
+          "CDP (Chrome DevTools Protocol) headless browser orchestration for complex web workflows",
+          "Modular agent communication protocol with structured JSON tool invocation"
+        ],
+        "technologies": [
+          "Python",
+          "Ollama",
+          "Local LLMs",
+          "Chrome DevTools Protocol (CDP)",
+          "Docker",
+          "OAuth2",
+          "Laya"
+        ]
+      },
+      {
+        "id": "proj-prometheus-ingress-exporter",
+        "name": "Prometheus Ingress Status Exporter",
+        "repo": "brandocomando/prometheus-ingress-status-exporter",
+        "url": "https://github.com/brandocomando/prometheus-ingress-status-exporter",
+        "category": "distributed_systems",
+        "tagline": "Kubernetes controller & exporter that discovers Ingress endpoints dynamically and exports response metrics to Prometheus.",
+        "summary": "A high-performance Go daemon that connects to the Kubernetes API, watches Ingress resources dynamically across namespaces, executes synthetic HTTP/HTTPS health checks against host rules and TLS configurations, and exports Prometheus-compatible response codes, latency percentiles, and availability metrics.\n",
+        "highlights": [
+          "Written in pure Go using official Kubernetes client-go and Prometheus client libraries",
+          "Asynchronous goroutine worker pools with rate-limiting to prevent probing denial-of-service",
+          "Provides instant cluster-wide edge health observability for SRE and platform teams"
+        ],
+        "technologies": [
+          "Go (Golang)",
+          "Kubernetes (client-go)",
+          "Prometheus",
+          "Docker",
+          "SRE / Observability"
+        ]
+      },
+      {
+        "id": "proj-terraform-provider-neo4j",
+        "name": "Terraform Provider for Neo4j",
+        "repo": "brandocomando/terraform-provider-neo4j",
+        "url": "https://github.com/brandocomando/terraform-provider-neo4j",
+        "category": "platform_engineering",
+        "tagline": "Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.",
+        "summary": "Developed a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.\n",
+        "highlights": [
+          "Implemented Terraform Plugin SDK v2 / Plugin Framework specifications",
+          "State management with CRUD lifecycle operations and schema validation",
+          "Empowers platform teams to manage graph databases alongside standard cloud infrastructure"
+        ],
+        "technologies": [
+          "Go",
+          "Terraform Plugin SDK",
+          "Neo4j",
+          "Graph Databases",
+          "GitOps"
+        ]
+      },
+      {
+        "id": "proj-wezterm-agent-deck",
+        "name": "WezTerm Agent Deck",
+        "repo": "brandocomando/wezterm-agent-deck",
+        "url": "https://github.com/brandocomando/wezterm-agent-deck",
+        "category": "ai_infra",
+        "tagline": "Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.",
+        "summary": "A Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays native tab indicators for agent states (working, waiting for input, idle, inactive) and triggers desktop notifications when an agent finishes or requires attention.\n",
+        "highlights": [
+          "Lightweight event hooks in Lua with zero CPU polling overhead",
+          "Desktop notifications and audio cues via terminal-notifier",
+          "Streamlines human-in-the-loop developer interaction with multiple parallel autonomous coding agents"
+        ],
+        "technologies": [
+          "Lua",
+          "WezTerm",
+          "AI Agent Tooling",
+          "Shell"
+        ]
+      },
+      {
+        "id": "proj-firstmate",
+        "name": "FirstMate CLI",
+        "repo": "brandocomando/firstmate",
+        "url": "https://github.com/brandocomando/firstmate",
+        "category": "ai_infra",
+        "tagline": "Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.",
+        "summary": "A lightweight terminal tool that provides unified orchestration across multi-agent workflows, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents.\n",
+        "highlights": [
+          "Clean CLI ergonomics for agent crew coordination",
+          "Decoupled agent execution contexts"
+        ],
+        "technologies": [
+          "Shell / Bash",
+          "Agentic Workflows",
+          "Terminal UI"
+        ]
+      },
+      {
+        "id": "proj-portfolio-platform",
+        "name": "FinOps-Optimized Cloud Portfolio & AI MLOps Platform",
+        "repo": "brandocomando/portfolio",
+        "url": "https://github.com/brandocomando/portfolio",
+        "category": "platform_engineering",
+        "tagline": "Production-grade, scale-to-zero GCP portfolio featuring hybrid RAG, Medallion data pipeline, CI/CD, and Terraform.",
+        "summary": "An end-to-end cloud platform hosting a modern React SPA on Firebase Hosting (CDN), a FastAPI backend on Cloud Run scaling to zero ($0 idle cost), and an in-memory Hybrid RAG engine (Dense + BM25 + Reciprocal Rank Fusion) answering queries via Gemini Flash. Features multi-tier token bucket rate limiting, Firebase Auth recruiter lead capture, a Medallion Data Lakehouse, and an offline LLM-as-a-judge evaluation suite running as a quality gate in GitHub Actions. 100% Terraform IaC with Workload Identity Federation (zero static keys).\n",
+        "highlights": [
+          "Strict FinOps compliance: $0/month idle cost via Cloud Run and Firebase Hosting",
+          "Workload Identity Federation (OIDC) eliminating static GCP credentials in CI/CD",
+          "Continuous evaluation CI gate testing context recall and answer faithfulness"
+        ],
+        "technologies": [
+          "Terraform",
+          "Google Cloud Run",
+          "Firebase Hosting",
+          "FastAPI",
+          "Python",
+          "React / Vite / TypeScript",
+          "Gemini 2.0 Flash",
+          "Hybrid Search (BM25 + Dense RRF)",
+          "GitHub Actions (OIDC/WIF)"
+        ]
+      }
+    ]
+  }
+}

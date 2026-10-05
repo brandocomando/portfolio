@@ -1,0 +1,54 @@
+name: Terraform CI (Security, Lint & Plan)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/terraform-*.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  terraform-verify:
+    name: Terraform Format, Security & Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.8.5'
+
+      - name: Check Terraform Formatting
+        run: terraform fmt -check -recursive infra/
+
+      - name: Run Trivy IaC Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: 'infra/'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Authenticate to Google Cloud via OIDC (Workload Identity)
+        if: env.WIF_PROVIDER != ''
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SA_EMAIL }}
+        env:
+          WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+
+      - name: Terraform Init & Validate
+        run: |
+          cd infra/envs/prod
+          terraform init -backend=false
+          terraform validate

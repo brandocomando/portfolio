@@ -1,0 +1,81 @@
+name: Backend CI/CD (Test, Container Build & Deploy)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'mlops/data/gold/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  test:
+    name: Run Pytest & Security Scans
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt -r mlops/requirements.txt
+
+      - name: Run Backend Unit & Integration Tests
+        run: |
+          pytest backend/tests/
+
+  build-and-deploy:
+    name: Build OCI Image & Deploy to Cloud Run
+    needs: [test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud via OIDC (Workload Identity)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SA_EMAIL }}
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+
+      - name: Build and Push Docker Image
+        env:
+          IMAGE_URI: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/portfolio-backend/api:${{ github.sha }}
+          LATEST_URI: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/portfolio-backend/api:latest
+        run: |
+          docker build -t $IMAGE_URI -t $LATEST_URI -f backend/Dockerfile .
+          docker push $IMAGE_URI
+          docker push $LATEST_URI
+
+      - name: Deploy to Cloud Run (Scale-to-Zero)
+        run: |
+          gcloud run deploy portfolio-backend \
+            --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/portfolio-backend/api:${{ github.sha }} \
+            --region us-central1 \
+            --platform managed \
+            --min-instances 0 \
+            --max-instances 5 \
+            --allow-unauthenticated

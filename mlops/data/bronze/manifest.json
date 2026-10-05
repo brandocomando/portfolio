@@ -1,0 +1,27 @@
+{
+  "stage": "bronze",
+  "ingested_at": "2026-10-05T21:34:34.360339Z",
+  "artifacts": {
+    "skills": {
+      "file": "/opt/personal/portfolio/mlops/data/bronze/skills_raw.json",
+      "hash": "8d99fab8dfceff073011b289fa2213e184fa615470caa478bfdf0fda3400aaa5"
+    },
+    "bio": {
+      "file": "/opt/personal/portfolio/mlops/data/bronze/bio_raw.json",
+      "hash": "0ad865b6ebcc9ef5101df6ee98b3550e41157500d633c53a7080bb1389b7ac0d"
+    },
+    "projects": {
+      "file": "/opt/personal/portfolio/mlops/data/bronze/projects_raw.json",
+      "hash": "f77b3f817129c3cea9e539cdd5ec219b074828f6c57c4df0fb71e261d961d4eb"
+    },
+    "experience": {
+      "file": "/opt/personal/portfolio/mlops/data/bronze/experience_raw.json",
+      "hash": "2273663beaf25a8ee5bc10aebf8fe19ee52cc38e823ee464412dcd0b3f67b724"
+    },
+    "github_repos": {
+      "file": "/opt/personal/portfolio/mlops/data/bronze/github_repos_raw.json",
+      "status": "success",
+      "count": 10
+    }
+  }
+}

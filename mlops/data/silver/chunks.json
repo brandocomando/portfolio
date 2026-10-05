@@ -1,0 +1,412 @@
+[
+  {
+    "id": "chunk-bio-overview",
+    "title": "Brandon Foster Professional Overview & Domains",
+    "category": "bio",
+    "content": "Brandon Foster (brandocomando) is a Senior Platform & MLOps Engineer based in United States.\nHeadline: Building high-throughput distributed systems, sovereign AI infrastructure, and autonomous agent workflows.\nOverview: Senior Platform, Distributed Systems, and MLOps Engineer with deep expertise in architecting cloud-native infrastructure, high-concurrency microservices, and AI-powered systems. Specialized in Kubernetes (EKS/GKE), GitOps (ArgoCD), Infrastructure as Code (Terraform), enterprise streaming platforms (Kafka/Confluent), zero-trust security (mTLS, App Mesh), and local/production AI agent architectures. Proven track record leading multi-account cloud consolidations, large-scale Bitbucket-to-GitHub migrations, and saving over $10K/month in cloud FinOps optimizations.\n\nCore Technical Domains: Platform Engineering & Infrastructure as Code (Terraform), Distributed Systems & Service Mesh (Kubernetes, AWS App Mesh, mTLS), AI Infrastructure & MLOps (Local LLMs, Agentic Teams, RAG Pipelines), Data Platforms & Streaming (Kafka, Confluent Cloud, Snowflake, Databricks), Observability & SRE (Prometheus, Datadog, Grafana, OpenTelemetry), FinOps & Cloud Cost Optimization.\nContact: brandon@example.com | GitHub: https://github.com/brandocomando | LinkedIn: https://linkedin.com/in/brandon-foster",
+    "tags": [
+      "bio",
+      "overview",
+      "platform_engineering",
+      "mlops",
+      "distributed_systems"
+    ],
+    "source_file": "bio.yaml",
+    "token_estimate": 327,
+    "metadata": {
+      "handle": "brandocomando",
+      "location": "United States"
+    }
+  },
+  {
+    "id": "chunk-exp-eks-migration",
+    "title": "Experience: Large-Scale Microservices Migration to EKS & GitOps",
+    "category": "distributed_systems",
+    "content": "[CAREER EXPERIENCE] Large-Scale Microservices Migration to EKS & GitOps\nRole: Lead Platform Engineer | Category: distributed_systems\nSummary: Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA).\nQuantified Impact & Metrics:\n  \u2022 30+ microservices migrated with zero customer downtime\n  \u2022 Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)\n  \u2022 Consolidated multi-account AWS and acquisition workloads into unified, secure architectures\nTechnologies Utilized: Kubernetes, AWS EKS, ArgoCD, Terraform, Docker, Helm",
+    "tags": [
+      "kubernetes",
+      "aws eks",
+      "argocd",
+      "terraform",
+      "docker",
+      "helm",
+      "distributed_systems",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 180,
+    "metadata": {
+      "role": "Lead Platform Engineer",
+      "milestone_id": "exp-eks-migration"
+    }
+  },
+  {
+    "id": "chunk-exp-cicd-github-migration",
+    "title": "Experience: Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
+    "category": "platform_engineering",
+    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Engineered and executed an enterprise migration of 100+ repositories from Bitbucket to GitHub and GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: GitHub Actions, Bitbucket, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
+    "tags": [
+      "github actions",
+      "bitbucket",
+      "docker",
+      "bash",
+      "python",
+      "security scanning (trivy/snyk)",
+      "platform_engineering",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 185,
+    "metadata": {
+      "role": "Principal Infrastructure / DevOps Lead",
+      "milestone_id": "exp-cicd-github-migration"
+    }
+  },
+  {
+    "id": "chunk-exp-terraform-platform",
+    "title": "Experience: Enterprise Terraform Module Platform & Multi-Cloud Automation",
+    "category": "platform_engineering",
+    "content": "[CAREER EXPERIENCE] Enterprise Terraform Module Platform & Multi-Cloud Automation\nRole: Senior Platform Architect | Category: platform_engineering\nSummary: Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails.\nQuantified Impact & Metrics:\n  \u2022 Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms\n  \u2022 Automated compliance and drift detection for hundreds of cloud resources\n  \u2022 Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies\nTechnologies Utilized: Terraform, Go, AWS, Snowflake, Confluent Cloud, Databricks, Datadog",
+    "tags": [
+      "terraform",
+      "go",
+      "aws",
+      "snowflake",
+      "confluent cloud",
+      "databricks",
+      "datadog",
+      "platform_engineering",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 205,
+    "metadata": {
+      "role": "Senior Platform Architect",
+      "milestone_id": "exp-terraform-platform"
+    }
+  },
+  {
+    "id": "chunk-exp-kafka-confluent-migration",
+    "title": "Experience: Streaming Platform Modernization: AWS MSK to Confluent Cloud",
+    "category": "data_platform",
+    "content": "[CAREER EXPERIENCE] Streaming Platform Modernization: AWS MSK to Confluent Cloud\nRole: Staff Data Infrastructure Engineer | Category: data_platform\nSummary: Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, improving schema registry governance, and streamlining Terraform automation for event-driven microservices.\nQuantified Impact & Metrics:\n  \u2022 Eliminated broker patch downtime and storage rebalancing toil\n  \u2022 Enforced Avro/Protobuf schema evolution governance across producers and consumers\n  \u2022 Significantly lowered infrastructure maintenance overhead\nTechnologies Utilized: Apache Kafka, Confluent Cloud, AWS MSK, Schema Registry, Terraform",
+    "tags": [
+      "apache kafka",
+      "confluent cloud",
+      "aws msk",
+      "schema registry",
+      "terraform",
+      "data_platform",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 183,
+    "metadata": {
+      "role": "Staff Data Infrastructure Engineer",
+      "milestone_id": "exp-kafka-confluent-migration"
+    }
+  },
+  {
+    "id": "chunk-exp-security-appmesh-mtls",
+    "title": "Experience: Zero-Trust Service Mesh & mTLS with AWS App Mesh",
+    "category": "distributed_systems",
+    "content": "[CAREER EXPERIENCE] Zero-Trust Service Mesh & mTLS with AWS App Mesh\nRole: Senior Distributed Systems Engineer | Category: distributed_systems\nSummary: Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across 30+ Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\nQuantified Impact & Metrics:\n  \u2022 100% encrypted in-transit mTLS traffic across internal service graph\n  \u2022 Centralized cryptographic identity without modifying application code\n  \u2022 Enhanced observability via Envoy distributed tracing headers\nTechnologies Utilized: AWS App Mesh, Envoy Proxy, mTLS, Kubernetes, AWS Certificate Manager (ACM)",
+    "tags": [
+      "aws app mesh",
+      "envoy proxy",
+      "mtls",
+      "kubernetes",
+      "aws certificate manager (acm)",
+      "distributed_systems",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 189,
+    "metadata": {
+      "role": "Senior Distributed Systems Engineer",
+      "milestone_id": "exp-security-appmesh-mtls"
+    }
+  },
+  {
+    "id": "chunk-exp-finops-optimization",
+    "title": "Experience: Cloud FinOps & Infrastructure Cost Rationalization",
+    "category": "finops",
+    "content": "[CAREER EXPERIENCE] Cloud FinOps & Infrastructure Cost Rationalization\nRole: Lead Platform Engineer | Category: finops\nSummary: Initiated and executed comprehensive cloud cost-optimization across compute, storage, and networking tiers. Eliminated idle resources, rightsized Kubernetes requests/limits, rationalized third-party SaaS contracts, and tuned data retention policies.\nQuantified Impact & Metrics:\n  \u2022 Saved over $10,000/month in cloud infrastructure costs within the first 60 days\n  \u2022 Implemented automated tagging, cost allocation budgets, and anomaly alerts\nTechnologies Utilized: AWS Cost Explorer, Kubernetes Karpenter / Cluster Autoscaler, Terraform, Datadog FinOps",
+    "tags": [
+      "aws cost explorer",
+      "kubernetes karpenter / cluster autoscaler",
+      "terraform",
+      "datadog finops",
+      "finops",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 170,
+    "metadata": {
+      "role": "Lead Platform Engineer",
+      "milestone_id": "exp-finops-optimization"
+    }
+  },
+  {
+    "id": "chunk-proj-my-agentic-team",
+    "title": "Project: My Agentic Team",
+    "category": "ai_infra",
+    "content": "[TECHNICAL PROJECT] My Agentic Team\nRepository: https://github.com/brandocomando/my_agentic_team (GitHub Stars: 0)\nTagline: A production-minded, local-first compilation of autonomous AI agents automating real-world daily workflows.\nOverview: A sophisticated multi-agent system featuring specialized agents running locally with Ollama and browser automation. Includes a Campsite Finder Agent (automated availability scanner across ReserveCalifornia and Recreation.gov using Chrome DevTools Protocol (CDP), batch grid endpoints, and AI scoring), a Gmail Inbox Triage Agent (sub-50ms priority labeling, noise archiving, daily executive summaries), a Personal Finance Agent (CSV ingestion, deterministic transaction categorization), and a Survey Copilot Chrome extension. Currently integrating Laya for System-1 fast inference decisions.\nKey Architectural Highlights:\n  \u2022 Local-first LLM inference using Ollama, eliminating external API latency and privacy risks\n  \u2022 CDP (Chrome DevTools Protocol) headless browser orchestration for complex web workflows\n  \u2022 Modular agent communication protocol with structured JSON tool invocation\nTech Stack: Python, Ollama, Local LLMs, Chrome DevTools Protocol (CDP), Docker, OAuth2, Laya",
+    "tags": [
+      "python",
+      "ollama",
+      "local llms",
+      "chrome devtools protocol (cdp)",
+      "docker",
+      "oauth2",
+      "laya",
+      "ai_infra",
+      "project",
+      "my agentic team"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 305,
+    "metadata": {
+      "repo": "brandocomando/my_agentic_team",
+      "stars": 0,
+      "project_id": "proj-my-agentic-team"
+    }
+  },
+  {
+    "id": "chunk-proj-prometheus-ingress-exporter",
+    "title": "Project: Prometheus Ingress Status Exporter",
+    "category": "distributed_systems",
+    "content": "[TECHNICAL PROJECT] Prometheus Ingress Status Exporter\nRepository: https://github.com/brandocomando/prometheus-ingress-status-exporter (GitHub Stars: 2)\nTagline: Kubernetes controller & exporter that discovers Ingress endpoints dynamically and exports response metrics to Prometheus.\nOverview: A high-performance Go daemon that connects to the Kubernetes API, watches Ingress resources dynamically across namespaces, executes synthetic HTTP/HTTPS health checks against host rules and TLS configurations, and exports Prometheus-compatible response codes, latency percentiles, and availability metrics.\nKey Architectural Highlights:\n  \u2022 Written in pure Go using official Kubernetes client-go and Prometheus client libraries\n  \u2022 Asynchronous goroutine worker pools with rate-limiting to prevent probing denial-of-service\n  \u2022 Provides instant cluster-wide edge health observability for SRE and platform teams\nTech Stack: Go (Golang), Kubernetes (client-go), Prometheus, Docker, SRE / Observability",
+    "tags": [
+      "go (golang)",
+      "kubernetes (client-go)",
+      "prometheus",
+      "docker",
+      "sre / observability",
+      "distributed_systems",
+      "project",
+      "prometheus ingress status exporter"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 248,
+    "metadata": {
+      "repo": "brandocomando/prometheus-ingress-status-exporter",
+      "stars": 2,
+      "project_id": "proj-prometheus-ingress-exporter"
+    }
+  },
+  {
+    "id": "chunk-proj-terraform-provider-neo4j",
+    "title": "Project: Terraform Provider for Neo4j",
+    "category": "platform_engineering",
+    "content": "[TECHNICAL PROJECT] Terraform Provider for Neo4j\nRepository: https://github.com/brandocomando/terraform-provider-neo4j (GitHub Stars: 0)\nTagline: Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.\nOverview: Developed a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.\nKey Architectural Highlights:\n  \u2022 Implemented Terraform Plugin SDK v2 / Plugin Framework specifications\n  \u2022 State management with CRUD lifecycle operations and schema validation\n  \u2022 Empowers platform teams to manage graph databases alongside standard cloud infrastructure\nTech Stack: Go, Terraform Plugin SDK, Neo4j, Graph Databases, GitOps",
+    "tags": [
+      "go",
+      "terraform plugin sdk",
+      "neo4j",
+      "graph databases",
+      "gitops",
+      "platform_engineering",
+      "project",
+      "terraform provider for neo4j"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 205,
+    "metadata": {
+      "repo": "brandocomando/terraform-provider-neo4j",
+      "stars": 0,
+      "project_id": "proj-terraform-provider-neo4j"
+    }
+  },
+  {
+    "id": "chunk-proj-wezterm-agent-deck",
+    "title": "Project: WezTerm Agent Deck",
+    "category": "ai_infra",
+    "content": "[TECHNICAL PROJECT] WezTerm Agent Deck\nRepository: https://github.com/brandocomando/wezterm-agent-deck (GitHub Stars: 0)\nTagline: Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.\nOverview: A Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays native tab indicators for agent states (working, waiting for input, idle, inactive) and triggers desktop notifications when an agent finishes or requires attention.\nKey Architectural Highlights:\n  \u2022 Lightweight event hooks in Lua with zero CPU polling overhead\n  \u2022 Desktop notifications and audio cues via terminal-notifier\n  \u2022 Streamlines human-in-the-loop developer interaction with multiple parallel autonomous coding agents\nTech Stack: Lua, WezTerm, AI Agent Tooling, Shell",
+    "tags": [
+      "lua",
+      "wezterm",
+      "ai agent tooling",
+      "shell",
+      "ai_infra",
+      "project",
+      "wezterm agent deck"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 208,
+    "metadata": {
+      "repo": "brandocomando/wezterm-agent-deck",
+      "stars": 0,
+      "project_id": "proj-wezterm-agent-deck"
+    }
+  },
+  {
+    "id": "chunk-proj-firstmate",
+    "title": "Project: FirstMate CLI",
+    "category": "ai_infra",
+    "content": "[TECHNICAL PROJECT] FirstMate CLI\nRepository: https://github.com/brandocomando/firstmate (GitHub Stars: 0)\nTagline: Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.\nOverview: A lightweight terminal tool that provides unified orchestration across multi-agent workflows, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents.\nKey Architectural Highlights:\n  \u2022 Clean CLI ergonomics for agent crew coordination\n  \u2022 Decoupled agent execution contexts\nTech Stack: Shell / Bash, Agentic Workflows, Terminal UI",
+    "tags": [
+      "shell / bash",
+      "agentic workflows",
+      "terminal ui",
+      "ai_infra",
+      "project",
+      "firstmate cli"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 145,
+    "metadata": {
+      "repo": "brandocomando/firstmate",
+      "stars": 0,
+      "project_id": "proj-firstmate"
+    }
+  },
+  {
+    "id": "chunk-proj-portfolio-platform",
+    "title": "Project: FinOps-Optimized Cloud Portfolio & AI MLOps Platform",
+    "category": "platform_engineering",
+    "content": "[TECHNICAL PROJECT] FinOps-Optimized Cloud Portfolio & AI MLOps Platform\nRepository: https://github.com/brandocomando/portfolio (GitHub Stars: 0)\nTagline: Production-grade, scale-to-zero GCP portfolio featuring hybrid RAG, Medallion data pipeline, CI/CD, and Terraform.\nOverview: An end-to-end cloud platform hosting a modern React SPA on Firebase Hosting (CDN), a FastAPI backend on Cloud Run scaling to zero ($0 idle cost), and an in-memory Hybrid RAG engine (Dense + BM25 + Reciprocal Rank Fusion) answering queries via Gemini Flash. Features multi-tier token bucket rate limiting, Firebase Auth recruiter lead capture, a Medallion Data Lakehouse, and an offline LLM-as-a-judge evaluation suite running as a quality gate in GitHub Actions. 100% Terraform IaC with Workload Identity Federation (zero static keys).\nKey Architectural Highlights:\n  \u2022 Strict FinOps compliance: $0/month idle cost via Cloud Run and Firebase Hosting\n  \u2022 Workload Identity Federation (OIDC) eliminating static GCP credentials in CI/CD\n  \u2022 Continuous evaluation CI gate testing context recall and answer faithfulness\nTech Stack: Terraform, Google Cloud Run, Firebase Hosting, FastAPI, Python, React / Vite / TypeScript, Gemini 2.0 Flash, Hybrid Search (BM25 + Dense RRF), GitHub Actions (OIDC/WIF)",
+    "tags": [
+      "terraform",
+      "google cloud run",
+      "firebase hosting",
+      "fastapi",
+      "python",
+      "react / vite / typescript",
+      "gemini 2.0 flash",
+      "hybrid search (bm25 + dense rrf)",
+      "github actions (oidc/wif)",
+      "platform_engineering",
+      "project",
+      "finops-optimized cloud portfolio & ai mlops platform"
+    ],
+    "source_file": "projects.yaml",
+    "token_estimate": 318,
+    "metadata": {
+      "repo": "brandocomando/portfolio",
+      "stars": 0,
+      "project_id": "proj-portfolio-platform"
+    }
+  },
+  {
+    "id": "chunk-skills-languages-and-runtimes",
+    "title": "Skills: Languages & Runtimes",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: LANGUAGES & RUNTIMES]\nSkills and Production Proof-Points:\n  \u2022 Go (Golang) (Expert): Kubernetes controllers (client-go), Terraform providers (Plugin SDK v2), Prometheus exporters, concurrent CLI daemons.\n  \u2022 Python (Expert): FastAPI, PyTorch / local LLM inference, Pydantic data validation, data pipelines, automated browser agents (CDP).\n  \u2022 Bash / Shell (Expert): Production Linux systems, CI/CD runner automation, terminal dev environments, POSIX scripting.\n  \u2022 TypeScript / JavaScript (Proficient): React, Vite, Node.js tooling, modern frontend applications, state management.\n  \u2022 Lua (Proficient): WezTerm plugins, Neovim configuration, event-driven terminal hooks.\n  \u2022 SQL (Proficient): Snowflake data warehouse modeling, PostgreSQL query tuning.",
+    "tags": [
+      "go (golang)",
+      "python",
+      "bash / shell",
+      "typescript / javascript",
+      "lua",
+      "sql",
+      "skills",
+      "languages & runtimes"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 192,
+    "metadata": {
+      "category_name": "Languages & Runtimes",
+      "skills_count": 6
+    }
+  },
+  {
+    "id": "chunk-skills-cloud-and-infrastructure-as-code",
+    "title": "Skills: Cloud & Infrastructure as Code",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: CLOUD & INFRASTRUCTURE AS CODE]\nSkills and Production Proof-Points:\n  \u2022 Terraform / OpenTofu (Expert): Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go.\n  \u2022 Amazon Web Services (AWS) (Expert): Multi-account AWS Organizations, EKS, VPC networking, App Mesh, MSK, IAM zero-trust, CloudWatch, Cost Explorer.\n  \u2022 Google Cloud Platform (GCP) (Expert): Cloud Run, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Firestore, Cloud Storage.\n  \u2022 FinOps & Cost Optimization (Expert): Architectural rightsizing, serverless scale-to-zero, saved $10K+/month in enterprise infrastructure rationalization.",
+    "tags": [
+      "terraform / opentofu",
+      "amazon web services (aws)",
+      "google cloud platform (gcp)",
+      "finops & cost optimization",
+      "skills",
+      "cloud & infrastructure as code"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 181,
+    "metadata": {
+      "category_name": "Cloud & Infrastructure as Code",
+      "skills_count": 4
+    }
+  },
+  {
+    "id": "chunk-skills-containers-and-orchestration",
+    "title": "Skills: Containers & Orchestration",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.",
+    "tags": [
+      "kubernetes (k8s)",
+      "argocd / gitops",
+      "docker",
+      "helm",
+      "skills",
+      "containers & orchestration"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 143,
+    "metadata": {
+      "category_name": "Containers & Orchestration",
+      "skills_count": 4
+    }
+  },
+  {
+    "id": "chunk-skills-ai-infrastructure-and-mlops",
+    "title": "Skills: AI Infrastructure & MLOps",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Expert): Local-first LLMs, multi-agent coordination (FirstMate, My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Expert): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Expert): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Expert): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.",
+    "tags": [
+      "autonomous agent architectures",
+      "rag & retrieval systems",
+      "mlops evaluation & quality gates",
+      "local llm inference",
+      "skills",
+      "ai infrastructure & mlops"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 170,
+    "metadata": {
+      "category_name": "AI Infrastructure & MLOps",
+      "skills_count": 4
+    }
+  },
+  {
+    "id": "chunk-skills-data-platforms-and-streaming",
+    "title": "Skills: Data Platforms & Streaming",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: DATA PLATFORMS & STREAMING]\nSkills and Production Proof-Points:\n  \u2022 Apache Kafka & Confluent Cloud (Expert): Enterprise event streaming, schema registry governance (Avro/Protobuf), topic management with Terraform, broker migration from MSK.\n  \u2022 Snowflake & Databricks (Proficient): Data lakehouse infrastructure, role-based access control, Terraform automation.\n  \u2022 DataOps & Data Contracts (Expert): Medallion data architecture (Bronze/Silver/Gold), Pydantic v2 data contract enforcement, automated data validation.",
+    "tags": [
+      "apache kafka & confluent cloud",
+      "snowflake & databricks",
+      "dataops & data contracts",
+      "skills",
+      "data platforms & streaming"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 133,
+    "metadata": {
+      "category_name": "Data Platforms & Streaming",
+      "skills_count": 3
+    }
+  },
+  {
+    "id": "chunk-skills-observability-and-sre",
+    "title": "Skills: Observability & SRE",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: OBSERVABILITY & SRE]\nSkills and Production Proof-Points:\n  \u2022 Prometheus & Exporters (Expert): Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards.\n  \u2022 Datadog (Expert): APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation.\n  \u2022 OpenTelemetry (OTel) (Proficient): Distributed trace context propagation (W3C traceparent), span creation for LLM and retrieval latency.\n  \u2022 Service Mesh (AWS App Mesh / Envoy) (Expert): Mutual TLS (mTLS) enforcement, traffic routing, circuit breakers, distributed proxy telemetry.",
+    "tags": [
+      "prometheus & exporters",
+      "datadog",
+      "opentelemetry (otel)",
+      "service mesh (aws app mesh / envoy)",
+      "skills",
+      "observability & sre"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 153,
+    "metadata": {
+      "category_name": "Observability & SRE",
+      "skills_count": 4
+    }
+  }
+]

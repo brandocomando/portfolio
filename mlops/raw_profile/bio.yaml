@@ -1,0 +1,22 @@
+name: "Brandon Foster"
+handle: "brandocomando"
+title: "Senior Platform & MLOps Engineer"
+location: "United States"
+headline: "Building high-throughput distributed systems, sovereign AI infrastructure, and autonomous agent workflows."
+email: "brandon@example.com"
+github: "https://github.com/brandocomando"
+linkedin: "https://linkedin.com/in/brandon-foster"
+summary: >
+  Senior Platform, Distributed Systems, and MLOps Engineer with deep expertise in architecting
+  cloud-native infrastructure, high-concurrency microservices, and AI-powered systems.
+  Specialized in Kubernetes (EKS/GKE), GitOps (ArgoCD), Infrastructure as Code (Terraform),
+  enterprise streaming platforms (Kafka/Confluent), zero-trust security (mTLS, App Mesh),
+  and local/production AI agent architectures. Proven track record leading multi-account cloud
+  consolidations, large-scale Bitbucket-to-GitHub migrations, and saving over $10K/month in cloud FinOps optimizations.
+domains:
+  - "Platform Engineering & Infrastructure as Code (Terraform)"
+  - "Distributed Systems & Service Mesh (Kubernetes, AWS App Mesh, mTLS)"
+  - "AI Infrastructure & MLOps (Local LLMs, Agentic Teams, RAG Pipelines)"
+  - "Data Platforms & Streaming (Kafka, Confluent Cloud, Snowflake, Databricks)"
+  - "Observability & SRE (Prometheus, Datadog, Grafana, OpenTelemetry)"
+  - "FinOps & Cloud Cost Optimization"

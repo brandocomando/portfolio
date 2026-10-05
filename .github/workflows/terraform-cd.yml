@@ -34,6 +34,8 @@ jobs:
           service_account: ${{ secrets.GCP_WIF_SA_EMAIL }}
 
       - name: Terraform Init & Apply
+        env:
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
         run: |
           cd infra/envs/prod
           terraform init -backend-config="bucket=${{ secrets.GCP_TF_STATE_BUCKET }}"

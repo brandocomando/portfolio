@@ -8,11 +8,9 @@ terraform {
     }
   }
 
-  # Configured via -backend-config in CI/CD:
-  # backend "gcs" {
-  #   bucket = "portfolio-terraform-state-<PROJECT_ID>"
-  #   prefix = "terraform/state/dev"
-  # }
+  backend "gcs" {
+    prefix = "terraform/state/dev"
+  }
 }
 
 provider "google" {

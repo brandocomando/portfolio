@@ -1,18 +1,7 @@
-variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
-}
-
-variable "github_repository" {
-  description = "GitHub repository (owner/repo) permitted to authenticate"
-  type        = string
-  default     = "brandocomando/portfolio"
-}
-
 # Workload Identity Pool
 resource "google_iam_workload_identity_pool" "github_pool" {
   project                   = var.project_id
-  workload_identity_pool_id = "github-pool"
+  workload_identity_pool_id = var.pool_id
   display_name              = "GitHub Actions Pool"
   description               = "Identity pool for GitHub Actions OIDC authentication"
 }
@@ -21,7 +10,7 @@ resource "google_iam_workload_identity_pool" "github_pool" {
 resource "google_iam_workload_identity_pool_provider" "github_provider" {
   project                            = var.project_id
   workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github-provider"
+  workload_identity_pool_provider_id = var.provider_id
   display_name                       = "GitHub Actions Provider"
 
   attribute_mapping = {
@@ -40,7 +29,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
 # Service Account for CI/CD
 resource "google_service_account" "github_actions_sa" {
   project      = var.project_id
-  account_id   = "sa-github-actions"
+  account_id   = var.service_account_id
   display_name = "GitHub Actions CI/CD Service Account"
 }
 
@@ -68,12 +57,4 @@ resource "google_project_iam_member" "sa_user" {
   project = var.project_id
   role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.github_actions_sa.email}"
-}
-
-output "workload_identity_provider_name" {
-  value = google_iam_workload_identity_pool_provider.github_provider.name
-}
-
-output "service_account_email" {
-  value = google_service_account.github_actions_sa.email
 }

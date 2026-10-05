@@ -10,7 +10,7 @@
       {
         "source": "/api/**",
         "run": {
-          "serviceId": "portfolio-backend",
+          "serviceId": "portfolio-backend-prod",
           "region": "us-central1"
         }
       },

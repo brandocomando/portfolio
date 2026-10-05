@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY backend/requirements.txt mlops/requirements.txt ./
-RUN pip install --no-cache-dir --prefix=/install -r requirements.txt -r mlops/requirements.txt
+COPY backend/requirements.txt ./backend-requirements.txt
+COPY mlops/requirements.txt ./mlops-requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r backend-requirements.txt -r mlops-requirements.txt
 
 # ==========================================
 # Stage 2: Final Minimal Runtime

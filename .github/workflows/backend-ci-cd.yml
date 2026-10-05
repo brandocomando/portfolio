@@ -72,7 +72,7 @@ jobs:
 
       - name: Deploy to Cloud Run (Scale-to-Zero)
         run: |
-          gcloud run deploy portfolio-backend \
+          gcloud run deploy portfolio-backend-prod \
             --image us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/portfolio-backend/api:${{ github.sha }} \
             --region us-central1 \
             --platform managed \

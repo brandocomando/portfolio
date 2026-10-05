@@ -1,5 +1,5 @@
 variable "project_id" {
-  description = "Google Cloud Project ID for Production"
+  description = "Google Cloud Project ID for Development"
   type        = string
 }
 
@@ -12,7 +12,7 @@ variable "region" {
 variable "environment" {
   description = "Environment identifier"
   type        = string
-  default     = "prod"
+  default     = "dev"
 }
 
 variable "github_repository" {
@@ -22,7 +22,7 @@ variable "github_repository" {
 }
 
 variable "firebase_project_id" {
-  description = "Firebase Project ID (often same as GCP project ID)"
+  description = "Firebase Project ID"
   type        = string
   default     = ""
 }

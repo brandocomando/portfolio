@@ -1,0 +1,5 @@
+project_id          = "your-dev-gcp-project-id"
+region              = "us-central1"
+environment         = "dev"
+github_repository   = "brandocomando/portfolio"
+firebase_project_id = "your-dev-gcp-project-id"

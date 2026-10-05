@@ -1,43 +1,8 @@
-variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
-}
-
-variable "region" {
-  description = "GCP Region"
-  type        = string
-  default     = "us-central1"
-}
-
-variable "service_name" {
-  description = "Cloud Run service name"
-  type        = string
-  default     = "portfolio-backend"
-}
-
-variable "container_image" {
-  description = "Container image URI"
-  type        = string
-  default     = "us-docker.pkg.dev/cloudrun/container/hello" # Default placeholder until first build
-}
-
-variable "firebase_project_id" {
-  description = "Firebase Project ID for auth validation"
-  type        = string
-  default     = ""
-}
-
-variable "gemini_secret_id" {
-  description = "Secret Manager secret ID for Gemini API key"
-  type        = string
-  default     = "gemini-api-key"
-}
-
-# Service Account for Cloud Run
+# Service Account for Cloud Run Runtime
 resource "google_service_account" "cloud_run_sa" {
   project      = var.project_id
-  account_id   = "sa-portfolio-backend"
-  display_name = "Cloud Run Service Account for Portfolio Backend"
+  account_id   = "sa-portfolio-backend-${var.environment}"
+  display_name = "Cloud Run Service Account for Portfolio Backend (${var.environment})"
 }
 
 # Grant Firestore User role to Cloud Run SA
@@ -49,17 +14,23 @@ resource "google_project_iam_member" "firestore_user" {
 
 # Cloud Run v2 Service
 resource "google_cloud_run_v2_service" "backend" {
-  name     = var.service_name
+  name     = "${var.service_name}-${var.environment}"
   location = var.region
   project  = var.project_id
   ingress  = "INGRESS_TRAFFIC_ALL"
+
+  labels = {
+    environment = var.environment
+    managed_by  = "terraform"
+    repository  = "portfolio"
+  }
 
   template {
     service_account = google_service_account.cloud_run_sa.email
 
     scaling {
-      min_instance_count = 0 # FinOps Scale-to-Zero ($0 idle)
-      max_instance_count = 5 # Ceiling against runaway billing
+      min_instance_count = var.min_instances # FinOps Scale-to-Zero ($0 idle)
+      max_instance_count = var.max_instances # Ceiling against runaway billing
     }
 
     containers {
@@ -67,8 +38,8 @@ resource "google_cloud_run_v2_service" "backend" {
 
       resources {
         limits = {
-          cpu    = "1"
-          memory = "512Mi"
+          cpu    = var.cpu_limit
+          memory = var.memory_limit
         }
         cpu_idle = true # CPU allocated only during request processing
       }
@@ -79,7 +50,7 @@ resource "google_cloud_run_v2_service" "backend" {
 
       env {
         name  = "ENV"
-        value = "production"
+        value = var.environment
       }
 
       env {
@@ -130,23 +101,12 @@ resource "google_cloud_run_v2_service" "backend" {
   }
 }
 
-# Allow public invocations
+# Allow public invocations if enabled
 resource "google_cloud_run_v2_service_iam_member" "public_access" {
+  count    = var.allow_unauthenticated ? 1 : 0
   project  = var.project_id
   location = var.region
   name     = google_cloud_run_v2_service.backend.name
   role     = "roles/run.invoker"
   member   = "allUsers"
-}
-
-output "service_name" {
-  value = google_cloud_run_v2_service.backend.name
-}
-
-output "service_url" {
-  value = google_cloud_run_v2_service.backend.uri
-}
-
-output "service_account_email" {
-  value = google_service_account.cloud_run_sa.email
 }

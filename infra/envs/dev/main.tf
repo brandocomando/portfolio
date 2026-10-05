@@ -1,5 +1,6 @@
 # ==============================================================================
-# Production Environment Composition (Root Module)
+# Development Environment Composition (Root Module)
+# Cost-optimized: scaled down to 2 instances max, 256Mi memory
 # ==============================================================================
 
 # 1. APIs Enablement
@@ -18,16 +19,16 @@ module "artifact_registry" {
   depends_on = [module.apis]
 }
 
-# 3. Cloud Run Service (Production Scale: max 5 instances, 512Mi)
+# 3. Cloud Run Service (Dev Scale: max 2 instances, 256Mi for minimal footprint)
 module "cloud_run" {
   source              = "../../modules/cloud_run"
   project_id          = var.project_id
   region              = var.region
   environment         = var.environment
   min_instances       = 0
-  max_instances       = 5
+  max_instances       = 2
   cpu_limit           = "1"
-  memory_limit        = "512Mi"
+  memory_limit        = "256Mi"
   firebase_project_id = var.firebase_project_id != "" ? var.firebase_project_id : var.project_id
 
   depends_on = [module.apis]
@@ -35,9 +36,12 @@ module "cloud_run" {
 
 # 4. Workload Identity Federation (WIF) for Keyless GitHub Actions OIDC
 module "iam_wif" {
-  source            = "../../modules/iam_wif"
-  project_id        = var.project_id
-  github_repository = var.github_repository
+  source             = "../../modules/iam_wif"
+  project_id         = var.project_id
+  github_repository  = var.github_repository
+  pool_id            = "github-pool-dev"
+  provider_id        = "github-provider-dev"
+  service_account_id = "sa-gha-dev"
 
   depends_on = [module.apis]
 }

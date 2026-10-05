@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${REPO_ROOT}"
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -94,7 +98,8 @@ fi
 
 # 4. Generate local terraform.tfvars
 echo -e "\n${CYAN}Step 4: Generating infra/envs/prod/terraform.tfvars...${NC}"
-cat <<EOF > infra/envs/prod/terraform.tfvars
+mkdir -p "${REPO_ROOT}/infra/envs/prod"
+cat <<EOF > "${REPO_ROOT}/infra/envs/prod/terraform.tfvars"
 project_id          = "${GCP_PROJECT_ID}"
 region              = "${REGION}"
 github_repository   = "${GITHUB_REPO}"
@@ -104,7 +109,7 @@ echo -e "${GREEN}✓ Created infra/envs/prod/terraform.tfvars${NC}"
 
 # 5. Initialize Terraform with remote backend
 echo -e "\n${CYAN}Step 5: Initializing Terraform with remote state backend...${NC}"
-cd infra/envs/prod
+cd "${REPO_ROOT}/infra/envs/prod"
 terraform init -backend-config="bucket=${STATE_BUCKET}" -reconfigure
 
 echo -e "\n${GREEN}================================================================${NC}"

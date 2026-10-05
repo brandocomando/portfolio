@@ -7,8 +7,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_API_URL || 'https://portfolio-backend-prod-339039725614.us-central1.run.app',
         changeOrigin: true,
+        secure: true,
       }
     }
   },

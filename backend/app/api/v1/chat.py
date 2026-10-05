@@ -11,6 +11,7 @@ from backend.app.core.security import UserIdentity, get_current_user_optional
 from backend.app.core.rate_limiter import RateLimitStatus, rate_limit_gate
 from backend.app.services.retrieval_service import retrieval_service
 from backend.app.services.llm_client import llm_client
+from backend.app.services.intent import classify_intent, IntentType
 from backend.app.services.firestore_service import firestore_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -24,20 +25,26 @@ async def chat_stream(
     user: UserIdentity = Depends(get_current_user_optional),
     rate_status: RateLimitStatus = Depends(rate_limit_gate)
 ):
-    """Streams token-by-token answer grounded in Brandon's portfolio knowledge base."""
-    # 1. Hybrid Search Retrieval
-    raw_sources = retrieval_service.retrieve(request.question, top_k=3)
+    """Streams conversational token-by-token answer grounded in Brandon's portfolio."""
+    # 1. Intent Classification
+    intent_type, _ = classify_intent(request.question)
 
-    formatted_sources = [
-        {
-            "id": s["id"],
-            "title": s["title"],
-            "category": s["category"],
-            "rrf_score": s["rrf_score"],
-            "excerpt": s["content"][:160] + "..."
-        }
-        for s in raw_sources
-    ]
+    if intent_type != IntentType.PORTFOLIO_SEARCH:
+        # Non-search queries (greetings, pings, math, general off-topic, guardrails)
+        raw_sources = []
+        formatted_sources = []
+    else:
+        # Genuine technical/portfolio query
+        raw_sources = retrieval_service.retrieve(request.question, top_k=3)
+        formatted_sources = [
+            {
+                "id": s["id"],
+                "title": s["title"].replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", ""),
+                "category": s["category"],
+                "rrf_score": s["rrf_score"],
+            }
+            for s in raw_sources
+        ]
 
     # 2. SSE Generator
     async def event_generator() -> AsyncGenerator[str, None]:
@@ -111,4 +118,3 @@ async def chat_langgraph(
         "remaining_quota": rate_status.remaining,
         "tier": rate_status.tier
     }
-

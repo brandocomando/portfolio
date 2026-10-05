@@ -169,7 +169,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       {/* Quota Upgrade Banner (if anonymous or low) */}
       {!quota?.authenticated && (
         <div className="px-4 py-2 bg-gradient-to-r from-cyan-950/60 to-indigo-950/60 border-b border-cyan-800/40 flex items-center justify-between text-xs">
-          <span className="text-cyan-300 font-medium">Anonymous visitor limit: 5 questions</span>
+          <span className="text-cyan-300 font-medium">
+            Anonymous visitor limit: {quota?.limit ?? 10} questions
+          </span>
           <button
             onClick={onOpenAuth}
             className="text-white bg-cyan-600 hover:bg-cyan-500 px-2 py-0.5 rounded text-[11px] font-semibold transition-colors"
@@ -203,41 +205,18 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             >
               <div className="whitespace-pre-wrap">{m.content}</div>
 
-              {/* Retrieved Sources Dropdown */}
+              {/* Referenced Topics */}
               {m.sources && m.sources.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-slate-800 text-[11px]">
-                  <button
-                    onClick={() =>
-                      setExpandedSources((prev) => ({ ...prev, [m.id]: !prev[m.id] }))
-                    }
-                    className="flex items-center gap-1 text-slate-400 hover:text-cyan-300 transition-colors font-mono"
-                  >
-                    <span>{m.sources.length} Verified Sources Retrieved</span>
-                    {expandedSources[m.id] ? (
-                      <ChevronUp className="w-3 h-3" />
-                    ) : (
-                      <ChevronDown className="w-3 h-3" />
-                    )}
-                  </button>
-
-                  {expandedSources[m.id] && (
-                    <div className="mt-2 space-y-1.5">
-                      {m.sources.map((s, idx) => (
-                        <div
-                          key={idx}
-                          className="p-2 rounded bg-slate-950/80 border border-slate-800/80"
-                        >
-                          <div className="font-semibold text-cyan-300 flex items-center justify-between">
-                            <span>{s.title}</span>
-                            <span className="text-[10px] text-slate-500 font-mono">
-                              RRF: {s.rrf_score?.toFixed(4)}
-                            </span>
-                          </div>
-                          <p className="text-slate-400 text-[10px] mt-0.5">{s.excerpt}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-mono text-slate-500">Related:</span>
+                  {m.sources.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-full bg-slate-800/80 text-[10px] text-cyan-300 font-medium border border-slate-700/60"
+                    >
+                      {s.title}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/leads", tags=["leads"])
 async def get_user_quota(user: UserIdentity = Depends(get_current_user_optional)):
     """Returns current query quota and authentication tier for the client."""
     # Check without consuming a token
-    status = rate_limiter.check_limit(user)
+    status = rate_limiter.get_quota_status(user)
     return {
         "authenticated": user.is_authenticated,
         "tier": status.tier,

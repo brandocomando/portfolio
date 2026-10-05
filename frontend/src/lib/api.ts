@@ -2,8 +2,23 @@ import { QuotaStatus } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
+export function getSessionId(): string {
+  try {
+    let sid = localStorage.getItem('portfolio_session_id');
+    if (!sid) {
+      sid = 'sid_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      localStorage.setItem('portfolio_session_id', sid);
+    }
+    return sid;
+  } catch (e) {
+    return 'fallback_session';
+  }
+}
+
 export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus> {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    'X-Session-ID': getSessionId()
+  };
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`;
   }
@@ -14,8 +29,8 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
       return {
         authenticated: !!authToken,
         tier: authToken ? 'authenticated' : 'anonymous',
-        limit: authToken ? 30 : 5,
-        remaining: authToken ? 30 : 5,
+        limit: authToken ? 30 : 10,
+        remaining: authToken ? 30 : 10,
         reset_seconds: 86400
       };
     }
@@ -24,8 +39,8 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
     return {
       authenticated: !!authToken,
       tier: authToken ? 'authenticated' : 'anonymous',
-      limit: authToken ? 30 : 5,
-      remaining: authToken ? 30 : 5,
+      limit: authToken ? 30 : 10,
+      remaining: authToken ? 30 : 10,
       reset_seconds: 86400
     };
   }
@@ -51,7 +66,8 @@ export async function streamChat({
   onError
 }: StreamChatParams): Promise<void> {
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Session-ID': getSessionId()
   };
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`;

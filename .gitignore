@@ -58,6 +58,8 @@ node_modules/
 dist/
 .vite/
 npm-debug.log*
+.firebase/
+firebase-debug.log*
 yarn-debug.log*
 yarn-error.log*
 

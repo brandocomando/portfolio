@@ -41,7 +41,7 @@ jobs:
           npm run build
 
       - name: Deploy to Firebase Hosting (Production)
-        if: github.ref == 'refs/heads/main' && env.FIREBASE_TOKEN != ''
+        if: github.ref == 'refs/heads/main' && env.FIREBASE_KEY != ''
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
@@ -49,4 +49,4 @@ jobs:
           channelId: live
           projectId: '${{ secrets.GCP_PROJECT_ID }}'
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

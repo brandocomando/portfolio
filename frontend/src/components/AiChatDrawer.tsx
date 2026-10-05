@@ -107,7 +107,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 ? {
                     ...msg,
                     content:
-                      "⚠️ **Daily Query Limit Reached.** You've used all 5 questions available to anonymous visitors. Sign in with Google or GitHub to unlock 30 daily questions and connect directly with Brandon!"
+                      err?.message ||
+                      "⚠️ **Daily Query Limit Reached.** You've used all 10 questions available to anonymous visitors. Sign in with Google or GitHub to unlock 30 daily questions and connect directly with Brandon!"
                   }
                 : msg
             )

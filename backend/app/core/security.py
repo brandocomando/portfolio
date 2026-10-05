@@ -26,7 +26,12 @@ class UserIdentity(BaseModel):
 
 
 def get_client_ip(request: Request) -> str:
-    """Extracts client IP, respecting trusted proxy headers."""
+    """Extracts client IP, respecting trusted edge and proxy headers."""
+    for header in ["fastly-client-ip", "cf-connecting-ip", "x-real-ip", "x-client-ip"]:
+        val = request.headers.get(header)
+        if val:
+            return val.strip()
+
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
         # Take the leftmost client IP
@@ -40,11 +45,13 @@ async def get_current_user_optional(
 ) -> UserIdentity:
     """Extracts user identity from Firebase Bearer token if present, otherwise returns Anonymous."""
     client_ip = get_client_ip(request)
+    session_id = request.headers.get("x-session-id")
+    anon_key = f"{client_ip}:{session_id.strip()}" if session_id and session_id.strip() else client_ip
 
     if not authorization or not authorization.startswith("Bearer "):
         return UserIdentity(
             is_authenticated=False,
-            uid=f"anon:{client_ip}",
+            uid=f"anon:{anon_key}",
             client_ip=client_ip
         )
 

@@ -45,7 +45,7 @@ class InMemoryRateLimiter:
             del self._buckets[key]
         self._last_cleanup = now
 
-    def check_limit(self, user: UserIdentity) -> RateLimitStatus:
+    def check_limit(self, user: UserIdentity, consume: bool = True) -> RateLimitStatus:
         now = time.time()
         window = float(settings.RATE_LIMIT_WINDOW_SECONDS)
 
@@ -56,7 +56,7 @@ class InMemoryRateLimiter:
             limit = settings.AUTH_DAILY_LIMIT
             tier = "authenticated"
         else:
-            key = f"anon:{user.client_ip}"
+            key = user.uid if user.uid.startswith("anon:") else f"anon:{user.client_ip}"
             limit = settings.ANON_DAILY_LIMIT
             tier = "anonymous"
 
@@ -65,9 +65,23 @@ class InMemoryRateLimiter:
         active_timestamps = [ts for ts in timestamps if now - ts < window]
         self._buckets[key] = active_timestamps
 
-        if len(active_timestamps) >= limit:
+        remaining = max(0, limit - len(active_timestamps))
+        reset_seconds = int(window)
+        if active_timestamps:
             oldest = active_timestamps[0]
             reset_seconds = int(max(1, window - (now - oldest)))
+
+        # Read-only check: never consume tokens and never raise 429
+        if not consume:
+            return RateLimitStatus(
+                allowed=remaining > 0,
+                limit=limit,
+                remaining=remaining,
+                reset_seconds=reset_seconds,
+                tier=tier
+            )
+
+        if len(active_timestamps) >= limit:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -78,8 +92,8 @@ class InMemoryRateLimiter:
                     "reset_seconds": reset_seconds,
                     "requires_auth": not user.is_authenticated,
                     "message": (
-                        "You've reached your daily limit of 5 questions as an anonymous visitor. "
-                        "Sign in with Google or GitHub to unlock 30 daily questions and connect with Brandon!"
+                        f"You've reached your daily limit of {limit} questions as an anonymous visitor. "
+                        "Sign in with Google or GitHub to unlock 30 daily questions and connect directly with Brandon!"
                         if not user.is_authenticated
                         else f"You've reached your authenticated limit of {limit} questions per day. Quota resets in {reset_seconds // 3600}h {(reset_seconds % 3600) // 60}m."
                     )
@@ -90,7 +104,6 @@ class InMemoryRateLimiter:
         active_timestamps.append(now)
         self._buckets[key] = active_timestamps
         remaining = max(0, limit - len(active_timestamps))
-        reset_seconds = int(window)
 
         return RateLimitStatus(
             allowed=True,
@@ -100,6 +113,10 @@ class InMemoryRateLimiter:
             tier=tier
         )
 
+    def get_quota_status(self, user: UserIdentity) -> RateLimitStatus:
+        """Inspects current quota without consuming any tokens or raising 429."""
+        return self.check_limit(user, consume=False)
+
 
 rate_limiter = InMemoryRateLimiter()
 
@@ -107,4 +124,4 @@ rate_limiter = InMemoryRateLimiter()
 def rate_limit_gate(
     user: UserIdentity = Depends(get_current_user_optional)
 ) -> RateLimitStatus:
-    return rate_limiter.check_limit(user)
+    return rate_limiter.check_limit(user, consume=True)

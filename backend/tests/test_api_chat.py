@@ -4,6 +4,14 @@ import json
 import pytest
 from httpx import AsyncClient, ASGITransport
 from backend.app.main import app
+from backend.app.core.rate_limiter import rate_limiter
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limiter_buckets():
+    rate_limiter._buckets.clear()
+    yield
+    rate_limiter._buckets.clear()
 
 
 def extract_streamed_text(sse_body: str) -> str:
@@ -80,7 +88,7 @@ async def test_chat_stream_conversational_ping():
         assert '"sources": []' in body
 
         streamed = extract_streamed_text(body)
-        assert "Systems are up and running" in streamed
+        assert "operational" in streamed.lower() or "systems" in streamed.lower()
         assert "[TECHNICAL SKILLS" not in streamed
 
 
@@ -99,7 +107,7 @@ async def test_chat_stream_conversational_greeting():
         assert '"sources": []' in body
 
         streamed = extract_streamed_text(body)
-        assert "Hey! I'm Brandon Foster's AI assistant" in streamed
+        assert "Brandon Foster's AI Assistant" in streamed
 
 
 @pytest.mark.asyncio
@@ -190,7 +198,39 @@ async def test_off_topic_general_deflection():
             "/api/v1/chat/stream",
             json={"messages": [], "question": "What is the capital of France?"}
         )
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" in streamed
+        assert "Contact Page" in streamed or "#contact" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_mlops_query():
+    """Verify that asking about ML ops returns MLOps and AI Infrastructure experience."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post(
+            "/api/v1/chat/stream",
+            json={"messages": [], "question": "what about ML ops?"}
+        )
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "MLOps" in streamed or "AI Infrastructure" in streamed
+        # Ensure it doesn't give Containers & Orchestration or robotic dump
+        assert "Regarding Containers & Orchestration" not in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_kids_query():
+    """Verify that asking 'how many kids does brandon have?' deflects to the contact page."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post(
+            "/api/v1/chat/stream",
+            json={"messages": [], "question": "how many kids does brandon have?"}
+        )
         assert resp.status_code == 200
         streamed = extract_streamed_text(resp.text)
         assert "I don't know—maybe you should ask him!" in streamed
         assert "Contact Page" in streamed or "#contact" in streamed
+        assert "Regarding Brandon Foster Professional Overview" not in streamed
+

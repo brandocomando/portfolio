@@ -1,6 +1,6 @@
-"""Chat Streaming API Endpoint via Server-Sent Events (SSE)."""
-
+import re
 import json
+import asyncio
 import logging
 from typing import AsyncGenerator
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
@@ -27,10 +27,10 @@ async def chat_stream(
 ):
     """Streams conversational token-by-token answer grounded in Brandon's portfolio."""
     # 1. Intent Classification
-    intent_type, _ = classify_intent(request.question)
+    intent_type, precomputed_answer = classify_intent(request.question)
 
     if intent_type != IntentType.PORTFOLIO_SEARCH:
-        # Non-search queries (greetings, pings, math, general off-topic, guardrails)
+        # Non-search queries (greetings, pings, math, general off-topic, guardrails, personal)
         raw_sources = []
         formatted_sources = []
     else:
@@ -53,19 +53,28 @@ async def chat_stream(
 
         full_answer_accumulator = []
 
-        # Stream tokens
-        async for chunk_json in llm_client.stream_response(
-            question=request.question,
-            sources=raw_sources,
-            conversation_history=[m.model_dump() for m in request.messages]
-        ):
-            try:
-                data = json.loads(chunk_json)
-                token = data.get("token", "")
-                full_answer_accumulator.append(token)
-                yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
-            except Exception:
-                yield f"event: token\ndata: {chunk_json}\n\n"
+        # If non-search intent has an authoritative precomputed answer, stream it directly
+        if intent_type != IntentType.PORTFOLIO_SEARCH and precomputed_answer:
+            tokens = re.findall(r"\S+|\n", precomputed_answer)
+            for t in tokens:
+                token_str = t + (" " if t != "\n" else "")
+                full_answer_accumulator.append(token_str)
+                yield f"event: token\ndata: {json.dumps({'token': token_str})}\n\n"
+                await asyncio.sleep(0.015)
+        else:
+            # Stream tokens from LLM client / conversational synthesizer
+            async for chunk_json in llm_client.stream_response(
+                question=request.question,
+                sources=raw_sources,
+                conversation_history=[m.model_dump() for m in request.messages]
+            ):
+                try:
+                    data = json.loads(chunk_json)
+                    token = data.get("token", "")
+                    full_answer_accumulator.append(token)
+                    yield f"event: token\ndata: {json.dumps({'token': token})}\n\n"
+                except Exception:
+                    yield f"event: token\ndata: {chunk_json}\n\n"
 
         # Final event: Done
         yield f"event: done\ndata: {json.dumps({'status': 'completed', 'remaining': rate_status.remaining})}\n\n"

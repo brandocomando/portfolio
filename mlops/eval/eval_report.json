@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-10-06T15:48:51.661904Z",
+  "timestamp": "2026-10-06T16:33:16.268894Z",
   "passed": true,
   "metrics": {
     "total_tests": 12,
     "hit_rate_top3": 0.9091,
-    "mrr": 0.8636,
+    "mrr": 0.803,
     "keyword_recall": 0.98,
     "guardrail_pass_rate": 1.0
   },
@@ -35,11 +35,11 @@
       "target_chunk": "chunk-exp-finops-optimization",
       "retrieved_ids": [
         "chunk-bio-overview",
-        "chunk-exp-finops-optimization",
-        "chunk-skills-cloud-and-infrastructure-as-code"
+        "chunk-skills-cloud-and-infrastructure-as-code",
+        "chunk-exp-finops-optimization"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 3,
       "keyword_recall": "4/4"
     },
     {
@@ -146,12 +146,12 @@
       "question": "What programming languages is Brandon Foster an expert in?",
       "target_chunk": "chunk-skills-languages-and-runtimes",
       "retrieved_ids": [
-        "chunk-skills-languages-and-runtimes",
         "chunk-bio-overview",
+        "chunk-skills-languages-and-runtimes",
         "chunk-skills-containers-and-orchestration"
       ],
       "hit_top3": true,
-      "rank": 1,
+      "rank": 2,
       "keyword_recall": "4/4"
     },
     {

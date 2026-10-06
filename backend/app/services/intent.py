@@ -41,14 +41,34 @@ GUARDRAIL_PATTERNS = [
 
 # 2. Personal Information Inquiries (NOT in docs)
 PERSONAL_PATTERNS = [
-    r"where\s+(does|is)\s+brandon\s+(live|located|from)",
-    r"how\s+old\s+is\s+(he|brandon)",
-    r"(phone|cell|mobile)\s*(number)?",
-    r"what\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary|net\s*worth)",
-    r"(personal|private)\s+(life|info|question|details)",
-    r"is\s+he\s+(married|single|dating)",
-    r"(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color)",
-    r"who\s+is\s+his\s+(wife|husband|girlfriend|boyfriend|family|kid|children)",
+    # Family, Kids, Children, Relationships
+    r"\b(kid|kids|child|children|son|sons|daughter|daughters|baby|babies)\b",
+    r"\b(wife|husband|spouse|partner|married|marry|single|dating|girlfriend|boyfriend|ex-wife|fiance)\b",
+    r"\b(family|parents|mom|mother|dad|father|brother|brothers|sister|sisters|relatives)\b",
+
+    # Location / Living / Origin
+    r"\bwhere\s+(does|is)\s+(he|brandon)\s+(live|located|from|stay|reside|sleep)\b",
+    r"\b(where\s+does\s+he\s+live|where\s+is\s+he\s+located|where\s+is\s+he\s+from|where\s+was\s+he\s+born)\b",
+    r"\b(his|brandon\'?s?)\s+(address|home|house|apartment|city|state|zip|neighborhood|town)\b",
+
+    # Age, Birthday
+    r"\bhow\s+old\s+is\s+(he|brandon)\b",
+    r"\b(birthday|birth\s*date|date\s+of\s+birth|when\s+was\s+he\s+born|where\s+was\s+he\s+born)\b",
+    r"\b(his|brandon\'?s?)\s+age\b",
+
+    # Contact Details
+    r"\b(phone|cell|mobile)\s*(number)?\b",
+    r"\bwhat\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary|net\s*worth)\b",
+    r"\b(his|brandon\'?s?)\s+(email(\s*address)?|phone\s*number|cell\s*phone|contact\s*info)\b",
+
+    # Money / Salary / Compensation
+    r"\b(salary|net\s*worth|income|compensation|how\s+much\s+does\s+he\s+(make|earn|get\s*paid))\b",
+
+    # Personal Life, Free Time, Lifestyle, Beliefs
+    r"\b(personal|private)\s+(life|info|question|details|matters)\b",
+    r"\b(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color|free\s+time|weekend|weekends)\b",
+    r"\b(religion|religious|political|politics|faith|church|god)\b",
+    r"\b(pet|pets|dog|dogs|cat|cats)\b",
 ]
 
 # 3. System Diagnostic / Ping Patterns

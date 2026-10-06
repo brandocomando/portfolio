@@ -55,15 +55,25 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "You can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded directly to him."
         )
 
-    # 4. Personal Information Inquiries (Phone, Email, Where he lives, Age, etc.)
+    # 4. Personal Information Inquiries (Kids, Family, Location, Age, Salary, Lifestyle, etc.)
     if any(re.search(pat, q_lower) for pat in [
-        r"where\s+(does|is)\s+brandon\s+(live|located|from)",
-        r"how\s+old\s+is\s+(he|brandon)",
-        r"(phone|cell|mobile)\s*(number)?",
-        r"what\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary)",
-        r"is\s+he\s+(married|single|dating)",
-        r"(personal|private)\s+(life|info|question)",
-        r"(hobbies|favorite\s+food|favorite\s+movie)",
+        r"\b(kid|kids|child|children|son|sons|daughter|daughters|baby|babies)\b",
+        r"\b(wife|husband|spouse|partner|married|marry|single|dating|girlfriend|boyfriend|ex-wife|fiance)\b",
+        r"\b(family|parents|mom|mother|dad|father|brother|brothers|sister|sisters|relatives)\b",
+        r"\bwhere\s+(does|is)\s+(he|brandon)\s+(live|located|from|stay|reside|sleep)\b",
+        r"\b(where\s+does\s+he\s+live|where\s+is\s+he\s+located|where\s+is\s+he\s+from|where\s+was\s+he\s+born)\b",
+        r"\b(his|brandon\'?s?)\s+(address|home|house|apartment|city|state|zip|neighborhood|town)\b",
+        r"\bhow\s+old\s+is\s+(he|brandon)\b",
+        r"\b(birthday|birth\s*date|date\s+of\s+birth|when\s+was\s+he\s+born|where\s+was\s+he\s+born)\b",
+        r"\b(his|brandon\'?s?)\s+age\b",
+        r"\b(phone|cell|mobile)\s*(number)?\b",
+        r"\bwhat\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary|net\s*worth)\b",
+        r"\b(his|brandon\'?s?)\s+(email(\s*address)?|phone\s*number|cell\s*phone|contact\s*info)\b",
+        r"\b(salary|net\s*worth|income|compensation|how\s+much\s+does\s+he\s+(make|earn|get\s*paid))\b",
+        r"\b(personal|private)\s+(life|info|question|details|matters)\b",
+        r"\b(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color|free\s+time|weekend|weekends)\b",
+        r"\b(religion|religious|political|politics|faith|church|god)\b",
+        r"\b(pet|pets|dog|dogs|cat|cats)\b",
     ]):
         return (
             "I don't know—maybe you should ask him! That personal information is not in his public engineering docs. "
@@ -80,6 +90,17 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         )
 
     # 6. Core Technical Topics
+    # AI Infrastructure & MLOps
+    if any(w in q_lower for w in ["mlops", "ml ops", "ai infra", "ai infrastructure", "agent", "agents", "llm", "llms", "rag", "ollama", "machine learning", "retrieval"]):
+        return (
+            "Brandon specializes in **AI Infrastructure and MLOps**, bridging cloud platform engineering with production AI systems.\n\n"
+            "Key highlights of his work in this space include:\n"
+            "• **Autonomous Agent Architectures**: Engineered multi-agent terminal systems like *FirstMate CLI* ('Talk to one agent. Ship with a crew.') and *My Agentic Team*, coordinating local LLMs (via Ollama) with Chrome DevTools Protocol (CDP) for browser automation.\n"
+            "• **Hybrid Retrieval & RAG Engines**: Built sub-millisecond retrieval pipelines combining BM25 sparse search with dense vector embeddings via Reciprocal Rank Fusion (RRF), semantic chunking, and metadata filtering—the exact architecture powering this portfolio assistant!\n"
+            "• **Evaluation & Quality Gates**: Instituted automated evaluation benchmarks in CI/CD using LLM-as-a-judge patterns to evaluate context recall, MRR, and answer faithfulness.\n\n"
+            "Would you like to explore his multi-agent orchestration patterns, local LLM tooling, or RAG evaluation pipelines?"
+        )
+
     # Kubernetes & GitOps
     if any(w in q_lower for w in ["kubernetes", "eks", "k8s", "argocd", "gitops"]):
         return (
@@ -205,20 +226,45 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         top_hit = raw_sources[0]
         title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
         content = clean_text(top_hit.get("content", ""))
-        lines = [l.strip() for l in content.split("\n") if l.strip() and not l.startswith("Role:") and not l.startswith("Tech Stack:")]
 
-        intro = f"Regarding **{title}**, Brandon has direct hands-on experience in this domain.\n\n"
+        # Check substantive query relevance:
+        # Ignore common filler and the author's own name so off-topic queries don't match the bio chunk
+        STOP_WORDS = {
+            "what", "is", "about", "how", "many", "does", "have", "tell", "me", "the", "he", "his",
+            "can", "you", "do", "a", "an", "in", "for", "of", "to", "and", "or", "on", "brandon",
+            "foster", "with", "any", "are", "there", "has", "had", "would", "could", "should", "some",
+            "much", "know", "experience", "work", "worked"
+        }
+        query_words = [w for w in re.findall(r"\b[a-zA-Z0-9_\-]{2,}\b", q_lower) if w not in STOP_WORDS]
+        doc_searchable = f"{title.lower()} {content.lower()} {' '.join(top_hit.get('tags', [])).lower()}"
+
+        has_substantive_match = any(w in doc_searchable for w in query_words)
+        if query_words and not has_substantive_match:
+            return (
+                "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs. "
+                "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
+            )
+
+        # Parse content into clean conversational highlights
+        raw_lines = content.split("\n")
         detail_lines = []
-        for l in lines[:3]:
-            cleaned = l.lstrip("•- ").strip()
-            if cleaned and not cleaned.startswith("Summary:"):
+        intro = f"In his work with **{title}**, Brandon has extensive hands-on experience.\n\n"
+
+        for line in raw_lines:
+            l = line.strip()
+            if not l:
+                continue
+            if any(l.startswith(prefix) for prefix in ["Role:", "Tech Stack:", "Category:", "Summary:", "Skills and Production Proof-Points:"]):
+                if l.startswith("Summary:"):
+                    intro += f"{l.replace('Summary:', '').strip()}\n\n"
+                continue
+            cleaned = l.lstrip("•- *").strip()
+            if cleaned and len(cleaned) > 10:
                 detail_lines.append(f"• {cleaned}")
-            elif cleaned.startswith("Summary:"):
-                intro += f"{cleaned.replace('Summary:', '').strip()}\n\n"
 
         response = intro
         if detail_lines:
-            response += "Key aspects include:\n" + "\n".join(detail_lines) + "\n\n"
+            response += "Key highlights include:\n" + "\n".join(detail_lines[:3]) + "\n\n"
         response += "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
         return response
 

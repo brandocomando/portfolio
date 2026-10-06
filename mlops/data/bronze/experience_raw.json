@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "experience.yaml",
-  "raw_hash": "2273663beaf25a8ee5bc10aebf8fe19ee52cc38e823ee464412dcd0b3f67b724",
-  "ingested_at": "2026-10-06T16:27:34.978563Z",
+  "raw_hash": "000a0063ac43500ef81be1bc79e1807ba4441d8a1a4de7e4cb664009b5b4643f",
+  "ingested_at": "2026-10-06T16:49:58.077024Z",
   "payload": {
     "milestones": [
       {
@@ -30,13 +30,15 @@
         "category": "platform_engineering",
         "title": "Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
         "role": "Principal Infrastructure / DevOps Lead",
-        "summary": "Engineered and executed an enterprise migration of 100+ repositories from Bitbucket to GitHub and GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\n",
+        "summary": "Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories from Bitbucket to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\n",
         "impact_metrics": [
           "100+ repositories seamlessly migrated",
           "Build reliability increased to 99.8%",
           "Eliminated vendor fragmentation and boosted developer velocity across the organization"
         ],
         "technologies": [
+          "CI/CD",
+          "CI/CD Pipelines",
           "GitHub Actions",
           "Bitbucket",
           "Docker",

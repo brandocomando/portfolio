@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "projects.yaml",
-  "raw_hash": "f77b3f817129c3cea9e539cdd5ec219b074828f6c57c4df0fb71e261d961d4eb",
-  "ingested_at": "2026-10-06T16:27:34.968301Z",
+  "raw_hash": "da173d5d6822da97213a69e5a05f3601b7f90b52ea20b1c833045ac3b22f782f",
+  "ingested_at": "2026-10-06T16:49:58.054930Z",
   "payload": {
     "projects": [
       {
@@ -68,44 +68,6 @@
           "Neo4j",
           "Graph Databases",
           "GitOps"
-        ]
-      },
-      {
-        "id": "proj-wezterm-agent-deck",
-        "name": "WezTerm Agent Deck",
-        "repo": "brandocomando/wezterm-agent-deck",
-        "url": "https://github.com/brandocomando/wezterm-agent-deck",
-        "category": "ai_infra",
-        "tagline": "Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.",
-        "summary": "A Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays native tab indicators for agent states (working, waiting for input, idle, inactive) and triggers desktop notifications when an agent finishes or requires attention.\n",
-        "highlights": [
-          "Lightweight event hooks in Lua with zero CPU polling overhead",
-          "Desktop notifications and audio cues via terminal-notifier",
-          "Streamlines human-in-the-loop developer interaction with multiple parallel autonomous coding agents"
-        ],
-        "technologies": [
-          "Lua",
-          "WezTerm",
-          "AI Agent Tooling",
-          "Shell"
-        ]
-      },
-      {
-        "id": "proj-firstmate",
-        "name": "FirstMate CLI",
-        "repo": "brandocomando/firstmate",
-        "url": "https://github.com/brandocomando/firstmate",
-        "category": "ai_infra",
-        "tagline": "Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.",
-        "summary": "A lightweight terminal tool that provides unified orchestration across multi-agent workflows, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents.\n",
-        "highlights": [
-          "Clean CLI ergonomics for agent crew coordination",
-          "Decoupled agent execution contexts"
-        ],
-        "technologies": [
-          "Shell / Bash",
-          "Agentic Workflows",
-          "Terminal UI"
         ]
       },
       {

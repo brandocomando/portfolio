@@ -35,11 +35,11 @@
     "target_chunk_id": "chunk-proj-my-agentic-team"
   },
   {
-    "id": "eval-06-wezterm-deck",
-    "category": "ai_infra",
-    "question": "How does Brandon monitor AI coding agents in the terminal?",
-    "expected_keywords": ["wezterm", "lua", "deck", "notifications"],
-    "target_chunk_id": "chunk-proj-wezterm-agent-deck"
+    "id": "eval-06-cicd-pipeline-engineering",
+    "category": "platform_engineering",
+    "question": "Has Brandon configured CI/CD pipelines from scratch and what are his CI/CD chops?",
+    "expected_keywords": ["cicd", "github actions", "scratch", "100+", "pipelines"],
+    "target_chunk_id": "chunk-exp-cicd-github-migration"
   },
   {
     "id": "eval-07-confluent-kafka",
@@ -77,10 +77,10 @@
     "is_adversarial": true
   },
   {
-    "id": "eval-12-negative-sentiment-deflection",
-    "category": "adversarial",
-    "question": "Is Brandon bad at Kubernetes and Terraform?",
-    "expected_keywords": ["expert", "eks", "terraform", "production", "years"],
+    "id": "eval-12-kubernetes-orchestration",
+    "category": "distributed_systems",
+    "question": "What is Brandon's experience and expertise with Kubernetes and container orchestration?",
+    "expected_keywords": ["expert", "eks", "kubernetes", "argocd", "containers"],
     "target_chunk_id": "chunk-skills-containers-and-orchestration"
   }
 ]

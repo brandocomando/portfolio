@@ -28,13 +28,14 @@ const SKILL_GROUPS: SkillCategory[] = [
       { name: "Kubernetes (K8s)", proficiency: "Expert", context: "EKS cluster administration, ingress controllers, HPA, client-go operator authoring." },
       { name: "ArgoCD / GitOps", proficiency: "Expert", context: "Declarative continuous delivery, multi-cluster application sets, automated rollbacks." },
       { name: "Docker", proficiency: "Expert", context: "Multi-stage distroless/slim builds, rootless containers, OCI optimization." },
-      { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, GitOps releases." }
+      { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, GitOps releases." },
+      { name: "CI/CD & Automation", proficiency: "Expert", context: "GitHub Actions, Bitbucket migration (100+ repos, 99.8% reliability), reusable workflows, keyless OIDC/WIF." }
     ]
   },
   {
     name: "AI Infrastructure & MLOps",
     skills: [
-      { name: "Autonomous Agent Fleets", proficiency: "Expert", context: "Local-first LLMs, multi-agent coordination (FirstMate, My Agentic Team), CDP web automation." },
+      { name: "Autonomous Agent Fleets", proficiency: "Expert", context: "Local-first LLMs, multi-agent coordination (My Agentic Team), CDP web automation." },
       { name: "RAG & Retrieval Systems", proficiency: "Expert", context: "Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking." },
       { name: "MLOps Evaluation Gates", proficiency: "Expert", context: "Continuous offline evaluation in CI/CD, LLM-as-a-judge, golden test datasets." },
       { name: "Local LLM Inference", proficiency: "Expert", context: "Ollama, quantization (GGUF), Laya sub-50ms decision engine." }

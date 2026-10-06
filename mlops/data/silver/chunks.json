@@ -44,8 +44,10 @@
     "id": "chunk-exp-cicd-github-migration",
     "title": "Experience: Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Engineered and executed an enterprise migration of 100+ repositories from Bitbucket to GitHub and GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: GitHub Actions, Bitbucket, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
+    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories from Bitbucket to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: CI/CD, CI/CD Pipelines, GitHub Actions, Bitbucket, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
     "tags": [
+      "ci/cd",
+      "ci/cd pipelines",
       "github actions",
       "bitbucket",
       "docker",
@@ -56,7 +58,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 185,
+    "token_estimate": 198,
     "metadata": {
       "role": "Principal Infrastructure / DevOps Lead",
       "milestone_id": "exp-cicd-github-migration"
@@ -219,49 +221,6 @@
     }
   },
   {
-    "id": "chunk-proj-wezterm-agent-deck",
-    "title": "Project: WezTerm Agent Deck",
-    "category": "ai_infra",
-    "content": "[TECHNICAL PROJECT] WezTerm Agent Deck\nRepository: https://github.com/brandocomando/wezterm-agent-deck (GitHub Stars: 0)\nTagline: Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.\nOverview: A Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays native tab indicators for agent states (working, waiting for input, idle, inactive) and triggers desktop notifications when an agent finishes or requires attention.\nKey Architectural Highlights:\n  \u2022 Lightweight event hooks in Lua with zero CPU polling overhead\n  \u2022 Desktop notifications and audio cues via terminal-notifier\n  \u2022 Streamlines human-in-the-loop developer interaction with multiple parallel autonomous coding agents\nTech Stack: Lua, WezTerm, AI Agent Tooling, Shell",
-    "tags": [
-      "lua",
-      "wezterm",
-      "ai agent tooling",
-      "shell",
-      "ai_infra",
-      "project",
-      "wezterm agent deck"
-    ],
-    "source_file": "projects.yaml",
-    "token_estimate": 208,
-    "metadata": {
-      "repo": "brandocomando/wezterm-agent-deck",
-      "stars": 0,
-      "project_id": "proj-wezterm-agent-deck"
-    }
-  },
-  {
-    "id": "chunk-proj-firstmate",
-    "title": "Project: FirstMate CLI",
-    "category": "ai_infra",
-    "content": "[TECHNICAL PROJECT] FirstMate CLI\nRepository: https://github.com/brandocomando/firstmate (GitHub Stars: 0)\nTagline: Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.\nOverview: A lightweight terminal tool that provides unified orchestration across multi-agent workflows, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents.\nKey Architectural Highlights:\n  \u2022 Clean CLI ergonomics for agent crew coordination\n  \u2022 Decoupled agent execution contexts\nTech Stack: Shell / Bash, Agentic Workflows, Terminal UI",
-    "tags": [
-      "shell / bash",
-      "agentic workflows",
-      "terminal ui",
-      "ai_infra",
-      "project",
-      "firstmate cli"
-    ],
-    "source_file": "projects.yaml",
-    "token_estimate": 145,
-    "metadata": {
-      "repo": "brandocomando/firstmate",
-      "stars": 0,
-      "project_id": "proj-firstmate"
-    }
-  },
-  {
     "id": "chunk-proj-portfolio-platform",
     "title": "Project: FinOps-Optimized Cloud Portfolio & AI MLOps Platform",
     "category": "platform_engineering",
@@ -334,27 +293,28 @@
     "id": "chunk-skills-containers-and-orchestration",
     "title": "Skills: Containers & Orchestration",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.",
+    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.\n  \u2022 CI/CD & Pipeline Automation (Expert): Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket migration (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates.",
     "tags": [
       "kubernetes (k8s)",
       "argocd / gitops",
       "docker",
       "helm",
+      "ci/cd & pipeline automation",
       "skills",
       "containers & orchestration"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 143,
+    "token_estimate": 204,
     "metadata": {
       "category_name": "Containers & Orchestration",
-      "skills_count": 4
+      "skills_count": 5
     }
   },
   {
     "id": "chunk-skills-ai-infrastructure-and-mlops",
     "title": "Skills: AI Infrastructure & MLOps",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Expert): Local-first LLMs, multi-agent coordination (FirstMate, My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Expert): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Expert): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Expert): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.",
+    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Expert): Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Expert): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Expert): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Expert): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.",
     "tags": [
       "autonomous agent architectures",
       "rag & retrieval systems",
@@ -364,7 +324,7 @@
       "ai infrastructure & mlops"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 170,
+    "token_estimate": 167,
     "metadata": {
       "category_name": "AI Infrastructure & MLOps",
       "skills_count": 4

@@ -49,12 +49,15 @@ skill_categories:
       - name: "Helm"
         proficiency: "Expert"
         context: "Parameterized chart authoring, dependency management, automated releases via GitOps."
+      - name: "CI/CD & Pipeline Automation"
+        proficiency: "Expert"
+        context: "Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket migration (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates."
 
   - name: "AI Infrastructure & MLOps"
     skills:
       - name: "Autonomous Agent Architectures"
         proficiency: "Expert"
-        context: "Local-first LLMs, multi-agent coordination (FirstMate, My Agentic Team), Chrome DevTools Protocol (CDP) web automation."
+        context: "Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation."
       - name: "RAG & Retrieval Systems"
         proficiency: "Expert"
         context: "Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering."

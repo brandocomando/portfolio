@@ -49,13 +49,13 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   }, [messages, isStreaming]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen && !rateLimitExceeded && inputRef.current) {
       inputRef.current.focus();
     }
     if (initialPrompt && isOpen) {
       handleSendPrompt(initialPrompt);
     }
-  }, [isOpen, initialPrompt]);
+  }, [isOpen, isStreaming, rateLimitExceeded, initialPrompt]);
 
   const getLastUserQuestion = (assistantMsgId: string): string | undefined => {
     const idx = messages.findIndex((msg) => msg.id === assistantMsgId);
@@ -181,6 +181,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       onDone: () => {
         setIsStreaming(false);
         onRefreshQuota();
+        setTimeout(() => inputRef.current?.focus(), 10);
       },
       onError: (err) => {
         setIsStreaming(false);
@@ -211,6 +212,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           );
         }
         onRefreshQuota();
+        setTimeout(() => inputRef.current?.focus(), 10);
       }
     });
   };
@@ -385,7 +387,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 ? "Daily limit reached. Sign in above to unlock."
                 : "Ask about Kubernetes, Terraform, MLOps, Kafka..."
             }
-            disabled={isStreaming || rateLimitExceeded}
+            disabled={rateLimitExceeded}
             className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 disabled:opacity-50"
           />
           <button

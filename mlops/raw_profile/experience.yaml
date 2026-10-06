@@ -24,14 +24,16 @@ milestones:
     title: "Enterprise CI/CD Migration: Bitbucket to GitHub Actions"
     role: "Principal Infrastructure / DevOps Lead"
     summary: >
-      Engineered and executed an enterprise migration of 100+ repositories from Bitbucket to GitHub
-      and GitHub Actions. Designed reusable workflow templates, automated linting, security scans,
-      and container build pipelines supporting thousands of concurrent Linux build runners.
+      Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+
+      repositories from Bitbucket to GitHub Actions. Designed reusable workflow templates, automated
+      linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.
     impact_metrics:
       - "100+ repositories seamlessly migrated"
       - "Build reliability increased to 99.8%"
       - "Eliminated vendor fragmentation and boosted developer velocity across the organization"
     technologies:
+      - "CI/CD"
+      - "CI/CD Pipelines"
       - "GitHub Actions"
       - "Bitbucket"
       - "Docker"

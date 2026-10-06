@@ -1,10 +1,10 @@
 {
   "stage": "bronze",
-  "ingested_at": "2026-10-06T16:27:34.921921Z",
+  "ingested_at": "2026-10-06T16:49:58.010950Z",
   "artifacts": {
     "skills": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/skills_raw.json",
-      "hash": "8d99fab8dfceff073011b289fa2213e184fa615470caa478bfdf0fda3400aaa5"
+      "hash": "c0b365b4c8e55dc10a4367c8db7f4c7c15169016c295eea567a7682032840220"
     },
     "bio": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/bio_raw.json",
@@ -12,11 +12,11 @@
     },
     "projects": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/projects_raw.json",
-      "hash": "f77b3f817129c3cea9e539cdd5ec219b074828f6c57c4df0fb71e261d961d4eb"
+      "hash": "da173d5d6822da97213a69e5a05f3601b7f90b52ea20b1c833045ac3b22f782f"
     },
     "experience": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/experience_raw.json",
-      "hash": "2273663beaf25a8ee5bc10aebf8fe19ee52cc38e823ee464412dcd0b3f67b724"
+      "hash": "000a0063ac43500ef81be1bc79e1807ba4441d8a1a4de7e4cb664009b5b4643f"
     },
     "github_repos": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/github_repos_raw.json",

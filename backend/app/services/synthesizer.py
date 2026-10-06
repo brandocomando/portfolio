@@ -90,15 +90,69 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         )
 
     # 6. Core Technical Topics
+    # Upstream Forks / External Projects (FirstMate & WezTerm Agent Deck)
+    if any(w in q_lower for w in ["firstmate", "first mate", "agent deck", "agentdeck", "wezterm agent deck"]):
+        return (
+            "Both **FirstMate CLI** and **WezTerm Agent Deck** are forks and experimental adaptations of upstream "
+            "open-source projects and should **not** be considered Brandon's original work.\n\n"
+            "For Brandon's original agentic AI architecture and developer tooling, check out **My Agentic Team**—his "
+            "local-first autonomous agent platform integrating Ollama, Chrome DevTools Protocol (CDP) automation, "
+            "and sub-50ms inference decisions: [github.com/brandocomando/my_agentic_team](https://github.com/brandocomando/my_agentic_team)."
+        )
+
+    # Specific Project: My Agentic Team
+    if any(w in q_lower for w in ["my agentic team", "agentic team"]):
+        return (
+            "**My Agentic Team** is Brandon's local-first compilation of autonomous AI agents designed to automate daily developer workflows.\n\n"
+            "It leverages local LLM inference (via Ollama), Chrome DevTools Protocol (CDP) for browser automation, and the sub-50ms Laya decision engine. "
+            "It demonstrates how to coordinate multi-agent teams reliably without relying exclusively on expensive cloud API roundtrips.\n\n"
+            "You can explore the repository here: [github.com/brandocomando/my_agentic_team](https://github.com/brandocomando/my_agentic_team)."
+        )
+
+    # Specific Project: Prometheus Ingress Exporter
+    if any(w in q_lower for w in ["prometheus", "ingress exporter", "status exporter"]):
+        return (
+            "The **Prometheus Ingress Status Exporter** is a Kubernetes controller Brandon wrote in Go using `client-go`.\n\n"
+            "It dynamically watches Ingress resources across namespaces, runs synthetic HTTP/HTTPS health checks against host rules and TLS configs, "
+            "and exports Prometheus-compatible latency percentiles, status codes, and availability metrics. It gives platform and SRE teams "
+            "instant cluster-wide edge health observability.\n\n"
+            "It's open-source at [github.com/brandocomando/prometheus-ingress-status-exporter](https://github.com/brandocomando/prometheus-ingress-status-exporter)."
+        )
+
     # AI Infrastructure & MLOps
     if any(w in q_lower for w in ["mlops", "ml ops", "ai infra", "ai infrastructure", "agent", "agents", "llm", "llms", "rag", "ollama", "machine learning", "retrieval"]):
         return (
             "Brandon specializes in **AI Infrastructure and MLOps**, bridging cloud platform engineering with production AI systems.\n\n"
             "Key highlights of his work in this space include:\n"
-            "• **Autonomous Agent Architectures**: Engineered multi-agent terminal systems like *FirstMate CLI* ('Talk to one agent. Ship with a crew.') and *My Agentic Team*, coordinating local LLMs (via Ollama) with Chrome DevTools Protocol (CDP) for browser automation.\n"
+            "• **Autonomous Agent Architectures**: Engineered *My Agentic Team*, coordinating local LLMs (via Ollama) with Chrome DevTools Protocol (CDP) for browser automation and sub-50ms inference decisions with Laya.\n"
             "• **Hybrid Retrieval & RAG Engines**: Built sub-millisecond retrieval pipelines combining BM25 sparse search with dense vector embeddings via Reciprocal Rank Fusion (RRF), semantic chunking, and metadata filtering—the exact architecture powering this portfolio assistant!\n"
             "• **Evaluation & Quality Gates**: Instituted automated evaluation benchmarks in CI/CD using LLM-as-a-judge patterns to evaluate context recall, MRR, and answer faithfulness.\n\n"
             "Would you like to explore his multi-agent orchestration patterns, local LLM tooling, or RAG evaluation pipelines?"
+        )
+
+    # CI/CD & Pipeline Engineering
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bci[\s\-_/]*cd\b",
+        r"\bcicd\b",
+        r"\bpipelines?\b",
+        r"\bpiplines?\b",
+        r"\bgithub\s+actions\b",
+        r"\bbitbucket\b",
+    ]):
+        return (
+            "Brandon has deep, battle-tested expertise in **CI/CD and pipeline engineering**, including architecting "
+            "enterprise pipelines completely from scratch.\n\n"
+            "Key milestones and architectural patterns include:\n"
+            "• **Enterprise Migration from Scratch (100+ Repos)**: As Principal Infrastructure / DevOps Lead, he led the enterprise-wide "
+            "migration of over 100 repositories from Bitbucket to GitHub and GitHub Actions. He engineered standardized, reusable "
+            "workflow templates, automated linting, container build pipelines, and security scanning (Trivy/Snyk) across thousands of concurrent Linux runners, boosting build reliability to 99.8%.\n"
+            "• **Keyless Cloud Security (OIDC / WIF)**: Eliminated static, long-lived cloud credentials across CI runners by implementing "
+            "Workload Identity Federation (WIF) and OIDC keyless authentication between GitHub Actions and cloud providers (GCP & AWS).\n"
+            "• **Declarative GitOps Delivery**: Paired CI with ArgoCD for continuous delivery into Kubernetes (EKS/GKE), enabling automated canary "
+            "rollouts, dynamic horizontal pod autoscaling, and reducing deployment lead times from hours to under 10 minutes.\n"
+            "• **MLOps Quality Gates**: Built continuous offline evaluation pipelines running LLM-as-a-judge tests in CI to benchmark retrieval context recall, "
+            "MRR, and answer faithfulness before promoting model or retrieval changes.\n\n"
+            "Would you like to know more about his reusable workflow design, runner scaling, or GitOps deployment strategies?"
         )
 
     # Kubernetes & GitOps
@@ -181,34 +235,6 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "Would you like to hear more about how he structured his Kubernetes controllers or custom providers?"
         )
 
-    # Specific Project: FirstMate CLI
-    if "firstmate" in q_lower:
-        return (
-            "**FirstMate CLI** is a terminal orchestration tool Brandon built for multi-agent coding workflows.\n\n"
-            "The concept is simple: *'Talk to one agent. Ship with a crew.'* It provides a clean terminal UI and workflow automation "
-            "where a lead coordinator agent delegates tasks to specialized sub-agents running in parallel, with decoupled execution contexts. "
-            "It's written in Shell/Bash with zero heavy runtime overhead.\n\n"
-            "You can check it out on GitHub: [github.com/brandocomando/firstmate](https://github.com/brandocomando/firstmate)!"
-        )
-
-    # Specific Project: My Agentic Team
-    if any(w in q_lower for w in ["my agentic team", "agentic team", "autonomous agent"]):
-        return (
-            "**My Agentic Team** is Brandon's local-first compilation of autonomous AI agents designed to automate daily developer workflows.\n\n"
-            "It leverages local LLM inference (via Ollama), Chrome DevTools Protocol (CDP) for browser automation, and the sub-50ms Laya decision engine. "
-            "It demonstrates how to coordinate multi-agent teams reliably without relying exclusively on expensive cloud API roundtrips.\n\n"
-            "You can explore the repository here: [github.com/brandocomando/my_agentic_team](https://github.com/brandocomando/my_agentic_team)."
-        )
-
-    # Specific Project: Prometheus Ingress Exporter
-    if any(w in q_lower for w in ["prometheus", "ingress exporter", "status exporter"]):
-        return (
-            "The **Prometheus Ingress Status Exporter** is a Kubernetes controller Brandon wrote in Go using `client-go`.\n\n"
-            "It dynamically watches Ingress resources across namespaces, runs synthetic HTTP/HTTPS health checks against host rules and TLS configs, "
-            "and exports Prometheus-compatible latency percentiles, status codes, and availability metrics. It gives platform and SRE teams "
-            "instant cluster-wide edge health observability.\n\n"
-            "It's open-source at [github.com/brandocomando/prometheus-ingress-status-exporter](https://github.com/brandocomando/prometheus-ingress-status-exporter)."
-        )
 
     # General Bio / Who is Brandon
     if any(w in q_lower for w in ["who is brandon", "about brandon", "overview", "background", "summary"]):
@@ -230,15 +256,21 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         # Check substantive query relevance:
         # Ignore common filler and the author's own name so off-topic queries don't match the bio chunk
         STOP_WORDS = {
-            "what", "is", "about", "how", "many", "does", "have", "tell", "me", "the", "he", "his",
+            "what", "is", "about", "how", "hows", "whats", "many", "does", "have", "tell", "me", "the", "he", "his",
             "can", "you", "do", "a", "an", "in", "for", "of", "to", "and", "or", "on", "brandon",
             "foster", "with", "any", "are", "there", "has", "had", "would", "could", "should", "some",
-            "much", "know", "experience", "work", "worked"
+            "much", "know", "experience", "work", "worked", "from", "scratch", "chops"
         }
-        query_words = [w for w in re.findall(r"\b[a-zA-Z0-9_\-]{2,}\b", q_lower) if w not in STOP_WORDS]
-        doc_searchable = f"{title.lower()} {content.lower()} {' '.join(top_hit.get('tags', [])).lower()}"
+        normalized_q = re.sub(r"\bci[\s\-_/]+cd\b", "cicd", q_lower)
+        normalized_q = re.sub(r"\bpipline(s)?\b", r"pipeline\1", normalized_q)
+        query_words = [w for w in re.findall(r"\b[a-zA-Z0-9_\-]{2,}\b", normalized_q) if w not in STOP_WORDS]
+        normalized_doc = re.sub(
+            r"\bci[\s\-_/]+cd\b",
+            "cicd",
+            f"{title.lower()} {content.lower()} {' '.join(top_hit.get('tags', [])).lower()}"
+        )
 
-        has_substantive_match = any(w in doc_searchable for w in query_words)
+        has_substantive_match = any(w in normalized_doc for w in query_words)
         if query_words and not has_substantive_match:
             return (
                 "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs. "

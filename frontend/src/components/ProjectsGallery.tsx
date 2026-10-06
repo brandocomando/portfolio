@@ -49,35 +49,6 @@ const PROJECTS: Project[] = [
     technologies: ["Go", "Terraform Plugin SDK", "Neo4j", "Graph Databases", "GitOps"]
   },
   {
-    id: "proj-wezterm-agent-deck",
-    name: "WezTerm Agent Deck",
-    repo: "brandocomando/wezterm-agent-deck",
-    url: "https://github.com/brandocomando/wezterm-agent-deck",
-    category: "AI Developer Tooling",
-    tagline: "Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.",
-    summary: "Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays tab badges for agent states and triggers desktop notifications.",
-    highlights: [
-      "Lightweight event hooks in Lua with zero CPU polling overhead",
-      "Desktop notifications and audio cues via terminal-notifier",
-      "Streamlines human-in-the-loop multi-agent engineering workflows"
-    ],
-    technologies: ["Lua", "WezTerm", "AI Agent Tooling", "Shell"]
-  },
-  {
-    id: "proj-firstmate",
-    name: "FirstMate CLI",
-    repo: "brandocomando/firstmate",
-    url: "https://github.com/brandocomando/firstmate",
-    category: "AI Agent Orchestration",
-    tagline: "Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.",
-    summary: "Terminal CLI for multi-agent coordination, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents with decoupled execution contexts.",
-    highlights: [
-      "Clean terminal ergonomics for agent crew coordination",
-      "Decoupled agent execution contexts"
-    ],
-    technologies: ["Shell", "Bash", "Agentic Workflows", "Terminal UI"]
-  },
-  {
     id: "proj-portfolio-platform",
     name: "FinOps Portfolio & AI MLOps Platform",
     repo: "brandocomando/portfolio",

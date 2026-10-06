@@ -234,3 +234,41 @@ async def test_chat_stream_kids_query():
         assert "Contact Page" in streamed or "#contact" in streamed
         assert "Regarding Brandon Foster Professional Overview" not in streamed
 
+
+@pytest.mark.asyncio
+async def test_chat_stream_cicd_queries():
+    """Verify that CI/CD questions answer conversationally and never deflect to the contact page."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        cicd_questions = [
+            "hows his CICD chops?",
+            "Has brandon configured CICD piplines from scratch?",
+            "What experience does Brandon have with GitHub Actions and CI/CD pipelines?",
+        ]
+        for q in cicd_questions:
+            resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": q})
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            # Must NOT deflect to contact page
+            assert "I don't know—maybe you should ask him!" not in streamed
+            # Must discuss CI/CD chops, GitHub Actions, and migration from scratch
+            assert "CI/CD" in streamed or "pipeline" in streamed.lower()
+            assert "GitHub Actions" in streamed
+            assert "100+" in streamed or "Bitbucket" in streamed
+            assert "99.8%" in streamed or "reusable" in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_upstream_forks_disclaimer():
+    """Verify that FirstMate and Agent Deck queries clarify they are upstream forks."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        for q in ["Tell me about FirstMate CLI", "What is WezTerm Agent Deck?"]:
+            resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": q})
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            assert "forks" in streamed.lower() or "upstream" in streamed.lower()
+            assert "not" in streamed.lower() and "original work" in streamed.lower()
+            assert "My Agentic Team" in streamed
+
+

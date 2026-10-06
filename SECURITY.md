@@ -17,16 +17,14 @@ Only the latest commit on the `main` branch deployed to the production environme
 
 If you believe you have discovered a security vulnerability in this repository or the live deployed infrastructure, please report it responsibly. **Do not create public GitHub issues, discussions, or pull requests for security vulnerabilities.**
 
-### Preferred Disclosure Channels
+### How to Report
 
-1. **GitHub Private Vulnerability Reporting (Preferred):**
-   Submit a private report via the [Security Advisories](https://github.com/brandocomando/portfolio/security/advisories) tab by clicking **Report a vulnerability**.
+Please submit a private report using **GitHub Private Vulnerability Reporting**:
+1. Navigate to the repository's [Security Advisories](https://github.com/brandocomando/portfolio/security/advisories) tab.
+2. Click **Report a vulnerability**.
+3. Fill in the advisory details, potential impact, and reproduction steps.
 
-2. **Direct Email:**
-   If GitHub Private Vulnerability Reporting is unavailable, send an email to:
-   - **Contact:** Brandon Foster
-   - **Email:** [brandocomando8@gmail.com](mailto:brandocomando8@gmail.com)
-   - **Subject Line:** `[SECURITY] Portfolio Vulnerability Report`
+This ensures the report is triaged privately and securely. For non-technical inquiries or if you are unable to use GitHub Private Vulnerability Reporting, you may connect via [LinkedIn](https://linkedin.com/in/brando-foster).
 
 ### Information to Include
 

@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: portfolio-backend-local
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=development
+      - PORT=8080
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=gemini-2.0-flash
+    volumes:
+      # Mount gold MLOps index so vector updates take effect immediately
+      - ./mlops/data/gold:/app/mlops/data/gold:ro
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

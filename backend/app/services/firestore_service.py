@@ -176,7 +176,34 @@ class FirestoreLeadService:
             except Exception as e:
                 logger.warning(f"Failed to send SMTP contact email: {e}")
 
-        # 4. Log high-visibility notification for server logs
+        # 4. Forward via Resend API if configured
+        if settings.RESEND_API_KEY:
+            try:
+                resend_payload = {
+                    "from": settings.SMTP_FROM or "Portfolio Contact <onboarding@resend.dev>",
+                    "to": [settings.NOTIFICATION_EMAIL_TO],
+                    "reply_to": email,
+                    "subject": f"[Portfolio Contact] New message from {name or email}",
+                    "text": (
+                        f"You received a new message from your portfolio contact form:\n\n"
+                        f"Name: {name or 'Not provided'}\n"
+                        f"Email: {email}\n"
+                        f"Date: {now}\n\n"
+                        f"Message:\n{question}\n\n"
+                        f"---\nReply directly to this email to respond to {email}."
+                    ),
+                }
+                async with httpx.AsyncClient(timeout=5.0) as http_client:
+                    await http_client.post(
+                        "https://api.resend.com/emails",
+                        headers={"Authorization": f"Bearer {settings.RESEND_API_KEY}"},
+                        json=resend_payload
+                    )
+                logger.info(f"Successfully sent contact email via Resend to {settings.NOTIFICATION_EMAIL_TO}")
+            except Exception as e:
+                logger.warning(f"Failed to send email via Resend API: {e}")
+
+        # 5. Log high-visibility notification for server logs
         logger.info(
             f"📨 CONTACT MESSAGE FORWARDED: from='{email}' to='{settings.NOTIFICATION_EMAIL_TO}': {question[:80]}"
         )

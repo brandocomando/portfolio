@@ -1,0 +1,134 @@
+version: 2
+updates:
+  # GitHub Actions workflows and actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Frontend dependencies (React, Vite, Tailwind, TypeScript, etc.)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps-frontend)"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+
+  # Backend dependencies (FastAPI, Python packages)
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps-backend)"
+    groups:
+      pip-backend:
+        patterns:
+          - "*"
+
+  # MLOps evaluation and indexing dependencies
+  - package-ecosystem: "pip"
+    directory: "/mlops"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "mlops"
+    commit-message:
+      prefix: "chore(deps-mlops)"
+    groups:
+      pip-mlops:
+        patterns:
+          - "*"
+
+  # Backend Docker base image
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(deps-docker)"
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+
+  # Terraform Dev environment
+  - package-ecosystem: "terraform"
+    directory: "/infra/envs/dev"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "terraform"
+    commit-message:
+      prefix: "chore(deps-terraform)"
+    groups:
+      terraform-dev:
+        patterns:
+          - "*"
+
+  # Terraform Prod environment
+  - package-ecosystem: "terraform"
+    directory: "/infra/envs/prod"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "terraform"
+    commit-message:
+      prefix: "chore(deps-terraform)"
+    groups:
+      terraform-prod:
+        patterns:
+          - "*"

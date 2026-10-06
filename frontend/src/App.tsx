@@ -88,9 +88,7 @@ export const App: React.FC = () => {
       {/* Top Navbar */}
       <Navbar
         quota={quota}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
-        onOpenChat={() => handleOpenChat()}
         onOpenContact={() => handleOpenContact()}
       />
 

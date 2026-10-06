@@ -17,12 +17,17 @@ def clean_text(text: str) -> str:
 
 
 def is_affirmative_followup(query: str) -> bool:
-    """Checks if a user query is an affirmative continuation like 'yes', 'sure', 'tell me more'."""
+    """Checks if a user query is an affirmative continuation like 'yes', 'yea tell me more', 'sure'."""
     q = query.lower().strip().rstrip(".!?,")
-    return bool(re.match(
-        r"^(yes|yeah|yep|sure|ok|okay|please|tell\s+me\s+more|go\s+on|y|yes\s+please|more\s+details|elaborate|definitely|absolutely)$",
-        q
-    ))
+    patterns = [
+        r"^(?:yes|yea|yeah|yep|yup|sure|ok|okay|please|y|definitely|absolutely)(?:\s+(?:please|thanks|thank\s+you))?$",
+        r"^(?:(?:yes|yea|yeah|yep|yup|sure|ok|okay)\s+)?tell\s+me\s+more(?:\s+(?:about\s+(?:that|this|it)|please))?$",
+        r"^(?:tell\s+me\s+more|go\s+on|go\s+ahead|continue|elaborate|do\s+tell)$",
+        r"^(?:more\s+(?:details|info|information)|give\s+me\s+more(?:\s+details)?)$",
+        r"^(?:(?:i(?:'d|\s+would)?\s+)?(?:love|like|want)\s+to\s+(?:hear|know|learn)\s+more(?:\s+about\s+(?:that|this|it))?)$",
+        r"^(?:sounds\s+good|let'?s\s+hear\s+it|sure\s+thing)$",
+    ]
+    return any(re.match(pat, q) for pat in patterns)
 
 
 def synthesize_conversational_response(
@@ -33,7 +38,7 @@ def synthesize_conversational_response(
     """Produces a natural, fluid conversational response strictly grounded in Brandon's experience."""
     q_lower = question.lower().strip()
 
-    # 0. Multi-turn Affirmative Continuations ("yes", "sure", "tell me more")
+    # 0. Multi-turn Affirmative Continuations ("yes", "sure", "tell me more", "yea tell me more")
     if is_affirmative_followup(question) and conversation_history:
         last_asst = ""
         last_user = ""
@@ -48,7 +53,29 @@ def synthesize_conversational_response(
                 break
 
         hist_text = (last_asst + " " + last_user).lower()
-        if any(w in hist_text for w in ["bitbucket", "github actions", "runner", "workflow design", "ci/cd"]):
+        if any(w in hist_text for w in [
+            "hybrid rag", "medallion", "cold start", "scale-to-zero", "scale to zero",
+            "portfolio platform", "portfolio assistant", "cloud run", "gemini flash", "this platform",
+            "finops-optimized cloud portfolio"
+        ]):
+            return (
+                "Here is a deeper architectural look into the **Hybrid RAG engine, Medallion data pipeline, and cold start optimization** "
+                "powering this platform:\n\n"
+                "• **In-Memory Hybrid RAG (Dense + BM25 RRF)**:\n"
+                "  Rather than paying for an expensive managed vector database (like Pinecone or Cloud SQL Vector), this service loads a "
+                "  pre-computed, signed Gold retrieval index directly into container memory on startup. When a query arrives, it calculates "
+                "  BM25 keyword scores alongside cosine similarity against 384-dimensional dense semantic embeddings, merging them with "
+                "  Reciprocal Rank Fusion (RRF). Retrieval latency is **sub-10ms** with zero database hosting fees!\n\n"
+                "• **Medallion Data Lakehouse (Bronze → Silver → Gold)**:\n"
+                "  The offline data pipeline validates raw YAML/JSON profile data using Pydantic v2 schemas (Bronze), chunks achievements "
+                "  semantically with strict quality gates (Silver), and vectorizes and hashes the index bundle (Gold) with SHA-256 verification.\n\n"
+                "• **Cold Start & FinOps Optimization**:\n"
+                "  Cloud Run is configured with `min-instances: 0` to achieve $0 idle cost. To minimize cold start latency when traffic arrives, "
+                "  the container utilizes a lightweight multi-stage Docker build, lazy dependency loading, and pre-warms the index during "
+                "  FastAPI lifespan initialization—keeping cold starts under 2 seconds.\n\n"
+                "Would you like to know more about the GitHub Actions CI/CD deployment or the rate-limiting token bucket architecture?"
+            )
+        elif any(w in hist_text for w in ["bitbucket", "github actions", "runner", "workflow design", "ci/cd", "oidc", "wif"]):
             return (
                 "Here are the deeper architectural details on Brandon's workflow design, runner scaling, and GitOps delivery:\n\n"
                 "• **Reusable Workflow Architecture**: He standardized reusable GitHub Actions workflows across 100+ repositories with automated linting, container builds, and security gates (Trivy/Snyk), boosting build reliability to 99.8%.\n"
@@ -65,6 +92,17 @@ def synthesize_conversational_response(
                 "• **Custom Go Ingress Observability**: Authored `prometheus-ingress-status-exporter` to continuously probe ingress availability and export metrics directly to Prometheus and Datadog.\n"
                 "• **Karpenter Dynamic Compute**: Replaced static EC2 node groups with Karpenter autoscaling and Spot instance fleets, cutting thousands in idle compute costs.\n\n"
                 "Are there specific Kubernetes networking, security (mTLS), or storage patterns you'd like to dive into?"
+            )
+        elif any(w in hist_text for w in ["app mesh", "service mesh", "mtls", "envoy"]):
+            return (
+                "Here are deeper architectural details on Brandon's zero-trust service mesh implementation:\n\n"
+                "• **Automated mTLS & ACM Certificate Rotation**: Envoy proxies run as sidecars alongside microservice containers in Kubernetes, "
+                "enforcing mutual TLS authentication with automated certificate lifecycle management via AWS Certificate Manager (ACM).\n"
+                "• **Traffic Shaping & Resilience**: Implemented fine-grained canary traffic routing, circuit breakers, and connection timeouts "
+                "at the mesh layer to prevent cascading microservice outages.\n"
+                "• **Distributed Tracing Context Propagation**: Configured Envoy to automatically propagate W3C `traceparent` headers to OpenTelemetry "
+                "and Datadog APM, enabling end-to-end distributed latency tracing across the entire cluster.\n\n"
+                "Are there specific mesh networking or security controls you'd like to dive into?"
             )
         elif any(w in hist_text for w in ["kafka", "confluent", "msk", "streaming"]):
             return (
@@ -88,6 +126,15 @@ def synthesize_conversational_response(
                 "• **Karpenter Dynamic Spot Compute**: Implemented Karpenter autoscaling on EKS, utilizing diversified Spot instance pools to reduce idle compute costs by over $6,500/month.\n"
                 "• **Storage & Database Optimization**: Right-sized over-provisioned Aurora RDS instances, converted gp2 EBS volumes to gp3, and instituted automated S3 lifecycle tiering.\n"
                 "• **Serverless FinOps Portfolio**: Architected this portfolio platform on Cloud Run and Firebase Hosting with scale-to-zero compute, costing $0/month while idle."
+            )
+        elif raw_sources:
+            top_hit = raw_sources[0]
+            title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
+            content = clean_text(top_hit.get("content", ""))
+            return (
+                f"Continuing with deeper details on **{title}**:\n\n"
+                f"{content}\n\n"
+                "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
             )
 
     # 1. Greetings & Warm-ups

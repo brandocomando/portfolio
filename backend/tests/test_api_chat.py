@@ -725,6 +725,32 @@ async def test_chat_stream_keyless_cloud_auth_direct():
         assert "Enterprise Migration from Scratch" not in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_continuation_yea_tell_me_more_rag_platform():
+    """Verify 'yea tell me more' seamlessly continues previous conversation about RAG, Medallion, and cold starts."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "tell me about this scale to zero GCP infra"},
+            {
+                "role": "assistant",
+                "content": (
+                    "This portfolio platform is engineered specifically around strict FinOps principles... "
+                    "Are you curious about the hybrid RAG engine, the Medallion data pipeline, or how cold starts are handled?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "yea tell me more"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Hybrid RAG" in streamed
+        assert "Medallion" in streamed
+        assert "cold start" in streamed.lower()
+
+
+
 
 
 

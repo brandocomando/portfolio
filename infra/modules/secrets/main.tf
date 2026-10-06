@@ -13,10 +13,9 @@ resource "google_secret_manager_secret" "gemini_key" {
   }
 }
 
-# Grant Cloud Run SA access to read secret payload
-resource "google_secret_manager_secret_iam_member" "secret_accessor" {
-  project   = var.project_id
-  secret_id = google_secret_manager_secret.gemini_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${var.cloud_run_sa_email}"
+# Grant Cloud Run SA access to read secrets in Secret Manager
+resource "google_project_iam_member" "secret_accessor" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${var.cloud_run_sa_email}"
 }

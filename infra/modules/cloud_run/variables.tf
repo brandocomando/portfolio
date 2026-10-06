@@ -33,6 +33,36 @@ variable "gemini_secret_id" {
   default     = "gemini-api-key"
 }
 
+variable "smtp_password_secret_id" {
+  description = "Optional Secret Manager secret ID containing the SMTP password"
+  type        = string
+  default     = ""
+}
+
+variable "resend_api_key_secret_id" {
+  description = "Optional Secret Manager secret ID containing the Resend API key"
+  type        = string
+  default     = ""
+}
+
+variable "lead_webhook_secret_id" {
+  description = "Optional Secret Manager secret ID containing the notification webhook URL"
+  type        = string
+  default     = ""
+}
+
+variable "smtp_host" {
+  description = "Optional SMTP Host (e.g. smtp.gmail.com)"
+  type        = string
+  default     = ""
+}
+
+variable "smtp_user" {
+  description = "Optional SMTP User (e.g. your_email@gmail.com)"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Deployment environment name (e.g. dev, prod)"
   type        = string

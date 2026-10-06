@@ -41,8 +41,16 @@ class Settings(BaseSettings):
     FIRESTORE_COLLECTION_LEADS: str = "portfolio_leads"
     FIRESTORE_COLLECTION_CONVERSATIONS: str = "portfolio_conversations"
 
-    # Lead Alerts (Optional Discord / Slack / Telegram Webhook)
+    # Lead & Contact Alerts (Server-side notification configuration)
+    NOTIFICATION_EMAIL_TO: Optional[str] = "brandocomando8@gmail.com"
     LEAD_NOTIFICATION_WEBHOOK_URL: Optional[str] = None
+    FIRESTORE_COLLECTION_CONTACT: str = "portfolio_contact_messages"
+    SMTP_HOST: Optional[str] = None
+    SMTP_PORT: int = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    SMTP_FROM: Optional[str] = None
+    RESEND_API_KEY: Optional[str] = None
 
     # Storage Paths
     GOLD_INDEX_PATH: Path = (

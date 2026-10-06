@@ -13,7 +13,7 @@ class BioProfile(BaseModel):
     title: str = Field(..., min_length=5, description="Primary professional title")
     location: str = Field(..., description="Geographic location")
     headline: str = Field(..., min_length=10, description="Short elevator pitch")
-    email: str = Field(..., description="Contact email")
+    email: Optional[str] = Field(None, description="Contact email")
     github: str = Field(..., description="GitHub profile URL")
     linkedin: Optional[str] = Field(None, description="LinkedIn profile URL")
     summary: str = Field(..., min_length=50, description="Comprehensive bio summary")

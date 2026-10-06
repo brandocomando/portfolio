@@ -2,21 +2,23 @@
 
 Detects:
 1. Adversarial / Prompt Injection attempts (Guardrail)
-2. System health / Ping / Diagnostic queries (Ping)
-3. Conversational greetings and self-introductions (Greeting)
-4. Contact / Recruiter / Hiring inquiries (Contact)
-5. Elementary arithmetic / Math questions (Math)
-6. Clearly out-of-domain trivia / non-engineering questions (Off-topic)
-7. Portfolio technical search (Portfolio)
+2. Personal inquiries / Private details (Personal)
+3. System health / Ping / Diagnostic queries (Ping)
+4. Conversational greetings and self-introductions (Greeting)
+5. Contact / Recruiter / Hiring inquiries (Contact)
+6. Elementary arithmetic / Math questions (Math)
+7. Clearly out-of-domain trivia / non-engineering questions (Off-topic)
+8. Portfolio technical search (Portfolio)
 """
 
 import re
 from enum import Enum
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Tuple, Optional
 
 
 class IntentType(str, Enum):
     GUARDRAIL = "guardrail"
+    PERSONAL = "personal"
     PING = "ping"
     GREETING = "greeting"
     CONTACT = "contact"
@@ -37,7 +39,19 @@ GUARDRAIL_PATTERNS = [
     r"bypass\s+safety",
 ]
 
-# 2. System Diagnostic / Ping Patterns
+# 2. Personal Information Inquiries (NOT in docs)
+PERSONAL_PATTERNS = [
+    r"where\s+(does|is)\s+brandon\s+(live|located|from)",
+    r"how\s+old\s+is\s+(he|brandon)",
+    r"(phone|cell|mobile)\s*(number)?",
+    r"what\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary|net\s*worth)",
+    r"(personal|private)\s+(life|info|question|details)",
+    r"is\s+he\s+(married|single|dating)",
+    r"(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color)",
+    r"who\s+is\s+his\s+(wife|husband|girlfriend|boyfriend|family|kid|children)",
+]
+
+# 3. System Diagnostic / Ping Patterns
 PING_PATTERNS = [
     r"^test+$",
     r"^testing(\s+\d+)?$",
@@ -53,7 +67,7 @@ PING_PATTERNS = [
     r"^123+$",
 ]
 
-# 3. Conversational Greetings / Identity Patterns
+# 4. Conversational Greetings / Identity Patterns
 GREETING_PATTERNS = [
     r"^hi+$",
     r"^hello+$",
@@ -71,7 +85,7 @@ GREETING_PATTERNS = [
     r"^what\s+is\s+this\s+bot\??$",
 ]
 
-# 4. Contact / Hiring Patterns
+# 5. Contact / Hiring Patterns
 CONTACT_PATTERNS = [
     r"how\s+(can|do)\s+i\s+contact\s+(him|brandon)",
     r"how\s+to\s+contact",
@@ -79,13 +93,10 @@ CONTACT_PATTERNS = [
     r"reach\s+(out\s+to\s+)?brandon",
     r"hire\s+brandon",
     r"is\s+he\s+(open\s+to|looking\s+for)\s+(roles|jobs|work)",
-    r"(email|linkedin|github)\s+address",
-    r"where\s+is\s+brandon\s+located",
-    r"where\s+does\s+brandon\s+live",
     r"where\s+can\s+i\s+(find|see)\s+his\s+resume",
 ]
 
-# 5. Off-Topic Trivia / General Patterns
+# 6. Off-Topic Trivia / General Patterns
 OFF_TOPIC_GENERAL_PATTERNS = [
     r"is\s+a\s+hotdog\s+a\s+sandwich",
     r"what\s+is\s+the\s+meaning\s+of\s+life",
@@ -106,7 +117,6 @@ def check_guardrails(query: str) -> bool:
 def detect_math(query: str) -> Optional[str]:
     """Detects and calculates elementary arithmetic queries."""
     q_clean = query.lower().strip().rstrip("?").strip()
-    # Match patterns like: "5 * 10", "whats 5*10", "what is 25 * 4", "100 / 2"
     m = re.match(
         r"^(?:what\s+is|whats|calculate|solve)?\s*(\d+(?:\.\d+)?)\s*([\+\-\*\/xX])\s*(\d+(?:\.\d+)?)$",
         q_clean,
@@ -132,9 +142,9 @@ def detect_math(query: str) -> Optional[str]:
         op_sym = "×" if op in ("*", "x") else op
         return (
             f"{m.group(1)} {op_sym} {m.group(3)} = **{res}**.\n\n"
-            "While I can perform quick calculations, my primary role is as Brandon Foster's "
-            "technical portfolio assistant! Feel free to ask about his engineering projects, "
-            "Kubernetes architectures, Terraform modules, or Kafka streaming platforms."
+            "While I can perform quick calculations, my primary focus is Brandon Foster's engineering experience. "
+            "If you have non-engineering questions or personal inquiries, I don't know—maybe you should ask him! "
+            "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to him."
         )
     return None
 
@@ -153,12 +163,21 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
             "Feel free to ask about Brandon's work with Kubernetes, Terraform, MLOps, or Kafka!",
         )
 
-    # 2. Math Check
+    # 2. Personal Inquiries (Zero personal contact info exposure)
+    for pat in PERSONAL_PATTERNS:
+        if re.search(pat, q_lower):
+            return (
+                IntentType.PERSONAL,
+                "I don't know—maybe you should ask him! That personal information is not in his public engineering docs. "
+                "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to Brandon's inbox.",
+            )
+
+    # 3. Math Check
     math_resp = detect_math(q_raw)
     if math_resp:
         return (IntentType.OFF_TOPIC_MATH, math_resp)
 
-    # 3. System Diagnostic / Ping Check
+    # 4. System Diagnostic / Ping Check
     for pat in PING_PATTERNS:
         if re.search(pat, q_lower):
             return (
@@ -168,7 +187,7 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
                 "What would you like to know about Brandon's background or projects?",
             )
 
-    # 4. Conversational Greeting Check
+    # 5. Conversational Greeting Check
     for pat in GREETING_PATTERNS:
         if re.search(pat, q_lower):
             return (
@@ -182,29 +201,25 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
                 "What would you like to explore?",
             )
 
-    # 5. Contact / Hiring Check
+    # 6. Contact / Hiring Check (Zero email/phone exposure)
     for pat in CONTACT_PATTERNS:
         if re.search(pat, q_lower):
             return (
                 IntentType.CONTACT,
-                "You can connect directly with Brandon Foster:\n\n"
-                "• **LinkedIn**: [linkedin.com/in/brandocomando](https://linkedin.com/in/brandocomando)\n"
-                "• **GitHub**: [github.com/brandocomando](https://github.com/brandocomando)\n"
-                "• **Email**: brandocomando8@gmail.com\n\n"
-                "Brandon is an experienced Lead Platform & Distributed Systems Engineer specializing in "
-                "Kubernetes, Terraform, Event-Driven Streaming, and MLOps platforms. "
-                "Feel free to ask me for a summary of his recent impact or technical competencies!",
+                "Brandon doesn't publish his direct email or phone number on the site, but you can message him directly "
+                "through the **[Contact Page](#contact)**!\n\n"
+                "Just submit your question and email, and your message will be forwarded straight to his inbox. "
+                "You can also connect on [LinkedIn](https://linkedin.com/in/brandocomando) or [GitHub](https://github.com/brandocomando).",
             )
 
-    # 6. Off-Topic General Check
+    # 7. Off-Topic General Check
     for pat in OFF_TOPIC_GENERAL_PATTERNS:
         if re.search(pat, q_lower):
             return (
                 IntentType.OFF_TOPIC_GENERAL,
-                "That topic is outside the scope of Brandon Foster's professional engineering portfolio. "
-                "I'm dedicated to sharing details about Brandon's technical background, architecture decisions, "
-                "and software projects—such as his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure.\n\n"
-                "What would you like to explore regarding his engineering experience?",
+                "I don't know—maybe you should ask him! That's outside the scope of Brandon Foster's professional engineering portfolio. "
+                "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him.\n\n"
+                "Or feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!",
             )
 
     # Default to Portfolio Search

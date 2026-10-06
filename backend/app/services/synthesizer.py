@@ -2,8 +2,7 @@
 
 Generates fluid, natural, conversational responses answering questions about
 Brandon's engineering background, architecture decisions, and projects.
-Designed to feel like an intelligent, friendly technical peer—never a search engine
-or document excerpt dumper.
+Strictly protects personal privacy: never reveals email, phone, or private data.
 """
 
 import re
@@ -52,20 +51,35 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         return (
             f"{math_match.group(1)} {op_sym} {math_match.group(3)} is **{res}**!\n\n"
             "While I can do quick math, I'm really here to chat about Brandon Foster's engineering experience. "
-            "Let me know if you want to explore his work with Kubernetes, Terraform, Kafka, or AI platforms!"
+            "If you have non-engineering questions or personal inquiries, I don't know—maybe you should ask him! "
+            "You can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded directly to him."
         )
 
-    # 4. Contact & Hiring Inquiries
-    if any(w in q_lower for w in ["contact", "hire", "email", "reach", "resume", "linkedin", "github"]):
+    # 4. Personal Information Inquiries (Phone, Email, Where he lives, Age, etc.)
+    if any(re.search(pat, q_lower) for pat in [
+        r"where\s+(does|is)\s+brandon\s+(live|located|from)",
+        r"how\s+old\s+is\s+(he|brandon)",
+        r"(phone|cell|mobile)\s*(number)?",
+        r"what\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary)",
+        r"is\s+he\s+(married|single|dating)",
+        r"(personal|private)\s+(life|info|question)",
+        r"(hobbies|favorite\s+food|favorite\s+movie)",
+    ]):
         return (
-            "You can reach Brandon directly at **brandocomando8@gmail.com**, or connect with him on "
-            "[LinkedIn](https://linkedin.com/in/brandocomando) and [GitHub](https://github.com/brandocomando).\n\n"
-            "He's a Lead Platform & Distributed Systems Engineer specializing in Kubernetes, Terraform, "
-            "Event-Driven Streaming (Kafka/Confluent), and MLOps platforms. "
-            "Would you like a quick rundown of his recent production impact or technical competencies?"
+            "I don't know—maybe you should ask him! That personal information is not in his public engineering docs. "
+            "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to Brandon's inbox."
         )
 
-    # 5. Core Technical Topics
+    # 5. Contact & Hiring Inquiries (Zero email/phone exposure)
+    if any(w in q_lower for w in ["contact", "hire", "email", "reach", "resume"]):
+        return (
+            "Brandon doesn't publish his direct email or phone number on the site, but you can message him directly "
+            "through the **[Contact Page](#contact)**!\n\n"
+            "Just submit your question and email, and your message will be forwarded straight to his inbox. "
+            "You can also connect with him on [LinkedIn](https://linkedin.com/in/brandocomando) and [GitHub](https://github.com/brandocomando)."
+        )
+
+    # 6. Core Technical Topics
     # Kubernetes & GitOps
     if any(w in q_lower for w in ["kubernetes", "eks", "k8s", "argocd", "gitops"]):
         return (
@@ -209,10 +223,8 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         return response
 
     return (
-        "I don't have a specific record in Brandon's portfolio regarding that topic. "
-        "Brandon's core expertise centers on Platform Engineering, Kubernetes, Terraform, Kafka, and MLOps. "
-        "Feel free to connect directly with Brandon via [LinkedIn](https://linkedin.com/in/brandocomando) or "
-        "[GitHub](https://github.com/brandocomando) to ask him directly!"
+        "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs, "
+        "but you can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
     )
 
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User as UserIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User as UserIcon, Mail } from 'lucide-react';
 import { ChatMessage, QuotaStatus } from '../types';
 import { streamChat } from '../lib/api';
 
@@ -11,6 +11,7 @@ interface AiChatDrawerProps {
   onOpenAuth: () => void;
   initialPrompt?: string;
   authToken?: string | null;
+  onOpenContact?: (initialQuestion?: string) => void;
 }
 
 export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
@@ -20,7 +21,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   onRefreshQuota,
   onOpenAuth,
   initialPrompt,
-  authToken
+  authToken,
+  onOpenContact
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -54,6 +56,89 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       handleSendPrompt(initialPrompt);
     }
   }, [isOpen, initialPrompt]);
+
+  const getLastUserQuestion = (assistantMsgId: string): string | undefined => {
+    const idx = messages.findIndex((msg) => msg.id === assistantMsgId);
+    if (idx >= 0) {
+      for (let i = idx - 1; i >= 0; i--) {
+        if (messages[i].role === 'user') {
+          return messages[i].content;
+        }
+      }
+    }
+    const userMsgs = messages.filter((m) => m.role === 'user');
+    return userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].content : undefined;
+  };
+
+  const renderBoldSegments = (text: string, keyPrefix: string) => {
+    const parts: React.ReactNode[] = [];
+    let lastIdx = 0;
+    const boldRegex = /\*\*([^*]+)\*\*/g;
+    let match;
+
+    while ((match = boldRegex.exec(text)) !== null) {
+      if (match.index > lastIdx) {
+        parts.push(text.substring(lastIdx, match.index));
+      }
+      parts.push(
+        <strong key={`${keyPrefix}-b-${match.index}`} className="font-semibold text-white">
+          {match[1]}
+        </strong>
+      );
+      lastIdx = boldRegex.lastIndex;
+    }
+    if (lastIdx < text.length) {
+      parts.push(text.substring(lastIdx));
+    }
+    return <React.Fragment key={keyPrefix}>{parts}</React.Fragment>;
+  };
+
+  const renderFormattedContent = (content: string, assistantMsgId: string) => {
+    const parts: React.ReactNode[] = [];
+    let lastIdx = 0;
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let match;
+
+    while ((match = linkRegex.exec(content)) !== null) {
+      if (match.index > lastIdx) {
+        parts.push(renderBoldSegments(content.substring(lastIdx, match.index), `txt-${lastIdx}`));
+      }
+      const linkText = match[1];
+      const linkUrl = match[2];
+
+      if (linkUrl === '#contact' || linkUrl.includes('contact')) {
+        parts.push(
+          <button
+            key={`contact-${match.index}`}
+            type="button"
+            onClick={() => onOpenContact?.(getLastUserQuestion(assistantMsgId))}
+            className="text-cyan-400 underline font-semibold hover:text-cyan-300 inline cursor-pointer"
+          >
+            {linkText}
+          </button>
+        );
+      } else {
+        parts.push(
+          <a
+            key={`link-${match.index}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-400 underline hover:text-cyan-300"
+          >
+            {linkText}
+          </a>
+        );
+      }
+      lastIdx = linkRegex.lastIndex;
+    }
+
+    if (lastIdx < content.length) {
+      parts.push(renderBoldSegments(content.substring(lastIdx), `txt-${lastIdx}`));
+    }
+
+    return parts;
+  };
 
   const handleSendPrompt = async (promptText: string) => {
     if (!promptText.trim() || isStreaming) return;
@@ -203,7 +288,25 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                   : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
               }`}
             >
-              <div className="whitespace-pre-wrap">{m.content}</div>
+              <div className="whitespace-pre-wrap">
+                {m.role === 'assistant' ? renderFormattedContent(m.content, m.id) : m.content}
+              </div>
+
+              {/* Direct Contact CTA if redirected to contact page or off-topic */}
+              {m.role === 'assistant' &&
+                (m.content.includes('#contact') ||
+                  m.content.toLowerCase().includes('contact page') ||
+                  m.content.includes('maybe you should ask him')) && (
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80">
+                    <button
+                      onClick={() => onOpenContact?.(getLastUserQuestion(m.id))}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-500/40 text-cyan-300 hover:text-white text-xs font-semibold transition-all shadow-sm cursor-pointer group"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                      <span>Send Question Directly to Brandon</span>
+                    </button>
+                  </div>
+                )}
 
               {/* Referenced Topics */}
               {m.sources && m.sources.length > 0 && (

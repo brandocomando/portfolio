@@ -1,7 +1,11 @@
 import React from 'react';
 import { Terminal, Github } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenContact?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
   return (
     <footer className="border-t border-slate-800 bg-[#070a12] py-12 text-xs text-slate-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,6 +25,12 @@ export const Footer: React.FC = () => {
             <a href="#experience" className="hover:text-cyan-400 transition-colors">Experience</a>
             <a href="#projects" className="hover:text-cyan-400 transition-colors">Projects</a>
             <a href="#skills" className="hover:text-cyan-400 transition-colors">Skills</a>
+            <button
+              onClick={onOpenContact}
+              className="hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              Contact
+            </button>
             <a
               href="https://github.com/brandocomando"
               target="_blank"

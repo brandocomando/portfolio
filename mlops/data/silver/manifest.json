@@ -1,16 +1,16 @@
 {
   "stage": "silver",
-  "processed_at": "2026-10-05T22:55:03.962797Z",
+  "processed_at": "2026-10-06T15:47:32.231645Z",
   "chunk_count": 19,
-  "total_estimated_tokens": 3840,
+  "total_estimated_tokens": 3844,
   "categories": [
-    "finops",
-    "distributed_systems",
-    "ai_infra",
-    "platform_engineering",
     "data_platform",
     "bio",
-    "skills"
+    "finops",
+    "platform_engineering",
+    "ai_infra",
+    "skills",
+    "distributed_systems"
   ],
   "artifacts": {
     "chunks_file": "/opt/personal/portfolio/mlops/data/silver/chunks.json"

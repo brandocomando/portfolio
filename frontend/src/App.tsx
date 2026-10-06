@@ -9,6 +9,7 @@ import { SkillsMatrix } from './components/SkillsMatrix';
 import { Footer } from './components/Footer';
 import { AiChatDrawer } from './components/AiChatDrawer';
 import { AuthModal } from './components/AuthModal';
+import { ContactModal } from './components/ContactModal';
 import { QuotaStatus } from './types';
 import { fetchQuota } from './lib/api';
 import { auth, logout } from './lib/firebase';
@@ -17,6 +18,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 export const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactInitialQuestion, setContactInitialQuestion] = useState<string | undefined>();
   const [initialPrompt, setInitialPrompt] = useState<string | undefined>();
   const [quota, setQuota] = useState<QuotaStatus | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(() => localStorage.getItem('portfolio_auth_token'));
@@ -46,9 +49,25 @@ export const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const checkHash = () => {
+      if (window.location.hash === '#contact') {
+        setIsContactModalOpen(true);
+      }
+    };
+    window.addEventListener('hashchange', checkHash);
+    checkHash();
+    return () => window.removeEventListener('hashchange', checkHash);
+  }, []);
+
   const handleOpenChat = (prompt?: string) => {
     setInitialPrompt(prompt);
     setIsChatOpen(true);
+  };
+
+  const handleOpenContact = (question?: string) => {
+    setContactInitialQuestion(question);
+    setIsContactModalOpen(true);
   };
 
   const handleAuthSuccess = (token: string, _user: any) => {
@@ -72,6 +91,7 @@ export const App: React.FC = () => {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onOpenChat={() => handleOpenChat()}
+        onOpenContact={() => handleOpenContact()}
       />
 
       {/* Main Sections */}
@@ -84,7 +104,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <Footer onOpenContact={() => handleOpenContact()} />
 
       {/* Floating Action Button (AI Assistant) */}
       {!isChatOpen && (
@@ -118,6 +138,7 @@ export const App: React.FC = () => {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         initialPrompt={initialPrompt}
         authToken={authToken}
+        onOpenContact={handleOpenContact}
       />
 
       {/* Recruiter / Visitor Auth Modal */}
@@ -126,6 +147,20 @@ export const App: React.FC = () => {
         onClose={() => setIsAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
       />
+
+      {/* Direct Contact Modal */}
+      <ContactModal
+        isOpen={isContactModalOpen}
+        onClose={() => {
+          setIsContactModalOpen(false);
+          setContactInitialQuestion(undefined);
+          if (window.location.hash === '#contact') {
+            history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }}
+        initialQuestion={contactInitialQuestion}
+      />
     </div>
   );
 };
+

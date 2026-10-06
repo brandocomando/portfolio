@@ -7,9 +7,10 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenChat: () => void;
+  onOpenContact?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ quota, onOpenAuth, onLogout, onOpenChat }) => {
+export const Navbar: React.FC<NavbarProps> = ({ quota, onOpenAuth, onLogout, onOpenChat, onOpenContact }) => {
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#090d16]/80 border-b border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -34,6 +35,12 @@ export const Navbar: React.FC<NavbarProps> = ({ quota, onOpenAuth, onLogout, onO
           <a href="#experience" className="hover:text-cyan-400 transition-colors">Experience</a>
           <a href="#projects" className="hover:text-cyan-400 transition-colors">Projects</a>
           <a href="#skills" className="hover:text-cyan-400 transition-colors">Skills</a>
+          <button
+            onClick={onOpenContact}
+            className="hover:text-cyan-400 transition-colors cursor-pointer"
+          >
+            Contact
+          </button>
           <a
             href="https://github.com/brandocomando/portfolio"
             target="_blank"

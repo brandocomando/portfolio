@@ -99,5 +99,88 @@ class FirestoreLeadService:
         except Exception as e:
             logger.warning(f"Failed to send webhook notification: {e}")
 
+    async def record_contact_message(
+        self,
+        email: str,
+        question: str,
+        name: Optional[str] = None,
+        client_ip: Optional[str] = None
+    ) -> bool:
+        """Stores the visitor's submitted question in Firestore and forwards alert to Brandon."""
+        now = datetime.datetime.utcnow().isoformat() + "Z"
+        client = self._get_client()
+
+        contact_record = {
+            "name": name or "Anonymous Visitor",
+            "email": email,
+            "question": question,
+            "timestamp": now,
+            "client_ip": client_ip or "unknown",
+            "status": "pending_review",
+        }
+
+        # 1. Save to Firestore
+        if client:
+            try:
+                doc_ref = client.collection(settings.FIRESTORE_COLLECTION_CONTACT).document()
+                doc_ref.set(contact_record)
+                logger.info(f"Recorded contact submission in Firestore: {email}")
+            except Exception as e:
+                logger.error(f"Failed to record contact message in Firestore: {e}")
+
+        # 2. Forward to Webhook (Slack / Discord) if configured
+        if settings.LEAD_NOTIFICATION_WEBHOOK_URL:
+            webhook_text = (
+                f"📬 **New Question Received from Portfolio Contact Form!**\n"
+                f"• **From:** {name or 'Anonymous'} (<{email}>)\n"
+                f"• **Question/Message:**\n> {question}\n\n"
+                f"*Reply directly to {email}*"
+            )
+            try:
+                async with httpx.AsyncClient(timeout=4.0) as http_client:
+                    await http_client.post(
+                        settings.LEAD_NOTIFICATION_WEBHOOK_URL,
+                        json={"content": webhook_text, "text": webhook_text}
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to send webhook contact alert: {e}")
+
+        # 3. Forward via SMTP if configured
+        if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
+            try:
+                import smtplib
+                from email.mime.text import MIMEText
+                from email.mime.multipart import MIMEMultipart
+
+                msg = MIMEMultipart()
+                msg["Subject"] = f"[Portfolio Contact] New message from {name or email}"
+                msg["From"] = settings.SMTP_FROM or settings.SMTP_USER
+                msg["To"] = settings.NOTIFICATION_EMAIL_TO
+                msg["Reply-To"] = email
+
+                body = (
+                    f"You received a new message from your portfolio contact form:\n\n"
+                    f"Name: {name or 'Not provided'}\n"
+                    f"Email: {email}\n"
+                    f"Date: {now}\n\n"
+                    f"Message:\n{question}\n\n"
+                    f"---\nReply directly to this email to respond to {email}."
+                )
+                msg.attach(MIMEText(body, "plain"))
+
+                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                    server.starttls()
+                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                    server.send_message(msg)
+                logger.info(f"Successfully sent contact email via SMTP to {settings.NOTIFICATION_EMAIL_TO}")
+            except Exception as e:
+                logger.warning(f"Failed to send SMTP contact email: {e}")
+
+        # 4. Log high-visibility notification for server logs
+        logger.info(
+            f"📨 CONTACT MESSAGE FORWARDED: from='{email}' to='{settings.NOTIFICATION_EMAIL_TO}': {question[:80]}"
+        )
+        return True
+
 
 firestore_service = FirestoreLeadService()

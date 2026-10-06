@@ -65,7 +65,7 @@ def run_silver_transform():
         f"Headline: {bio.headline}\n"
         f"Overview: {bio.summary}\n"
         f"Core Technical Domains: {', '.join(bio.domains)}.\n"
-        f"Contact: {bio.email} | GitHub: {bio.github} | LinkedIn: {bio.linkedin or 'N/A'}"
+        f"Contact: Connect via Portfolio Contact Page | GitHub: {bio.github} | LinkedIn: {bio.linkedin or 'N/A'}"
     )
     chunks.append(KnowledgeChunk(
         id="chunk-bio-overview",

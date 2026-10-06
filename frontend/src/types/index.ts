@@ -55,3 +55,9 @@ export interface QuotaStatus {
   user_email?: string;
   user_name?: string;
 }
+
+export interface ContactSubmission {
+  name?: string;
+  email: string;
+  question: string;
+}

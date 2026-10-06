@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-10-06T00:06:36.122917Z",
+  "timestamp": "2026-10-06T15:48:51.661904Z",
   "passed": true,
   "metrics": {
     "total_tests": 12,
     "hit_rate_top3": 0.9091,
-    "mrr": 0.7273,
+    "mrr": 0.8636,
     "keyword_recall": 0.98,
     "guardrail_pass_rate": 1.0
   },
@@ -76,12 +76,12 @@
       "question": "What AI agents did Brandon build in My Agentic Team?",
       "target_chunk": "chunk-proj-my-agentic-team",
       "retrieved_ids": [
-        "chunk-bio-overview",
         "chunk-proj-my-agentic-team",
-        "chunk-skills-ai-infrastructure-and-mlops"
+        "chunk-bio-overview",
+        "chunk-exp-cicd-github-migration"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 1,
       "keyword_recall": "5/5"
     },
     {
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-bio-overview",
-        "chunk-skills-data-platforms-and-streaming"
+        "chunk-skills-data-platforms-and-streaming",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -118,12 +118,12 @@
       "question": "How did Brandon implement zero-trust mTLS across microservices?",
       "target_chunk": "chunk-exp-security-appmesh-mtls",
       "retrieved_ids": [
-        "chunk-bio-overview",
         "chunk-exp-security-appmesh-mtls",
+        "chunk-bio-overview",
         "chunk-exp-kafka-confluent-migration"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 1,
       "keyword_recall": "5/5"
     },
     {
@@ -146,12 +146,12 @@
       "question": "What programming languages is Brandon Foster an expert in?",
       "target_chunk": "chunk-skills-languages-and-runtimes",
       "retrieved_ids": [
-        "chunk-bio-overview",
         "chunk-skills-languages-and-runtimes",
+        "chunk-bio-overview",
         "chunk-skills-containers-and-orchestration"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 1,
       "keyword_recall": "4/4"
     },
     {

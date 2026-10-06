@@ -6,7 +6,8 @@ milestones:
     summary: >
       Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to
       Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments,
-      and dynamic horizontal pod autoscaling (HPA).
+      and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering
+      (previously held Certified Kubernetes Administrator - CKA certification).
     impact_metrics:
       - "30+ microservices migrated with zero customer downtime"
       - "Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)"
@@ -15,13 +16,14 @@ milestones:
       - "Kubernetes"
       - "AWS EKS"
       - "ArgoCD"
+      - "CKA (Previously Certified)"
       - "Terraform"
       - "Docker"
       - "Helm"
 
   - id: "exp-cicd-github-migration"
     category: "platform_engineering"
-    title: "Enterprise CI/CD Migration: Bitbucket to GitHub Actions"
+    title: "Enterprise CI/CD Migration: Bitbucket & Jenkins to GitHub Actions"
     role: "Principal Infrastructure / DevOps Lead"
     summary: >
       Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+
@@ -57,6 +59,7 @@ milestones:
       - "Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
     technologies:
       - "Terraform"
+      - "OpenTofu"
       - "Go"
       - "AWS"
       - "Snowflake"
@@ -71,17 +74,66 @@ milestones:
     summary: >
       Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud,
       reducing operational maintenance, improving schema registry governance, and streamlining
-      Terraform automation for event-driven microservices.
+      Terraform automation for event-driven microservices. Also operated high-throughput distributed NoSQL data stores
+      including Aerospike and Apache Cassandra.
     impact_metrics:
       - "Eliminated broker patch downtime and storage rebalancing toil"
       - "Enforced Avro/Protobuf schema evolution governance across producers and consumers"
-      - "Significantly lowered infrastructure maintenance overhead"
+      - "Maintained sub-10ms latency for high-throughput distributed NoSQL data stores (Aerospike, Cassandra)"
     technologies:
       - "Apache Kafka"
       - "Confluent Cloud"
       - "AWS MSK"
       - "Schema Registry"
+      - "Aerospike"
+      - "Apache Cassandra"
       - "Terraform"
+
+  - id: "exp-security-compliance-audit"
+    category: "platform_engineering"
+    title: "Enterprise Cloud Security, DevSecOps & Compliance Audit Governance"
+    role: "Lead Platform & Infrastructure Security Engineer"
+    summary: >
+      Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments.
+      Implemented least-privilege IAM policies, AWS Organizations SCPs, automated container vulnerability scanning
+      (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2,
+      HIPAA, and ISO 27001 compliance audits.
+    impact_metrics:
+      - "Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards"
+      - "Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines"
+      - "Hardened multi-account AWS isolation separating production, staging, and development with Service Control Policies (SCPs)"
+    technologies:
+      - "AWS IAM"
+      - "AWS Organizations & SCPs"
+      - "Workload Identity / OIDC"
+      - "SOC 2 Type 2"
+      - "HIPAA"
+      - "ISO 27001"
+      - "Security Scanning (Trivy/Snyk)"
+      - "AWS Config & Security Hub"
+      - "Kubernetes RBAC"
+
+  - id: "exp-developer-tooling-paved-roads"
+    category: "platform_engineering"
+    title: "Internal Developer Platform Tooling, Paved Roads & SRE Reliability"
+    role: "Staff Platform & Reliability Engineer"
+    summary: >
+      Spearheaded internal developer platform initiatives by designing opinionated paved roads and self-service
+      automation in Go and Python. Built developer CLIs, standard service templates, Docker Compose local development
+      stacks, and established SRE reliability standards including SLOs, automated runbooks, and blameless postmortems.
+    impact_metrics:
+      - "Reduced new service onboarding and developer provisioning time from days to under 2 hours via paved-road templates and CLIs"
+      - "Established service-level objectives (SLOs) and blameless postmortem culture, cutting recurring operational toil by 40%"
+      - "Streamlined local developer workflows with containerized Docker Compose stacks replacing brittle shared preproduction environments"
+    technologies:
+      - "Go (Golang)"
+      - "Python"
+      - "Docker Compose"
+      - "Developer CLIs & SDKs"
+      - "SLOs / SLIs"
+      - "Datadog"
+      - "Prometheus & Grafana"
+      - "Incident Management & Blameless Postmortems"
 
   - id: "exp-security-appmesh-mtls"
     category: "distributed_systems"

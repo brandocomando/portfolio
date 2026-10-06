@@ -22,11 +22,12 @@
     "id": "chunk-exp-eks-migration",
     "title": "Experience: Large-Scale Microservices Migration to EKS & GitOps",
     "category": "distributed_systems",
-    "content": "[CAREER EXPERIENCE] Large-Scale Microservices Migration to EKS & GitOps\nRole: Lead Platform Engineer | Category: distributed_systems\nSummary: Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA).\nQuantified Impact & Metrics:\n  \u2022 30+ microservices migrated with zero customer downtime\n  \u2022 Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)\n  \u2022 Consolidated multi-account AWS and acquisition workloads into unified, secure architectures\nTechnologies Utilized: Kubernetes, AWS EKS, ArgoCD, Terraform, Docker, Helm",
+    "content": "[CAREER EXPERIENCE] Large-Scale Microservices Migration to EKS & GitOps\nRole: Lead Platform Engineer | Category: distributed_systems\nSummary: Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering (previously held Certified Kubernetes Administrator - CKA certification).\nQuantified Impact & Metrics:\n  \u2022 30+ microservices migrated with zero customer downtime\n  \u2022 Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)\n  \u2022 Consolidated multi-account AWS and acquisition workloads into unified, secure architectures\nTechnologies Utilized: Kubernetes, AWS EKS, ArgoCD, CKA (Previously Certified), Terraform, Docker, Helm",
     "tags": [
       "kubernetes",
       "aws eks",
       "argocd",
+      "cka (previously certified)",
       "terraform",
       "docker",
       "helm",
@@ -34,7 +35,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 180,
+    "token_estimate": 217,
     "metadata": {
       "role": "Lead Platform Engineer",
       "milestone_id": "exp-eks-migration"
@@ -42,9 +43,9 @@
   },
   {
     "id": "chunk-exp-cicd-github-migration",
-    "title": "Experience: Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
+    "title": "Experience: Enterprise CI/CD Migration: Bitbucket & Jenkins to GitHub Actions",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories, transitioning workloads from legacy Bitbucket and Jenkins setups to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: CI/CD, CI/CD Pipelines, GitHub Actions, Bitbucket, Jenkins, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
+    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket & Jenkins to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories, transitioning workloads from legacy Bitbucket and Jenkins setups to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: CI/CD, CI/CD Pipelines, GitHub Actions, Bitbucket, Jenkins, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
     "tags": [
       "ci/cd",
       "ci/cd pipelines",
@@ -59,7 +60,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 213,
+    "token_estimate": 215,
     "metadata": {
       "role": "Principal Infrastructure / DevOps Lead",
       "milestone_id": "exp-cicd-github-migration"
@@ -69,9 +70,10 @@
     "id": "chunk-exp-terraform-platform",
     "title": "Experience: Enterprise Terraform Module Platform & Multi-Cloud Automation",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise Terraform Module Platform & Multi-Cloud Automation\nRole: Senior Platform Architect | Category: platform_engineering\nSummary: Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails.\nQuantified Impact & Metrics:\n  \u2022 Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms\n  \u2022 Automated compliance and drift detection for hundreds of cloud resources\n  \u2022 Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies\nTechnologies Utilized: Terraform, Go, AWS, Snowflake, Confluent Cloud, Databricks, Datadog",
+    "content": "[CAREER EXPERIENCE] Enterprise Terraform Module Platform & Multi-Cloud Automation\nRole: Senior Platform Architect | Category: platform_engineering\nSummary: Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails.\nQuantified Impact & Metrics:\n  \u2022 Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms\n  \u2022 Automated compliance and drift detection for hundreds of cloud resources\n  \u2022 Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies\nTechnologies Utilized: Terraform, OpenTofu, Go, AWS, Snowflake, Confluent Cloud, Databricks, Datadog",
     "tags": [
       "terraform",
+      "opentofu",
       "go",
       "aws",
       "snowflake",
@@ -82,7 +84,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 205,
+    "token_estimate": 208,
     "metadata": {
       "role": "Senior Platform Architect",
       "milestone_id": "exp-terraform-platform"
@@ -92,21 +94,72 @@
     "id": "chunk-exp-kafka-confluent-migration",
     "title": "Experience: Streaming Platform Modernization: AWS MSK to Confluent Cloud",
     "category": "data_platform",
-    "content": "[CAREER EXPERIENCE] Streaming Platform Modernization: AWS MSK to Confluent Cloud\nRole: Staff Data Infrastructure Engineer | Category: data_platform\nSummary: Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, improving schema registry governance, and streamlining Terraform automation for event-driven microservices.\nQuantified Impact & Metrics:\n  \u2022 Eliminated broker patch downtime and storage rebalancing toil\n  \u2022 Enforced Avro/Protobuf schema evolution governance across producers and consumers\n  \u2022 Significantly lowered infrastructure maintenance overhead\nTechnologies Utilized: Apache Kafka, Confluent Cloud, AWS MSK, Schema Registry, Terraform",
+    "content": "[CAREER EXPERIENCE] Streaming Platform Modernization: AWS MSK to Confluent Cloud\nRole: Staff Data Infrastructure Engineer | Category: data_platform\nSummary: Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, improving schema registry governance, and streamlining Terraform automation for event-driven microservices. Also operated high-throughput distributed NoSQL data stores including Aerospike and Apache Cassandra.\nQuantified Impact & Metrics:\n  \u2022 Eliminated broker patch downtime and storage rebalancing toil\n  \u2022 Enforced Avro/Protobuf schema evolution governance across producers and consumers\n  \u2022 Maintained sub-10ms latency for high-throughput distributed NoSQL data stores (Aerospike, Cassandra)\nTechnologies Utilized: Apache Kafka, Confluent Cloud, AWS MSK, Schema Registry, Aerospike, Apache Cassandra, Terraform",
     "tags": [
       "apache kafka",
       "confluent cloud",
       "aws msk",
       "schema registry",
+      "aerospike",
+      "apache cassandra",
       "terraform",
       "data_platform",
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 183,
+    "token_estimate": 227,
     "metadata": {
       "role": "Staff Data Infrastructure Engineer",
       "milestone_id": "exp-kafka-confluent-migration"
+    }
+  },
+  {
+    "id": "chunk-exp-security-compliance-audit",
+    "title": "Experience: Enterprise Cloud Security, DevSecOps & Compliance Audit Governance",
+    "category": "platform_engineering",
+    "content": "[CAREER EXPERIENCE] Enterprise Cloud Security, DevSecOps & Compliance Audit Governance\nRole: Lead Platform & Infrastructure Security Engineer | Category: platform_engineering\nSummary: Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, AWS Organizations SCPs, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\nQuantified Impact & Metrics:\n  \u2022 Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards\n  \u2022 Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines\n  \u2022 Hardened multi-account AWS isolation separating production, staging, and development with Service Control Policies (SCPs)\nTechnologies Utilized: AWS IAM, AWS Organizations & SCPs, Workload Identity / OIDC, SOC 2 Type 2, HIPAA, ISO 27001, Security Scanning (Trivy/Snyk), AWS Config & Security Hub, Kubernetes RBAC",
+    "tags": [
+      "aws iam",
+      "aws organizations & scps",
+      "workload identity / oidc",
+      "soc 2 type 2",
+      "hipaa",
+      "iso 27001",
+      "security scanning (trivy/snyk)",
+      "aws config & security hub",
+      "kubernetes rbac",
+      "platform_engineering",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 286,
+    "metadata": {
+      "role": "Lead Platform & Infrastructure Security Engineer",
+      "milestone_id": "exp-security-compliance-audit"
+    }
+  },
+  {
+    "id": "chunk-exp-developer-tooling-paved-roads",
+    "title": "Experience: Internal Developer Platform Tooling, Paved Roads & SRE Reliability",
+    "category": "platform_engineering",
+    "content": "[CAREER EXPERIENCE] Internal Developer Platform Tooling, Paved Roads & SRE Reliability\nRole: Staff Platform & Reliability Engineer | Category: platform_engineering\nSummary: Spearheaded internal developer platform initiatives by designing opinionated paved roads and self-service automation in Go and Python. Built developer CLIs, standard service templates, Docker Compose local development stacks, and established SRE reliability standards including SLOs, automated runbooks, and blameless postmortems.\nQuantified Impact & Metrics:\n  \u2022 Reduced new service onboarding and developer provisioning time from days to under 2 hours via paved-road templates and CLIs\n  \u2022 Established service-level objectives (SLOs) and blameless postmortem culture, cutting recurring operational toil by 40%\n  \u2022 Streamlined local developer workflows with containerized Docker Compose stacks replacing brittle shared preproduction environments\nTechnologies Utilized: Go (Golang), Python, Docker Compose, Developer CLIs & SDKs, SLOs / SLIs, Datadog, Prometheus & Grafana, Incident Management & Blameless Postmortems",
+    "tags": [
+      "go (golang)",
+      "python",
+      "docker compose",
+      "developer clis & sdks",
+      "slos / slis",
+      "datadog",
+      "prometheus & grafana",
+      "incident management & blameless postmortems",
+      "platform_engineering",
+      "experience"
+    ],
+    "source_file": "experience.yaml",
+    "token_estimate": 272,
+    "metadata": {
+      "role": "Staff Platform & Reliability Engineer",
+      "milestone_id": "exp-developer-tooling-paved-roads"
     }
   },
   {
@@ -249,65 +302,127 @@
     }
   },
   {
-    "id": "chunk-skills-languages-and-runtimes",
-    "title": "Skills: Languages & Runtimes",
+    "id": "chunk-skills-languages-and-core-systems",
+    "title": "Skills: Languages & Core Systems",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: LANGUAGES & RUNTIMES]\nSkills and Production Proof-Points:\n  \u2022 Go (Golang) (Expert): Kubernetes controllers (client-go), Terraform providers (Plugin SDK v2), Prometheus exporters, concurrent CLI daemons.\n  \u2022 Python (Expert): FastAPI, PyTorch / local LLM inference, Pydantic data validation, data pipelines, automated browser agents (CDP).\n  \u2022 Bash / Shell (Expert): Production Linux systems, CI/CD runner automation, terminal dev environments, POSIX scripting.\n  \u2022 TypeScript / JavaScript (Proficient): React, Vite, Node.js tooling, modern frontend applications, state management.\n  \u2022 Lua (Proficient): WezTerm plugins, Neovim configuration, event-driven terminal hooks.\n  \u2022 SQL (Proficient): Snowflake data warehouse modeling, PostgreSQL query tuning.",
+    "content": "[TECHNICAL SKILLS: LANGUAGES & CORE SYSTEMS]\nSkills and Production Proof-Points:\n  \u2022 Go (Golang) (Expert): Kubernetes controllers and operators (client-go), custom Terraform providers (Plugin SDK v2), Prometheus exporters, concurrent CLI daemons, goroutines/channels.\n  \u2022 Python (Expert): FastAPI, Pydantic v2 data validation, PyTorch, local LLM inference tooling, data pipelines, automated browser agents (CDP).\n  \u2022 Bash / POSIX Shell (Expert): Production Linux systems engineering, CI/CD runner automation, terminal dev environments, POSIX scripting.\n  \u2022 TypeScript / JavaScript (Proficient): React 19, Vite, Node.js tooling, modern frontend applications, state management.\n  \u2022 SQL (Proficient): PostgreSQL query tuning, Aurora RDS, Snowflake data warehouse modeling, analytical queries.\n  \u2022 Lua (Proficient): WezTerm plugins, Neovim configuration, event-driven terminal hooks.\n  \u2022 Rust & Java (Familiar): Systems programming concepts, reading and debugging JVM/Rust codebases, concurrency models.",
     "tags": [
       "go (golang)",
       "python",
-      "bash / shell",
+      "bash / posix shell",
       "typescript / javascript",
-      "lua",
       "sql",
+      "lua",
+      "rust & java",
       "skills",
-      "languages & runtimes"
+      "languages & core systems"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 192,
+    "token_estimate": 249,
     "metadata": {
-      "category_name": "Languages & Runtimes",
-      "skills_count": 6
+      "category_name": "Languages & Core Systems",
+      "skills_count": 7
     }
   },
   {
-    "id": "chunk-skills-cloud-and-infrastructure-as-code",
-    "title": "Skills: Cloud & Infrastructure as Code",
+    "id": "chunk-skills-cloud-and-multi-cloud-architecture",
+    "title": "Skills: Cloud & Multi-Cloud Architecture",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CLOUD & INFRASTRUCTURE AS CODE]\nSkills and Production Proof-Points:\n  \u2022 Terraform / OpenTofu (Expert): Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go.\n  \u2022 Amazon Web Services (AWS) (Expert): Multi-account AWS Organizations, EKS, VPC networking, App Mesh, MSK, IAM zero-trust, CloudWatch, Cost Explorer.\n  \u2022 Google Cloud Platform (GCP) (Expert): Cloud Run, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Firestore, Cloud Storage.\n  \u2022 FinOps & Cost Optimization (Expert): Architectural rightsizing, serverless scale-to-zero, saved $10K+/month in enterprise infrastructure rationalization.",
+    "content": "[TECHNICAL SKILLS: CLOUD & MULTI-CLOUD ARCHITECTURE]\nSkills and Production Proof-Points:\n  \u2022 Amazon Web Services (AWS) (Expert): Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS, CloudWatch, Cost Explorer.\n  \u2022 Google Cloud Platform (GCP) (Expert): Cloud Run, GKE, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage.\n  \u2022 Microsoft Azure (Familiar): Cloud-agnostic architecture, AKS, Azure Blob Storage, Azure DevOps, multi-cloud Terraform and Kubernetes patterns.\n  \u2022 Oracle Cloud (OCI) (Familiar): Portable cloud infrastructure deployment concepts, cloud-agnostic Kubernetes topologies.\n  \u2022 FinOps & Cloud Cost Optimization (Expert): Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling, FOCUS open specification, saved $10K+/month.",
     "tags": [
-      "terraform / opentofu",
       "amazon web services (aws)",
       "google cloud platform (gcp)",
-      "finops & cost optimization",
+      "microsoft azure",
+      "oracle cloud (oci)",
+      "finops & cloud cost optimization",
       "skills",
-      "cloud & infrastructure as code"
+      "cloud & multi-cloud architecture"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 181,
+    "token_estimate": 213,
     "metadata": {
-      "category_name": "Cloud & Infrastructure as Code",
-      "skills_count": 4
+      "category_name": "Cloud & Multi-Cloud Architecture",
+      "skills_count": 5
     }
   },
   {
     "id": "chunk-skills-containers-and-orchestration",
     "title": "Skills: Containers & Orchestration",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.\n  \u2022 CI/CD & Pipeline Automation (Expert): Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket and Jenkins migrations (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates.",
+    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) & EKS (Expert): Production EKS/GKE cluster administration, controllers/operators (client-go), ingress, HPA, Karpenter, CRDs, multi-tenant isolation; previously held CKA certification.\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines, ArgoCD Image Updater.\n  \u2022 FluxCD (Familiar): GitOps controller reconciliation loop, repository synchronization, Kustomize controller patterns.\n  \u2022 Docker & Container Runtimes (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization, Docker Compose local development environments.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.\n  \u2022 Service Mesh & Envoy (Expert): AWS App Mesh, Envoy Proxy, Envoy Gateway ingress, mutual TLS (mTLS) enforcement, circuit breakers, distributed tracing.",
     "tags": [
-      "kubernetes (k8s)",
+      "kubernetes (k8s) & eks",
       "argocd / gitops",
-      "docker",
+      "fluxcd",
+      "docker & container runtimes",
       "helm",
-      "ci/cd & pipeline automation",
+      "service mesh & envoy",
       "skills",
       "containers & orchestration"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 207,
+    "token_estimate": 248,
     "metadata": {
       "category_name": "Containers & Orchestration",
+      "skills_count": 6
+    }
+  },
+  {
+    "id": "chunk-skills-ci/cd-and-delivery-engineering",
+    "title": "Skills: CI/CD & Delivery Engineering",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: CI/CD & DELIVERY ENGINEERING]\nSkills and Production Proof-Points:\n  \u2022 CI/CD & Pipeline Automation (Expert): Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket and Jenkins migrations (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates.\n  \u2022 Jenkins & Traditional CI/CD (Proficient): Jenkins build environments, runner scaling on Linux/Docker, multi-stage pipelines, migration to modern GitOps.\n  \u2022 GitLab CI & Alternative Runners (Proficient): Declarative pipeline-as-code, runner autoscaling, containerized testing stages, artifact management.",
+    "tags": [
+      "ci/cd & pipeline automation",
+      "jenkins & traditional ci/cd",
+      "gitlab ci & alternative runners",
+      "skills",
+      "ci/cd & delivery engineering"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 162,
+    "metadata": {
+      "category_name": "CI/CD & Delivery Engineering",
+      "skills_count": 3
+    }
+  },
+  {
+    "id": "chunk-skills-infrastructure-as-code-and-automation",
+    "title": "Skills: Infrastructure as Code & Automation",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: INFRASTRUCTURE AS CODE & AUTOMATION]\nSkills and Production Proof-Points:\n  \u2022 Terraform / OpenTofu (Expert): Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go (terraform-provider-neo4j).\n  \u2022 Pulumi & AWS CDK (Familiar): Programmatic Infrastructure as Code concepts, TypeScript/Python IaC SDKs, rapid adoption capability.\n  \u2022 Ansible & Config Management (Proficient): Host provisioning, Linux system automation, playbooks; emphasizes modern immutable infrastructure (Terraform + Docker + K8s).",
+    "tags": [
+      "terraform / opentofu",
+      "pulumi & aws cdk",
+      "ansible & config management",
+      "skills",
+      "infrastructure as code & automation"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 149,
+    "metadata": {
+      "category_name": "Infrastructure as Code & Automation",
+      "skills_count": 3
+    }
+  },
+  {
+    "id": "chunk-skills-data-platforms-and-distributed-storage",
+    "title": "Skills: Data Platforms & Distributed Storage",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: DATA PLATFORMS & DISTRIBUTED STORAGE]\nSkills and Production Proof-Points:\n  \u2022 Apache Kafka & Confluent Cloud (Expert): Enterprise event streaming, schema registry governance (Avro/Protobuf), topic management with Terraform, broker migration from MSK.\n  \u2022 Snowflake & Databricks (Proficient): Data lakehouse infrastructure, Spark pipelines, role-based access control, Terraform automation.\n  \u2022 PostgreSQL & AWS Aurora (Proficient): Relational schema design, query optimization, Aurora cluster provisioning, replication, and failover.\n  \u2022 NoSQL & Distributed Caching (Proficient): High-throughput distributed NoSQL data stores with Aerospike and Apache Cassandra; ElastiCache Redis caching and session management.\n  \u2022 Workflow Orchestration (Temporal & Airflow) (Familiar): Stateful workflow orchestrator architectures (Temporal activities/workflows) and DAG pipelines (Airflow); deep hands-on background in event-driven systems (Kafka, SQS, Step Functions).",
+    "tags": [
+      "apache kafka & confluent cloud",
+      "snowflake & databricks",
+      "postgresql & aws aurora",
+      "nosql & distributed caching",
+      "workflow orchestration (temporal & airflow)",
+      "skills",
+      "data platforms & distributed storage"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 243,
+    "metadata": {
+      "category_name": "Data Platforms & Distributed Storage",
       "skills_count": 5
     }
   },
@@ -315,59 +430,102 @@
     "id": "chunk-skills-ai-infrastructure-and-mlops",
     "title": "Skills: AI Infrastructure & MLOps",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Expert): Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Expert): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Expert): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Expert): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.",
+    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Expert): Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Expert): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Expert): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Expert): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.\n  \u2022 Distributed ML & GPU Compute (Familiar): Understanding of GPU cluster orchestration (CUDA), model training/serving pipelines (Kubeflow/Ray); primary hands-on work in Databricks and FastAPI inference services.",
     "tags": [
       "autonomous agent architectures",
       "rag & retrieval systems",
       "mlops evaluation & quality gates",
       "local llm inference",
+      "distributed ml & gpu compute",
       "skills",
       "ai infrastructure & mlops"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 167,
+    "token_estimate": 220,
     "metadata": {
       "category_name": "AI Infrastructure & MLOps",
+      "skills_count": 5
+    }
+  },
+  {
+    "id": "chunk-skills-cloud-security,-devsecops-and-compliance",
+    "title": "Skills: Cloud Security, DevSecOps & Compliance",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: CLOUD SECURITY, DEVSECOPS & COMPLIANCE]\nSkills and Production Proof-Points:\n  \u2022 Zero-Trust & Identity (WIF / OIDC / IAM) (Expert): Keyless cloud authentication, least-privilege IAM policies, AWS Organizations SCPs, mTLS cryptographic encryption.\n  \u2022 Software Supply Chain Security (Expert): Container vulnerability scanning (Trivy, Snyk), Software Bill of Materials (SBOM), image provenance, admission control.\n  \u2022 Compliance Standards (SOC 2, HIPAA, ISO 27001) (Proficient): Engineering automated controls, audit evidence collection, risk register maintenance, and audit readiness for SOC 2 Type 2, HIPAA, and ISO 27001.\n  \u2022 Secrets & Key Management (Expert): Automated secret rotation, AWS Secrets Manager, HashiCorp Vault, KMS envelope encryption.",
+    "tags": [
+      "zero-trust & identity (wif / oidc / iam)",
+      "software supply chain security",
+      "compliance standards (soc 2, hipaa, iso 27001)",
+      "secrets & key management",
+      "skills",
+      "cloud security, devsecops & compliance"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 192,
+    "metadata": {
+      "category_name": "Cloud Security, DevSecOps & Compliance",
       "skills_count": 4
     }
   },
   {
-    "id": "chunk-skills-data-platforms-and-streaming",
-    "title": "Skills: Data Platforms & Streaming",
+    "id": "chunk-skills-observability,-sre-and-reliability",
+    "title": "Skills: Observability, SRE & Reliability",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: DATA PLATFORMS & STREAMING]\nSkills and Production Proof-Points:\n  \u2022 Apache Kafka & Confluent Cloud (Expert): Enterprise event streaming, schema registry governance (Avro/Protobuf), topic management with Terraform, broker migration from MSK.\n  \u2022 Snowflake & Databricks (Proficient): Data lakehouse infrastructure, role-based access control, Terraform automation.\n  \u2022 DataOps & Data Contracts (Expert): Medallion data architecture (Bronze/Silver/Gold), Pydantic v2 data contract enforcement, automated data validation.",
-    "tags": [
-      "apache kafka & confluent cloud",
-      "snowflake & databricks",
-      "dataops & data contracts",
-      "skills",
-      "data platforms & streaming"
-    ],
-    "source_file": "skills.yaml",
-    "token_estimate": 133,
-    "metadata": {
-      "category_name": "Data Platforms & Streaming",
-      "skills_count": 3
-    }
-  },
-  {
-    "id": "chunk-skills-observability-and-sre",
-    "title": "Skills: Observability & SRE",
-    "category": "skills",
-    "content": "[TECHNICAL SKILLS: OBSERVABILITY & SRE]\nSkills and Production Proof-Points:\n  \u2022 Prometheus & Exporters (Expert): Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards.\n  \u2022 Datadog (Expert): APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation.\n  \u2022 OpenTelemetry (OTel) (Proficient): Distributed trace context propagation (W3C traceparent), span creation for LLM and retrieval latency.\n  \u2022 Service Mesh (AWS App Mesh / Envoy) (Expert): Mutual TLS (mTLS) enforcement, traffic routing, circuit breakers, distributed proxy telemetry.",
+    "content": "[TECHNICAL SKILLS: OBSERVABILITY, SRE & RELIABILITY]\nSkills and Production Proof-Points:\n  \u2022 Prometheus & Exporters (Expert): Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards.\n  \u2022 Datadog (Expert): APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation.\n  \u2022 OpenTelemetry (OTel) (Proficient): Distributed trace context propagation (W3C traceparent), span creation for microservices and AI retrieval latency.\n  \u2022 SRE Practices & Incident Management (Expert): SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership.\n  \u2022 High Availability & Disaster Recovery (HA/DR) (Expert): Multi-region failover, circuit breakers, graceful degradation, chaos engineering principles.",
     "tags": [
       "prometheus & exporters",
       "datadog",
       "opentelemetry (otel)",
-      "service mesh (aws app mesh / envoy)",
+      "sre practices & incident management",
+      "high availability & disaster recovery (ha/dr)",
       "skills",
-      "observability & sre"
+      "observability, sre & reliability"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 153,
+    "token_estimate": 198,
     "metadata": {
-      "category_name": "Observability & SRE",
-      "skills_count": 4
+      "category_name": "Observability, SRE & Reliability",
+      "skills_count": 5
+    }
+  },
+  {
+    "id": "chunk-skills-platform-engineering-and-developer-experience",
+    "title": "Skills: Platform Engineering & Developer Experience",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: PLATFORM ENGINEERING & DEVELOPER EXPERIENCE]\nSkills and Production Proof-Points:\n  \u2022 Internal Developer Platforms & Paved Roads (Expert): Designing opinionated self-service infrastructure ('the easy path is the safe path'), service templates, PR preview environments.\n  \u2022 Developer Tooling & CLIs (Expert): Authoring high-performance developer CLIs, SDKs, and automation tooling in Go and Python.\n  \u2022 Developer Portals (Backstage / Port) (Familiar): Architectural understanding of developer portals, service catalogs, and software templates; actively looking forward to leading a full IDP rollout.",
+    "tags": [
+      "internal developer platforms & paved roads",
+      "developer tooling & clis",
+      "developer portals (backstage / port)",
+      "skills",
+      "platform engineering & developer experience"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 154,
+    "metadata": {
+      "category_name": "Platform Engineering & Developer Experience",
+      "skills_count": 3
+    }
+  },
+  {
+    "id": "chunk-skills-technical-leadership-and-soft-skills",
+    "title": "Skills: Technical Leadership & Soft Skills",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: TECHNICAL LEADERSHIP & SOFT SKILLS]\nSkills and Production Proof-Points:\n  \u2022 Staff / Principal Technical Leadership (Expert): Driving technical strategy, building consensus across engineering boundaries without management authority, raising the technical bar.\n  \u2022 Architecture Reviews & RFCs (Expert): Authoring RFCs (Request for Comments) and ADRs (Architectural Decision Records), leading design reviews for mission-critical systems.\n  \u2022 Mentorship & Engineering Culture (Expert): Mentoring mid-level and senior engineers, fostering servant leadership, blameless postmortem culture, allyship.\n  \u2022 Cross-Functional Communication (Expert): Translating deep infrastructure trade-offs into business value for Product, Security, Compliance, and executive stakeholders.\n  \u2022 Adoption-First Engineering (Expert): Treating platform adoption as a first-class engineering discipline with feedback loops, docs, and measurable developer productivity outcomes.",
+    "tags": [
+      "staff / principal technical leadership",
+      "architecture reviews & rfcs",
+      "mentorship & engineering culture",
+      "cross-functional communication",
+      "adoption-first engineering",
+      "skills",
+      "technical leadership & soft skills"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 241,
+    "metadata": {
+      "category_name": "Technical Leadership & Soft Skills",
+      "skills_count": 5
     }
   }
 ]

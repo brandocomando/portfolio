@@ -289,5 +289,163 @@ async def test_chat_stream_upstream_forks_disclaimer():
             assert "My Agentic Team" in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_temporal_experience():
+    """Verify Temporal questions explain conceptual workflow orchestration and event-driven background."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does Brandon have experience with Temporal?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Temporal" in streamed
+        assert "event-driven" in streamed.lower() or "kafka" in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_pulumi_cdk_experience():
+    """Verify Pulumi / AWS CDK questions explain programmatic IaC concepts and Terraform expertise."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "What about Pulumi or AWS CDK?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Pulumi" in streamed or "CDK" in streamed
+        assert "Terraform" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_fluxcd_experience():
+    """Verify FluxCD questions bridge to ArgoCD GitOps expertise and Flux reconciliation concepts."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Has he used FluxCD?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "FluxCD" in streamed
+        assert "ArgoCD" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_backstage_port_experience():
+    """Verify Backstage / Port questions highlight developer CLIs and paved roads while looking forward to IDP rollout."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does he have experience with Backstage or Port?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Backstage" in streamed or "Port" in streamed
+        assert "Internal Developer Platform" in streamed or "IDP" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_databricks_spark_airflow():
+    """Verify Databricks, Spark, and Airflow questions return hands-on lakehouse and pipeline experience."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Has he worked with Databricks or Spark or Airflow?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Databricks" in streamed
+        assert "Spark" in streamed or "Airflow" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_cassandra_aerospike_nosql():
+    """Verify Cassandra and Aerospike questions confirm direct hands-on NoSQL experience."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "What about Cassandra or Aerospike?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Aerospike" in streamed
+        assert "Cassandra" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_clickhouse_redshift():
+    """Verify ClickHouse and Redshift questions explain analytical warehouse focus on Snowflake/Databricks."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does he have experience with ClickHouse or Redshift?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Snowflake" in streamed or "Databricks" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_soc2_hipaa_iso27001():
+    """Verify SOC 2, HIPAA, and ISO 27001 questions confirm compliance audit evidence experience."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does Brandon have experience with SOC 2 or HIPAA or ISO 27001?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "SOC 2" in streamed
+        assert "HIPAA" in streamed
+        assert "ISO 27001" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_certifications_cka():
+    """Verify certification questions explain that Brandon previously held CKA and prioritizes production systems."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does he have any certifications like CKA?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "CKA" in streamed
+        assert "Kubernetes" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_azure_oracle_cloud():
+    """Verify Azure and Oracle Cloud (OCI) questions address multi-cloud architecture without deflecting."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        for q in ["What about Azure?", "Does he know Oracle Cloud?"]:
+            resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": q})
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            assert "I don't know—maybe you should ask him!" not in streamed
+            assert "AWS" in streamed
+            assert "Terraform" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_sre_slo_observability():
+    """Verify SRE and SLO questions return Prometheus, Datadog, OpenTelemetry, and error budgets."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "What is his experience with SRE, SLOs, or incident management?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "SLO" in streamed or "SLI" in streamed
+        assert "postmortem" in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_devex_paved_roads():
+    """Verify developer experience and paved roads return self-service tooling and CLIs."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "What about developer experience, CLIs, or paved roads?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "paved" in streamed.lower() or "golden" in streamed.lower()
+        assert "Docker Compose" in streamed or "CLI" in streamed
+
+
+
 
 

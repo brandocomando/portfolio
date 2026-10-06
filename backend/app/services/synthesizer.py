@@ -119,6 +119,143 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "It's open-source at [github.com/brandocomando/prometheus-ingress-status-exporter](https://github.com/brandocomando/prometheus-ingress-status-exporter)."
         )
 
+    # Temporal & Stateful Workflow Orchestration
+    if re.search(r"\btemporal\b|\bworkflow\s+orchestrat\w*\b|\bcadence\b", q_lower):
+        return (
+            "Brandon understands the architecture and programming model of **Temporal** conceptually—including "
+            "event sourcing, deterministic execution replay, activity workers, and durable execution timers.\n\n"
+            "In production, his distributed workflow and asynchronous coordination experience has primarily centered on "
+            "**event-driven streaming with Apache Kafka & Confluent Cloud**, **AWS SQS/SNS**, **AWS Step Functions**, and **Celery**.\n\n"
+            "Given his deep background in Go and Python systems engineering, event-driven microservices, and distributed coordination, "
+            "he can rapidly adopt Temporal or Cadence for stateful, long-running business workflows.\n\n"
+            "Are you exploring Temporal for microservice orchestration or asynchronous task processing?"
+        )
+
+    # Pulumi & AWS CDK (Programmatic Infrastructure as Code)
+    if re.search(r"\bpulumi\b|\b(?:aws\s+)?cdk\b|\bprogrammatic\s+iac\b", q_lower):
+        return (
+            "Brandon understands programmatic Infrastructure as Code concepts (defining cloud topologies using TypeScript, "
+            "Python, or Go SDKs, construct trees, and state management) and can ramp up on **Pulumi** or **AWS CDK** rapidly.\n\n"
+            "His primary production expertise is in declarative **Terraform / OpenTofu**, where he engineered a centralized enterprise "
+            "module platform used by over 20 engineering squads across AWS, GCP, Datadog, Snowflake, and Confluent Cloud.\n\n"
+            "Furthermore, he has authored native custom Terraform providers in Go (`terraform-provider-neo4j`) using the Terraform Plugin SDK, "
+            "giving him deep low-level mastery of cloud provider APIs, state reconciliation loops, and CRUD lifecycles.\n\n"
+            "Are you evaluating a migration between Terraform and Pulumi/CDK?"
+        )
+
+    # FluxCD / Flux (GitOps)
+    if re.search(r"\bflux(?:cd)?\b", q_lower):
+        return (
+            "Brandon's primary production GitOps platform is **ArgoCD** (where he architected multi-cluster ApplicationSets, "
+            "automated canary deployments, image updates, and cut deployment lead times from hours to under 10 minutes).\n\n"
+            "However, he understands **FluxCD**'s architecture, including its controller reconciliation loops, GitRepository / OCIRepository "
+            "sources, Kustomize controller patterns, and Helm release management.\n\n"
+            "Because his GitOps philosophy centers on declarative desired state in Git, immutable versioning, automated drift detection, "
+            "and zero direct cluster mutations, his skills translate seamlessly between ArgoCD and FluxCD.\n\n"
+            "What GitOps patterns or tools does your team utilize?"
+        )
+
+    # Developer Portals (Backstage / Port) & IDP
+    if re.search(r"\bbackstage\b|\bport(?:\.io)?\b|\bidp\b|\binternal\s+developer\s+portal\b|\bsoftware\s+catalog\b", q_lower) and not re.search(r"\bport\s+\d+\b", q_lower):
+        return (
+            "Brandon has extensive experience building **Internal Developer Platform (IDP) tooling and paved roads**:\n\n"
+            "• **Developer Tooling & CLIs**: Authored high-performance developer CLIs, SDKs, and automation tooling in Go and Python.\n"
+            "• **Paved Roads & Golden Paths**: Standardized opinionated microservice boilerplates, reusable GitHub Actions workflows, "
+            "and Docker Compose local development stacks that cut developer onboarding from days to under 2 hours.\n"
+            "• **Developer Portals (Backstage / Port)**: While he hasn't had the organizational opportunity to fully roll out a formal "
+            "developer portal using Backstage or Port yet, he has a solid architectural understanding of their service catalogs, Scorecards, "
+            "and Software Templates—and is actively looking forward to leading an IDP rollout!\n\n"
+            "Are you looking to build or mature an Internal Developer Platform for your engineering teams?"
+        )
+
+    # Distributed NoSQL: Cassandra & Aerospike
+    if re.search(r"\bcassandra\b|\baerospike\b", q_lower):
+        return (
+            "Yes! Brandon has direct, hands-on production experience operating **Aerospike** and **Apache Cassandra** "
+            "distributed NoSQL databases for high-throughput, low-latency (sub-10ms) key-value and wide-column workloads.\n\n"
+            "Alongside his work modernizing event streaming on Confluent Cloud / Apache Kafka, he operated these distributed NoSQL "
+            "stores to handle high-velocity write throughput and low-latency reads. He has also engineered systems with PostgreSQL, "
+            "AWS Aurora, Redis (ElastiCache), DynamoDB, and graph databases (authoring `terraform-provider-neo4j` in Go).\n\n"
+            "Would you like to hear more about his distributed data store experience or event-driven data architectures?"
+        )
+
+    # Analytical Data Warehouses & Lakehouses: ClickHouse, Redshift, Snowflake
+    if re.search(r"\bclickhouse\b|\bredshift\b|\bsnowflake\b|\blakehouse\b|\bdata\s*warehous\w*\b", q_lower):
+        return (
+            "For analytical data warehousing and lakehouses, Brandon's primary production expertise is with **Snowflake** and **Databricks**, "
+            "where he managed data lakehouse infrastructure, role-based access control (RBAC), and automated provisioning with Terraform.\n\n"
+            "While he has not operated ClickHouse or Amazon Redshift as his primary analytical stores, the dimensional modeling, columnar query "
+            "concepts, and streaming ingestion patterns (via Kafka, Confluent Cloud, and S3) translate directly.\n\n"
+            "Additionally, for high-throughput operational workloads, he has hands-on production experience with distributed NoSQL databases "
+            "including **Aerospike** and **Apache Cassandra**.\n\n"
+            "What kind of analytical or data platform architecture does your team run?"
+        )
+
+    # Databricks, Spark, Airflow, Kubeflow, Ray
+    if re.search(r"\bdatabricks\b|\bspark\b|\bairflow\b|\bkubeflow\b|\bray\b", q_lower):
+        return (
+            "Brandon has hands-on experience with **Databricks** and **Apache Spark** data lakehouse pipelines, managing role-based access control, "
+            "compute clusters, and provisioning them via Terraform alongside Snowflake and Kafka.\n\n"
+            "In workflow and data pipeline orchestration, he has worked with DAG pipelines (Airflow) and offline MLOps evaluation in CI/CD. "
+            "While he understands the architectures of distributed ML frameworks like **Kubeflow** and **Ray** (for distributed training and model serving), "
+            "his primary hands-on ML engineering has focused on local LLM inference engines (Ollama, Laya sub-50ms decision loops), autonomous multi-agent "
+            "systems (*My Agentic Team*), and hybrid RAG retrieval pipelines with automated LLM-as-a-judge CI/CD quality gates.\n\n"
+            "Are you evaluating him for data platform engineering or MLOps infrastructure?"
+        )
+
+    # Compliance Standards: SOC 2, HIPAA, ISO 27001 & DevSecOps
+    if re.search(r"\bsoc\s*2\b|\bsoc2\b|\bhipaa\b|\biso\s*27001\b|\biso27001\b|\bcompliance\b|\baudit\b|\bsecurity\s+standards?\b", q_lower):
+        return (
+            "Yes! Brandon has direct experience designing cloud security architectures and supplying technical evidence to satisfy "
+            "**SOC 2 Type 2**, **HIPAA**, and **ISO 27001** compliance audits.\n\n"
+            "Key technical controls and compliance practices he has implemented include:\n"
+            "• **Least-Privilege & Identity Governance**: Enforced strict IAM role boundaries, AWS Organizations Service Control Policies (SCPs), "
+            "and eliminated static long-lived credentials by adopting Workload Identity Federation (WIF) and keyless OIDC across all CI/CD runners.\n"
+            "• **Zero-Trust Network Encryption**: Enforced end-to-end mutual TLS (mTLS) with automated ACM certificate rotation across Kubernetes "
+            "microservices via AWS App Mesh and Envoy proxy.\n"
+            "• **Supply Chain & Vulnerability Gates**: Automated container scanning (Trivy, Snyk), Software Bill of Materials (SBOM), and static "
+            "analysis in CI/CD pipelines to block vulnerable dependencies before production deployment.\n"
+            "• **Audit Evidence Collection & Continuous Monitoring**: Automated cloud compliance tracking with AWS Config, Security Hub, KMS envelope "
+            "encryption, and immutable audit logging.\n\n"
+            "Would you like to discuss his compliance automation or cloud security controls in greater detail?"
+        )
+
+    # Certifications & CKA (Certified Kubernetes Administrator)
+    if re.search(r"\bcka\b|\bckad\b|\bcks\b|\bcert(?:ification)?s?\b|\bcertified\b", q_lower):
+        return (
+            "Brandon values real-world, battle-tested production engineering experience over paper credentials. "
+            "He **previously held the CKA (Certified Kubernetes Administrator)** certification and let it lapse in favor of continuous, "
+            "deep hands-on production Kubernetes engineering.\n\n"
+            "In production, his Kubernetes expertise goes well beyond standard administration:\n"
+            "• **Zero-Downtime Migration**: Architected and led the migration of 30+ mission-critical microservices from legacy ECS to Amazon EKS.\n"
+            "• **Custom Operators in Go**: Authored custom Kubernetes controllers using `client-go` (`prometheus-ingress-status-exporter`) to monitor Ingress health and export latency metrics.\n"
+            "• **Production Ecosystem**: Expert with ArgoCD GitOps, Helm chart authoring, Karpenter dynamic Spot autoscaling, AWS App Mesh mTLS, and CRDs.\n\n"
+            "Are you looking for hands-on Kubernetes architecture or cluster administration expertise?"
+        )
+
+    # Observability, SRE & Reliability Engineering (Datadog, OpenTelemetry, Grafana, SLOs)
+    if re.search(r"\bsre\b|\bslo(?:s)?\b|\bsli(?:s)?\b|\berror\s+budget\b|\bincident\s+management\b|\bpostmortem\b|\bopentelemetry\b|\botel\b|\bgrafana\b|\bdatadog\b", q_lower):
+        return (
+            "Brandon integrates Site Reliability Engineering (SRE) principles directly into platform engineering:\n\n"
+            "• **Observability & Telemetry**: Authored custom Go controllers (`prometheus-ingress-status-exporter`) dynamically probing Ingress health and latency. "
+            "Configured Datadog APM tracing, synthetic monitoring, and Terraform-managed dashboards. Utilized OpenTelemetry (OTel) for distributed trace context propagation (W3C traceparent).\n"
+            "• **SLOs & Error Budgets**: Defined Service-Level Indicators (SLIs) and Service-Level Objectives (SLOs) paired with error budgets to balance deployment velocity with system reliability.\n"
+            "• **Incident Management & Postmortems**: Championed blameless postmortem culture and automated runbooks to cut recurring operational toil by 40%, alongside leading on-call rotations for mission-critical platforms.\n\n"
+            "Would you like to know more about his observability stack or SRE operational practices?"
+        )
+
+    # Developer Experience & Paved Roads
+    if re.search(r"\bpaved\s+road(?:s)?\b|\bgolden\s+path(?:s)?\b|\bdeveloper\s+experience\b|\bdevex\b|\bdeveloper\s+tooling\b", q_lower):
+        return (
+            "Brandon strongly champions **adoption-first platform engineering** and the philosophy that 'the easy path is the safe path.'\n\n"
+            "Key achievements include:\n"
+            "• **Golden Path Templates & CLIs**: Designed opinionated service boilerplates and authored high-performance developer CLIs in Go and Python.\n"
+            "• **Rapid Onboarding**: Standardized local developer environments using Docker Compose, cutting new microservice onboarding from days to under 2 hours.\n"
+            "• **Self-Service & Safety**: Automated PR preview environments, reusable CI/CD workflows, and integrated vulnerability scanning (Trivy/Snyk) to boost developer velocity with 99.8% build reliability.\n\n"
+            "Are you looking to scale developer productivity and platform self-service on your team?"
+        )
+
+
     # AI Infrastructure & MLOps
     if any(w in q_lower for w in ["mlops", "ml ops", "ai infra", "ai infrastructure", "agent", "agents", "llm", "llms", "rag", "ollama", "machine learning", "retrieval"]):
         return (
@@ -186,14 +323,16 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "Would you like to know more about his reusable workflow design, runner scaling, or GitOps deployment strategies?"
         )
 
-    # Cloud Providers: Azure & Multi-Cloud
-    if "azure" in q_lower:
+    # Cloud Providers: Azure, Oracle Cloud (OCI) & Multi-Cloud
+    if re.search(r"\bazure\b|\boracle\b|\boci\b", q_lower):
         return (
             "Brandon's primary cloud expertise is focused on **AWS** and **GCP**, where he manages multi-account organizations, "
             "EKS/GKE clusters, serverless Cloud Run, and large-scale Terraform automation.\n\n"
-            "However, because he architects infrastructure declaratively using **Terraform / OpenTofu** and containerized workloads "
-            "on Kubernetes, his multi-cloud and distributed systems patterns translate directly to Microsoft Azure (AKS, Azure DevOps, ARM/Terraform).\n\n"
-            "Are you evaluating him for an Azure or hybrid cloud infrastructure environment?"
+            "However, he also understands multi-cloud and cloud-agnostic architectures across **Microsoft Azure** (AKS, Azure DevOps, Blob Storage) "
+            "and **Oracle Cloud Infrastructure (OCI)**. Because he architects infrastructure declaratively using **Terraform / OpenTofu** "
+            "and containerized workloads on Kubernetes, his patterns for networking, IAM least-privilege, GitOps delivery, and distributed "
+            "observability translate directly to Azure and OCI.\n\n"
+            "Are you evaluating him for an Azure, Oracle, or hybrid cloud infrastructure environment?"
         )
 
     # Configuration Management: Ansible / Chef / Puppet
@@ -326,17 +465,20 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             TECH_INDICATORS = {
                 "experience", "tool", "tools", "stack", "tech", "technology", "technologies",
                 "database", "db", "framework", "library", "platform", "cloud", "infra",
-                "infrastructure", "language", "pipeline", "ci", "cd", "k8s", "docker",
-                "container", "deploy", "deployment", "service", "architecture", "engineer",
-                "developer", "code", "devops", "mlops", "sre", "monitoring", "metrics",
+                "infrastructure", "language", "pipeline", "pipelines", "ci", "cd", "cicd", "k8s", "docker",
+                "container", "containers", "deploy", "deployment", "service", "services", "architecture", "engineer",
+                "engineering", "developer", "code", "devops", "mlops", "sre", "monitoring", "metrics",
                 "observability", "api", "backend", "system", "systems", "cluster", "server",
-                "software", "skills", "proficient", "know", "use", "using", "work"
+                "software", "skills", "skill", "proficient", "know", "use", "using", "used", "work", "worked",
+                "build", "built", "manage", "managed", "chops", "run", "running", "orchestrat", "stream",
+                "streaming", "data", "storage", "security", "audit", "compliance"
             }
-            is_technical_query = any(w in TECH_INDICATORS for w in query_words)
+            is_technical_query = any(ind in q_lower for ind in TECH_INDICATORS)
             if is_technical_query:
                 return (
-                    "While that specific technology isn't explicitly highlighted in Brandon's portfolio docs, "
+                    "While Brandon hasn't highlighted direct production use of that specific technology in his portfolio, "
                     "his core expertise is focused on **Platform Engineering, Kubernetes, Terraform, Confluent Kafka, CI/CD, and MLOps**.\n\n"
+                    "He has a proven track record of rapidly adopting adjacent technologies and applying foundational distributed systems principles. "
                     "If you'd like to ask Brandon directly about his experience in that area or discuss how his background maps to your team's stack, "
                     "you can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded straight to him!"
                 )
@@ -354,9 +496,14 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             l = line.strip()
             if not l:
                 continue
-            if any(l.startswith(prefix) for prefix in ["Role:", "Tech Stack:", "Category:", "Summary:", "Skills and Production Proof-Points:"]):
+            if any(l.startswith(prefix) for prefix in [
+                "Role:", "Tech Stack:", "Category:", "Summary:", "Skills and Production Proof-Points:",
+                "Quantified Impact", "Technologies", "Impact Metrics"
+            ]):
                 if l.startswith("Summary:"):
                     intro += f"{l.replace('Summary:', '').strip()}\n\n"
+                continue
+            if l.lower() == title.lower() or l.lower() in title.lower():
                 continue
             cleaned = l.lstrip("•- *").strip()
             if cleaned and len(cleaned) > 10:

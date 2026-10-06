@@ -16,16 +16,27 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
+PERSONAL_TOPIC_KEYWORDS = {
+    "hobby", "hobbies", "personal", "profile", "pizza", "pineapple", "food",
+    "cat", "cats", "pet", "pets", "dog", "dogs", "music", "guitar", "band",
+    "coffee", "tea", "drink", "hike", "hiking", "camp", "camping", "cook", "cooking",
+    "lifestyle", "fun", "preference", "preferences", "workplace", "hybrid", "remote", "office",
+    "relocate", "relocation", "location", "live", "living", "california", "orange county", "early bird",
+    "night owl", "dad joke", "dad jokes", "color", "season", "emoji", "yosemite"
+}
+
+
 def is_affirmative_followup(query: str) -> bool:
     """Checks if a user query is an affirmative continuation like 'yes', 'yea tell me more', 'sure'."""
     q = query.lower().strip().rstrip(".!?,")
     patterns = [
-        r"^(?:yes|yea|yeah|yep|yup|sure|ok|okay|please|y|definitely|absolutely)(?:\s+(?:please|thanks|thank\s+you))?$",
-        r"^(?:(?:yes|yea|yeah|yep|yup|sure|ok|okay)\s+)?tell\s+me\s+more(?:\s+(?:about\s+(?:that|this|it)|please))?$",
-        r"^(?:tell\s+me\s+more|go\s+on|go\s+ahead|continue|elaborate|do\s+tell)$",
-        r"^(?:more\s+(?:details|info|information)|give\s+me\s+more(?:\s+details)?)$",
-        r"^(?:(?:i(?:'d|\s+would)?\s+)?(?:love|like|want)\s+to\s+(?:hear|know|learn)\s+more(?:\s+about\s+(?:that|this|it))?)$",
-        r"^(?:sounds\s+good|let'?s\s+hear\s+it|sure\s+thing)$",
+        r"^(?:(?:yes|yea|yeah|yep|yup|sure|ok|okay)\b|tell\s+me\s+more\b|go\s+on\b|continue\b|elaborate\b|more\s+details\b)",
+        r"^tell\s+me\s+(?:more\s+)?about\b",
+        r"^give\s+me\s+more\b",
+        r"^(?:i(?:'d|\s+would)?\s+)?(?:love|like|want)\s+to\s+(?:hear|know|learn)\s+more\b",
+        r"^sounds\s+good\b",
+        r"^let'?s\s+hear\s+it\b",
+        r"^sure\s+thing\b",
     ]
     return any(re.match(pat, q) for pat in patterns)
 
@@ -58,6 +69,30 @@ def synthesize_conversational_response(
             "portfolio platform", "portfolio assistant", "cloud run", "gemini flash", "this platform",
             "finops-optimized cloud portfolio"
         ]):
+            if any(w in q_lower for w in ["rag", "retrieval", "rrf", "hybrid", "dense", "bm25"]):
+                return (
+                    "Here is a deeper architectural look into the **In-Memory Hybrid RAG engine (Dense + BM25 RRF)**:\n\n"
+                    "• **Zero-Database In-Memory Architecture**: Rather than paying for an expensive managed vector database (like Pinecone or Cloud SQL Vector), this service loads a pre-computed, signed Gold retrieval index directly into container memory on startup.\n"
+                    "• **Reciprocal Rank Fusion (RRF)**: When a query arrives, it calculates Okapi BM25 keyword scores alongside cosine similarity against 384-dimensional dense semantic embeddings, merging them with RRF (k=60).\n"
+                    "• **Sub-10ms Latency**: In-memory execution provides sub-10ms retrieval latency with zero database hosting fees and zero external network hops!\n\n"
+                    "Would you like to know more about the Medallion data pipeline or how cold starts are handled on Cloud Run?"
+                )
+            elif any(w in q_lower for w in ["medallion", "lakehouse", "pipeline", "bronze", "silver", "gold"]):
+                return (
+                    "Here is a deeper look into the **Medallion Data Lakehouse (Bronze → Silver → Gold)** pipeline:\n\n"
+                    "• **Bronze Stage**: Ingests raw YAML/JSON profile data and GitHub REST API metadata, enforcing Pydantic v2 schemas and recording cryptographic SHA-256 hashes.\n"
+                    "• **Silver Stage**: Semantically chunks achievements with strict quality gates, validates token lengths, and normalizes technical taxonomy.\n"
+                    "• **Gold Stage**: Vectorizes chunks with dense embeddings, builds the Okapi BM25 inverted index, and bundles the search assets with SHA-256 integrity verification.\n\n"
+                    "Would you like to explore the in-memory RAG retriever or cold start optimization next?"
+                )
+            elif any(w in q_lower for w in ["cold start", "scale-to-zero", "scale to zero", "startup", "latency"]):
+                return (
+                    "Here is how **cold start latency is minimized** while maintaining scale-to-zero FinOps efficiency:\n\n"
+                    "• **Scale-to-Zero ($0 Idle Cost)**: Cloud Run is configured with `min-instances: 0` so no compute charges accrue when the site is idle.\n"
+                    "• **Multi-Stage Lightweight Docker Container**: Utilizes a slim Python base image, stripping build-time dependencies to keep the image size minimal.\n"
+                    "• **Lifespan Pre-Warming**: The Gold retrieval index is deserialized and pre-warmed during the FastAPI lifespan startup event, keeping cold starts under 2 seconds.\n\n"
+                    "Would you like to learn more about the Hybrid RAG engine or Medallion data pipeline?"
+                )
             return (
                 "Here is a deeper architectural look into the **Hybrid RAG engine, Medallion data pipeline, and cold start optimization** "
                 "powering this platform:\n\n"
@@ -85,6 +120,31 @@ def synthesize_conversational_response(
                 "Would you like to explore his security validation gates or how he implemented MLOps eval quality gates in CI?"
             )
         elif any(w in hist_text for w in ["eks", "kubernetes", "migration", "argocd", "ecs"]):
+            if any(w in q_lower for w in ["process", "migration", "cutover", "strategy", "dns"]):
+                return (
+                    "Here is a deep dive into the **zero-downtime migration process** Brandon architected from AWS ECS to Amazon EKS:\n\n"
+                    "• **Dual-Running Infrastructure & Ingress**: Provisioned parallel EKS clusters alongside production ECS tasks, configuring AWS ALB Ingress Controllers and target groups to mirror routing rules across both environments.\n"
+                    "• **Phased Weighted DNS Cutover**: Leveraged Amazon Route 53 weighted record sets to gradually shift live production traffic (1% → 10% → 50% → 100%) between ECS and EKS backends while continuously monitoring real-time error rates, HTTP latency, and saturation.\n"
+                    "• **Automated Rollback & Health Validation**: Maintained instant DNS failback mechanisms throughout each wave, validating service telemetry before decommissioning legacy ECS services.\n"
+                    "• **Zero Customer Disruption**: Migrated over 30 mission-critical microservices without a single second of customer-facing downtime.\n\n"
+                    "Would you like to explore the ArgoCD GitOps delivery pipeline or his custom Kubernetes ingress observability tooling next?"
+                )
+            elif any(w in q_lower for w in ["gitops", "workflow", "argocd", "delivery"]):
+                return (
+                    "Here are the details on Brandon's **ArgoCD GitOps workflow and continuous delivery** architecture:\n\n"
+                    "• **Multi-Cluster ApplicationSets**: Implemented ArgoCD ApplicationSets managing multi-cluster and multi-environment Helm charts with Kustomize overlays, eliminating drift and manual kubectl executions.\n"
+                    "• **Automated Sync & Canary Deployments**: Paired GitHub Actions container image publishing with declarative ArgoCD auto-syncs, integrating canary deployments with metric-based automated rollbacks on failure.\n"
+                    "• **Radically Reduced Lead Times**: Slashed production deployment lead times from several hours down to under 10 minutes while improving auditability.\n\n"
+                    "Would you like to know more about the migration cutover process or the custom Go ingress observability exporter?"
+                )
+            elif any(w in q_lower for w in ["observability", "tooling", "prometheus", "monitoring", "exporter", "metric"]):
+                return (
+                    "Here are the details on Brandon's **Kubernetes observability tooling and custom controller development**:\n\n"
+                    "• **Custom Go Controller (`prometheus-ingress-status-exporter`)**: Authored a lightweight Go controller that dynamically discovers Ingress endpoints across namespaces, probes HTTP/TCP reachability, and exports synthetic health metrics to Prometheus.\n"
+                    "• **Datadog & APM Integration**: Configured cluster-wide Datadog agents and OpenTelemetry sidecars to correlate ingress latency with microservice application traces.\n"
+                    "• **Actionable SLO Alerting**: Built high-signal alerts in PagerDuty and Slack based on multi-window burn rates, eliminating alarm fatigue for platform and product engineers.\n\n"
+                    "Would you like to dive deeper into the zero-downtime migration process or the ArgoCD GitOps architecture?"
+                )
             return (
                 "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
                 "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning 30+ services from ECS to EKS with zero customer impact.\n"
@@ -128,14 +188,20 @@ def synthesize_conversational_response(
                 "• **Serverless FinOps Portfolio**: Architected this portfolio platform on Cloud Run and Firebase Hosting with scale-to-zero compute, costing $0/month while idle."
             )
         elif raw_sources:
-            top_hit = raw_sources[0]
-            title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
-            content = clean_text(top_hit.get("content", ""))
-            return (
-                f"Continuing with deeper details on **{title}**:\n\n"
-                f"{content}\n\n"
-                "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
-            )
+            # Filter out personal chunk if not a personal query
+            valid_sources = [
+                s for s in raw_sources
+                if s.get("id") != "chunk-personal-profile" or any(kw in q_lower for kw in PERSONAL_TOPIC_KEYWORDS)
+            ]
+            if valid_sources:
+                top_hit = valid_sources[0]
+                title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
+                content = clean_text(top_hit.get("content", ""))
+                return (
+                    f"Continuing with deeper details on **{title}**:\n\n"
+                    f"{content}\n\n"
+                    "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
+                )
 
     # 1. Greetings & Warm-ups
     if re.search(r"^(hi+|hello+|hey+|howdy+|sup+|greetings)\b", q_lower):
@@ -882,6 +948,16 @@ def synthesize_conversational_response(
 
     # Fallback from retrieved sources (synthesized conversationally)
     if raw_sources:
+        # Filter out personal profile chunk for technical or non-personal inquiries
+        if not any(kw in q_lower for kw in PERSONAL_TOPIC_KEYWORDS):
+            filtered_sources = [s for s in raw_sources if s.get("id") != "chunk-personal-profile"]
+            if filtered_sources:
+                raw_sources = filtered_sources
+            elif any(s.get("id") == "chunk-personal-profile" for s in raw_sources):
+                # Only personal chunk was retrieved for a non-personal query
+                raw_sources = []
+
+    if raw_sources:
         top_hit = raw_sources[0]
         title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
         content = clean_text(top_hit.get("content", ""))
@@ -892,7 +968,8 @@ def synthesize_conversational_response(
             "what", "is", "about", "how", "hows", "whats", "many", "does", "have", "tell", "me", "the", "he", "his",
             "can", "you", "do", "a", "an", "in", "for", "of", "to", "and", "or", "on", "brandon",
             "foster", "with", "any", "are", "there", "has", "had", "would", "could", "should", "some",
-            "much", "know", "experience", "work", "worked", "from", "scratch", "chops"
+            "much", "know", "experience", "work", "worked", "from", "scratch", "chops",
+            "yes", "yeah", "yea", "yep", "yup", "no", "nope", "please", "more", "also", "like"
         }
         normalized_q = re.sub(r"\bci[\s\-_/]+cd\b", "cicd", q_lower)
         normalized_q = re.sub(r"\bpipline(s)?\b", r"pipeline\1", normalized_q)

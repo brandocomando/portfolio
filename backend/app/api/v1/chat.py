@@ -39,7 +39,7 @@ async def chat_stream(
                 last_user = m.content
             if last_asst and last_user:
                 break
-        search_query = f"{last_user} {last_asst[:150]}"
+        search_query = f"{last_user} {last_asst[:300]} {request.question}"
 
     # 1. Intent Classification
     intent_type, precomputed_answer = classify_intent(request.question)

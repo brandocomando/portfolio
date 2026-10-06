@@ -2,7 +2,7 @@
   "source_type": "github_rest_api",
   "status": "success",
   "username": "brandocomando",
-  "ingested_at": "2026-10-06T20:56:57.456509Z",
+  "ingested_at": "2026-10-06T21:31:49.311766Z",
   "count": 10,
   "payload": [
     {
@@ -87,7 +87,7 @@
       "stars": 0,
       "forks": 0,
       "topics": [],
-      "updated_at": "2026-10-05T23:38:15Z"
+      "updated_at": "2026-10-06T21:09:19Z"
     },
     {
       "id": 139902645,

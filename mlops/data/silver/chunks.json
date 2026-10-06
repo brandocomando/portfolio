@@ -574,5 +574,44 @@
       "category_name": "Technical Leadership & Soft Skills",
       "skills_count": 5
     }
+  },
+  {
+    "id": "chunk-skills-networking,-service-mesh-and-traffic",
+    "title": "Skills: Networking, Service Mesh & Traffic",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: NETWORKING, SERVICE MESH & TRAFFIC]\nSkills and Production Proof-Points:\n  \u2022 AWS App Mesh & Envoy Proxy (Expert): Mutual TLS (mTLS) enforcement, service graph cryptographic identity, circuit breakers, Envoy access logging.\n  \u2022 Kubernetes Ingress & Gateway API (Expert): Declarative ingress routing, ALB/NLB controllers, automated TLS cert management with cert-manager, external-dns.\n  \u2022 Cloud Network Topologies (VPC / TGW) (Expert): Multi-account VPC peering, AWS Transit Gateway, PrivateLink endpoints, and Route 53 private zones.",
+    "tags": [
+      "aws app mesh & envoy proxy",
+      "kubernetes ingress & gateway api",
+      "cloud network topologies (vpc / tgw)",
+      "skills",
+      "networking, service mesh & traffic"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 137,
+    "metadata": {
+      "category_name": "Networking, Service Mesh & Traffic",
+      "skills_count": 3
+    }
+  },
+  {
+    "id": "chunk-skills-finops-and-cloud-cost-optimization",
+    "title": "Skills: FinOps & Cloud Cost Optimization",
+    "category": "skills",
+    "content": "[TECHNICAL SKILLS: FINOPS & CLOUD COST OPTIMIZATION]\nSkills and Production Proof-Points:\n  \u2022 Karpenter & Dynamic Spot Scaling (Expert): Just-in-time worker node provisioning, graceful Spot interruption handling, bin-packing optimization.\n  \u2022 FOCUS Spec & Unit Economics (Expert): FinOps Open Cost and Usage Specification, showback/chargeback tagging, Datadog FinOps dashboards.\n  \u2022 Scale-to-Zero Architectures (Expert): Serverless Cloud Run concurrency tuning, multi-tier rate limiting, zero-idle cost GCP infrastructure.\n  \u2022 Cloud Cost Rationalization ($10K+/mo) (Expert): Compute rightsizing, data retention lifecycle policies, eliminated $10K+/mo in cloud infrastructure costs.",
+    "tags": [
+      "karpenter & dynamic spot scaling",
+      "focus spec & unit economics",
+      "scale-to-zero architectures",
+      "cloud cost rationalization ($10k+/mo)",
+      "skills",
+      "finops & cloud cost optimization"
+    ],
+    "source_file": "skills.yaml",
+    "token_estimate": 170,
+    "metadata": {
+      "category_name": "FinOps & Cloud Cost Optimization",
+      "skills_count": 4
+    }
   }
 ]

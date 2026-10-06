@@ -78,11 +78,11 @@ export const ProjectsGallery: React.FC = () => {
             Engineering Projects & Open Source
           </h2>
           <p className="mt-3 text-slate-400 text-sm sm:text-base">
-            Autonomous agent fleets, custom Kubernetes controllers, Go Terraform providers, and terminal developer tools.
+            Autonomous agent fleets, custom Kubernetes controllers, Go Terraform providers, and scale-to-zero cloud platforms.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {PROJECTS.map((p) => (
             <div
               key={p.id}

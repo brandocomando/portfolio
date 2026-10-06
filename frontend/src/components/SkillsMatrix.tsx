@@ -20,7 +20,7 @@ const SKILL_GROUPS: SkillCategory[] = [
       { name: "Amazon Web Services (AWS)", proficiency: "Expert", context: "Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS." },
       { name: "Google Cloud Platform (GCP)", proficiency: "Expert", context: "Cloud Run, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage." },
       { name: "Microsoft Azure", proficiency: "Familiar", context: "Cloud-agnostic architecture, AKS, Azure Blob, Azure DevOps, multi-cloud Terraform patterns." },
-      { name: "FinOps & Cost Optimization", proficiency: "Expert", context: "Karpenter Spot autoscaling, FOCUS open specification, saved $10K+/month in infrastructure rationalization." }
+      { name: "Multi-Cloud Governance & IAM", proficiency: "Expert", context: "Unified IAM policies, cross-cloud state orchestration, egress cost mitigation, multi-account isolation." }
     ]
   },
   {
@@ -30,7 +30,7 @@ const SKILL_GROUPS: SkillCategory[] = [
       { name: "ArgoCD / GitOps", proficiency: "Expert", context: "Declarative continuous delivery, multi-cluster application sets, automated sync, rollbacks, ArgoCD Image Updater." },
       { name: "Docker & Container Runtimes", proficiency: "Expert", context: "Multi-stage distroless/slim builds, rootless containers, OCI optimization, Docker Compose local dev." },
       { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, GitOps releases." },
-      { name: "Service Mesh (App Mesh/Envoy)", proficiency: "Expert", context: "Envoy Proxy, mutual TLS (mTLS) enforcement, traffic routing, circuit breakers." }
+      { name: "Cluster Autoscaling (Karpenter/HPA)", proficiency: "Expert", context: "Dynamic node provisioning, horizontal pod autoscaling, disruption budgets, graceful termination." }
     ]
   },
   {
@@ -91,6 +91,23 @@ const SKILL_GROUPS: SkillCategory[] = [
       { name: "Internal Developer Platforms & Paved Roads", proficiency: "Expert", context: "Opinionated self-service infrastructure ('easy path is safe path'), service templates, PR preview environments." },
       { name: "Developer Tooling & CLIs", proficiency: "Expert", context: "Authoring high-performance developer CLIs, SDKs, and automation tooling in Go and Python." },
       { name: "Developer Portals (Backstage / Port)", proficiency: "Familiar", context: "Architectural understanding of developer portals and service catalogs; eager to lead a full IDP rollout." }
+    ]
+  },
+  {
+    name: "Networking, Service Mesh & Traffic",
+    skills: [
+      { name: "AWS App Mesh & Envoy Proxy", proficiency: "Expert", context: "Mutual TLS (mTLS) enforcement, service graph cryptographic identity, circuit breakers, Envoy access logging." },
+      { name: "Kubernetes Ingress & Gateway API", proficiency: "Expert", context: "Declarative ingress routing, ALB/NLB controllers, automated TLS cert management with cert-manager." },
+      { name: "Cloud Network Topologies (VPC / TGW)", proficiency: "Expert", context: "Multi-account VPC peering, AWS Transit Gateway, PrivateLink endpoints, and Route 53 private zones." }
+    ]
+  },
+  {
+    name: "FinOps & Cloud Cost Optimization",
+    skills: [
+      { name: "Karpenter & Dynamic Spot Scaling", proficiency: "Expert", context: "Just-in-time worker node provisioning, graceful Spot interruption handling, bin-packing optimization." },
+      { name: "FOCUS Spec & Unit Economics", proficiency: "Expert", context: "FinOps Open Cost and Usage Specification, showback/chargeback tagging, Datadog FinOps dashboards." },
+      { name: "Scale-to-Zero Architectures", proficiency: "Expert", context: "Serverless Cloud Run concurrency tuning, multi-tier rate limiting, zero-idle cost GCP infrastructure." },
+      { name: "Cloud Cost Rationalization ($10K+/mo)", proficiency: "Expert", context: "Compute rightsizing, data retention lifecycle policies, eliminated $10K+/mo in cloud infrastructure costs." }
     ]
   }
 ];

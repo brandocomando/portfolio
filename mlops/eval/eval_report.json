@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-10-06T21:08:17.791714Z",
+  "timestamp": "2026-10-06T21:34:23.028493Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
     "hit_rate_top3": 1.0,
-    "mrr": 0.8929,
+    "mrr": 0.881,
     "keyword_recall": 0.9846,
     "guardrail_pass_rate": 1.0
   },
@@ -35,11 +35,11 @@
       "target_chunk": "chunk-exp-finops-optimization",
       "retrieved_ids": [
         "chunk-bio-overview",
-        "chunk-exp-finops-optimization",
-        "chunk-proj-portfolio-platform"
+        "chunk-skills-finops-and-cloud-cost-optimization",
+        "chunk-exp-finops-optimization"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 3,
       "keyword_recall": "4/4"
     },
     {
@@ -49,8 +49,8 @@
       "target_chunk": "chunk-proj-prometheus-ingress-exporter",
       "retrieved_ids": [
         "chunk-proj-prometheus-ingress-exporter",
-        "chunk-skills-observability,-sre-and-reliability",
-        "chunk-proj-terraform-provider-neo4j"
+        "chunk-skills-networking,-service-mesh-and-traffic",
+        "chunk-skills-observability,-sre-and-reliability"
       ],
       "hit_top3": true,
       "rank": 1,

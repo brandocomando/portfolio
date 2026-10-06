@@ -750,6 +750,59 @@ async def test_chat_stream_multi_turn_continuation_yea_tell_me_more_rag_platform
         assert "cold start" in streamed.lower()
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_continuation_yes_tell_me_more_about_the_process():
+    """Verify 'yes tell me more about the process' continues previous EKS conversation instead of personal profile."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "does he know much about eks?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption. "
+                    "As Lead Platform Engineer, he architected and led the zero-downtime migration of over 30 mission-critical microservices from legacy AWS ECS to Amazon EKS. "
+                    "Are you curious about the migration process, the GitOps workflow, or his observability tooling?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "yes tell me more about the process"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "zero-downtime migration" in streamed.lower()
+        assert "Route 53" in streamed
+        assert "Pineapple on Pizza" not in streamed
+        assert "personal preferences" not in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_continuation_gitops_workflow():
+    """Verify 'tell me more about the gitops workflow' continues with ArgoCD details."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "does he know much about eks?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption. "
+                    "Are you curious about the migration process, the GitOps workflow, or his observability tooling?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "tell me more about the gitops workflow"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "ArgoCD" in streamed
+        assert "ApplicationSets" in streamed
+        assert "Pineapple on Pizza" not in streamed
+
+
+
 
 
 

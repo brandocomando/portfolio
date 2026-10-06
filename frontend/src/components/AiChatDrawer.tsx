@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User as UserIcon, Mail } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User as UserIcon, Mail, Minus, Maximize2 } from 'lucide-react';
 import { ChatMessage, QuotaStatus } from '../types';
 import { streamChat } from '../lib/api';
 
@@ -36,6 +36,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   const [isStreaming, setIsStreaming] = useState(false);
   const [rateLimitExceeded, setRateLimitExceeded] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
+  const [isMinimized, setIsMinimized] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,13 +50,23 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   }, [messages, isStreaming]);
 
   useEffect(() => {
-    if (isOpen && !rateLimitExceeded && inputRef.current) {
+    if (isOpen) {
+      if (initialPrompt) {
+        setIsMinimized(false);
+      }
+    } else {
+      setIsMinimized(false);
+    }
+  }, [isOpen, initialPrompt]);
+
+  useEffect(() => {
+    if (isOpen && !isMinimized && !rateLimitExceeded && inputRef.current) {
       inputRef.current.focus();
     }
     if (initialPrompt && isOpen) {
       handleSendPrompt(initialPrompt);
     }
-  }, [isOpen, isStreaming, rateLimitExceeded, initialPrompt]);
+  }, [isOpen, isMinimized, isStreaming, rateLimitExceeded, initialPrompt]);
 
   const getLastUserQuestion = (assistantMsgId: string): string | undefined => {
     const idx = messages.findIndex((msg) => msg.id === assistantMsgId);
@@ -219,6 +230,56 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
   if (!isOpen) return null;
 
+  if (isMinimized) {
+    return (
+      <div
+        onClick={() => setIsMinimized(false)}
+        className="fixed bottom-0 right-0 sm:right-6 z-40 w-full sm:w-[380px] h-12 bg-slate-900/95 backdrop-blur-md border border-b-0 border-slate-700/80 rounded-t-xl shadow-2xl flex items-center justify-between px-3.5 cursor-pointer transition-all hover:bg-slate-800/95 group animate-in slide-in-from-bottom duration-200"
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="font-bold text-xs text-white flex items-center gap-1.5 truncate">
+              Brandon's AI Agent
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            </h4>
+            <p className="text-[10px] font-mono text-cyan-400 truncate">
+              {isStreaming
+                ? "Streaming response..."
+                : `${messages.filter((m) => m.role === 'user').length} quer${
+                    messages.filter((m) => m.role === 'user').length === 1 ? 'y' : 'ies'
+                  } • Click to expand`}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {quota && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
+              {quota.remaining}/{quota.limit}
+            </span>
+          )}
+          <button
+            onClick={() => setIsMinimized(false)}
+            title="Maximize chat"
+            className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-md transition-colors cursor-pointer"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={onClose}
+            title="Close chat"
+            className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-md transition-colors cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed top-16 bottom-0 right-0 z-40 w-full sm:w-[400px] bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
       {/* Drawer Header */}
@@ -238,14 +299,22 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {quota && (
             <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
               {quota.remaining}/{quota.limit} left
             </span>
           )}
           <button
+            onClick={() => setIsMinimized(true)}
+            title="Minimize chat"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <button
             onClick={onClose}
+            title="Close chat"
             className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />

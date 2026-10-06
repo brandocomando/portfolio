@@ -1,10 +1,10 @@
 {
   "stage": "bronze",
-  "ingested_at": "2026-10-06T20:56:56.957319Z",
+  "ingested_at": "2026-10-06T21:31:48.841312Z",
   "artifacts": {
     "skills": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/skills_raw.json",
-      "hash": "d53ae16fa64e88d6d2950296954891019a872e94cc6b7b2f4b850374aeb19a12"
+      "hash": "8e155c7166db7dee7523cb06ac120880a4a4685254ec7b2e86a5611571247e15"
     },
     "bio": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/bio_raw.json",

@@ -225,7 +225,7 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
                 "Brandon doesn't publish his direct email or phone number on the site, but you can message him directly "
                 "through the **[Contact Page](#contact)**!\n\n"
                 "Just submit your question and email, and your message will be forwarded straight to his inbox. "
-                "You can also connect on [LinkedIn](https://linkedin.com/in/brandocomando) or [GitHub](https://github.com/brandocomando).",
+                "You can also connect on [LinkedIn](https://www.linkedin.com/in/brandon-foster) or [GitHub](https://github.com/brandocomando).",
             )
 
     # 7. Off-Topic General Check

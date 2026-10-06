@@ -484,6 +484,46 @@ async def test_chat_stream_devex_paved_roads():
         assert "Docker Compose" in streamed or "CLI" in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_in_office_work_preferences():
+    """Verify in-office, hybrid, and onsite workplace queries return work preferences without cloud confusion."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        queries = [
+            "is he open to in office work?",
+            "is he open to in-office work?",
+            "would he work in an office?",
+            "is he open to onsite work?",
+        ]
+        for q in queries:
+            rate_limiter._buckets.clear()
+            resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": q})
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            assert "I don't know—maybe you should ask him!" not in streamed
+            assert "remote" in streamed.lower()
+            assert "orange county" in streamed.lower()
+            assert "relocate" in streamed.lower()
+            # Ensure it didn't confuse with cloud/AWS/GCP
+            assert "[technical skills" not in streamed.lower()
+            assert "amazon web services" not in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_clean_bullet_headers():
+    """Verify technical skill highlights never leak bracketed internal headers like [TECHNICAL SKILLS:...]."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Tell me about your multi-cloud architecture experience."})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "[technical skills" not in streamed.lower()
+        assert "• [technical" not in streamed.lower()
+        assert "Amazon Web Services (AWS)" in streamed
+
+
+
 
 
 

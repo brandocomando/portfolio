@@ -3,7 +3,8 @@ personal_profile:
   work_preferences:
     arrangement: "Remote preferred, Hybrid OK in Orange County"
     relocation: "Not willing to relocate"
-    summary: "Remote preferred, Hybrid OK in Orange County, CA (not willing to relocate)."
+    in_office: "Open to hybrid in Orange County, CA; not open to full-time in-office or relocating"
+    summary: "Remote preferred, Hybrid OK in Orange County, CA (not open to full-time in-office, not willing to relocate)."
   years_of_experience: "14+"
   experience_summary: "14+ years of DevOps, Platform Engineering, and Distributed Systems experience."
   employers:

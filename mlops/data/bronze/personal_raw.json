@@ -1,15 +1,16 @@
 {
   "source_type": "local_yaml",
   "file_name": "personal.yaml",
-  "raw_hash": "c4cd32fb3661fc21f31167056be1bcd148ae66bdb263d6f73190befbba46029d",
-  "ingested_at": "2026-10-06T18:51:31.932937Z",
+  "raw_hash": "26ce2280f330007ec565cae51877a4691065ea1f8bbb3f017e2d67d08aeb3cf6",
+  "ingested_at": "2026-10-06T19:20:14.439995Z",
   "payload": {
     "personal_profile": {
       "location": "Southern California",
       "work_preferences": {
         "arrangement": "Remote preferred, Hybrid OK in Orange County",
         "relocation": "Not willing to relocate",
-        "summary": "Remote preferred, Hybrid OK in Orange County, CA (not willing to relocate)."
+        "in_office": "Open to hybrid in Orange County, CA; not open to full-time in-office or relocating",
+        "summary": "Remote preferred, Hybrid OK in Orange County, CA (not open to full-time in-office, not willing to relocate)."
       },
       "years_of_experience": "14+",
       "experience_summary": "14+ years of DevOps, Platform Engineering, and Distributed Systems experience.",

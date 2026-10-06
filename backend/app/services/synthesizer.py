@@ -10,8 +10,8 @@ from typing import List, Dict, Any, Optional
 
 
 def clean_text(text: str) -> str:
-    """Removes internal tags and bracketed metadata."""
-    text = re.sub(r"\[[A-Z\s\:\&]+\]", "", text)
+    """Removes internal tags, bracketed headers, and metadata."""
+    text = re.sub(r"\[[^\]]+\]", "", text)
     text = re.sub(r"\(GitHub Stars:\s*\d+\)", "", text)
     return text.strip()
 
@@ -73,16 +73,21 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
     ]):
         return "Brandon lives and is based in **Southern California**."
 
-    # Work Preferences & Relocation
+    # Work Preferences, In-Office, On-Site, Hybrid, Remote, Relocation
     if any(re.search(pat, q_lower) for pat in [
         r"\bwork\s+preference[s]?\b",
         r"\b(?:relocat\w*|willing\s+to\s+relocate|relocation)\b",
-        r"\b(?:is\s+he|are\s+you)\s+open\s+to\s+(?:relocation|relocating|hybrid|remote)\b",
-        r"\b(?:remote|hybrid)\s+(?:work|preferences?|roles?|opportunities?)\b",
+        r"\b(?:is\s+he|are\s+you|would\s+he|can\s+he|does\s+he)\s+(?:open\s+to|willing\s+to|do)\s+(?:relocation|relocating|hybrid|remote|in[\s\-_]*office|on[\s\-_]*site|office|work)\b",
+        r"\b(?:remote|hybrid|in[\s\-_]*office|on[\s\-_]*site)\s+(?:work|working|preferences?|roles?|opportunities?|job|jobs|arrangement)\b",
+        r"\b(?:open\s+to|willing\s+to\s+work|come\s+into)\s+(?:an?\s+|the\s+)?(?:in[\s\-_]*office|on[\s\-_]*site|office)\b",
+        r"\b(?:work|working)\s+(?:in[\s\-_]*office|on[\s\-_]*site|in\s+(?:an?\s+|the\s+)?office|onsite)\b",
+        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\s+work\b",
+        r"\b(?:remote\s+only|only\s+remote)\b",
+        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\b",
     ]):
         return (
-            "Brandon prefers **remote** roles, but is open to **hybrid opportunities in Orange County, CA**. "
-            "He is **not willing to relocate**."
+            "Brandon's work preference is **Remote**, but he is open to **hybrid opportunities in Orange County, CA**.\n\n"
+            "He is not looking for full-time in-office roles and is **not willing to relocate**."
         )
 
     # Years of DevOps & Platform Experience
@@ -638,6 +643,8 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             l = line.strip()
             if not l:
                 continue
+            if (l.startswith("[") and l.endswith("]")) or re.match(r"^\[.*\]$", l):
+                continue
             if any(l.startswith(prefix) for prefix in [
                 "Role:", "Tech Stack:", "Category:", "Summary:", "Skills and Production Proof-Points:",
                 "Quantified Impact", "Technologies", "Impact Metrics"
@@ -648,6 +655,8 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             if l.lower() == title.lower() or l.lower() in title.lower():
                 continue
             cleaned = l.lstrip("•- *").strip()
+            if (cleaned.startswith("[") and cleaned.endswith("]")) or re.match(r"^\[.*\]$", cleaned):
+                continue
             if cleaned and len(cleaned) > 10:
                 detail_lines.append(f"• {cleaned}")
 

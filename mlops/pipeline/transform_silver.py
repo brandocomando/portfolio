@@ -89,10 +89,12 @@ def run_silver_transform():
     # Personal Profile & Preferences Chunk
     if personal:
         employers_past = ", ".join(personal.employers.get("past", []))
+        in_office_pref = personal.work_preferences.get('in_office', 'Open to hybrid in Orange County, CA; not open to full-time in-office or relocating')
         personal_content = (
             f"[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\n"
             f"Location: {personal.location}\n"
             f"Work Preferences: {personal.work_preferences.get('summary', '')}\n"
+            f"Workplace Arrangement (In-Office / Remote / Hybrid): {in_office_pref}. Brandon prefers remote roles, is open to hybrid opportunities in Orange County, CA, but is not looking for full-time in-office positions and is not willing to relocate.\n"
             f"DevOps Experience: {personal.years_of_experience} years ({personal.experience_summary})\n"
             f"Employers: Current: {personal.employers.get('current', '')} | Past: {employers_past}\n"
             f"Education: {personal.education.get('summary', '')}\n"
@@ -115,7 +117,7 @@ def run_silver_transform():
             title="Brandon Foster Personal Profile & Preferences",
             category="personal",
             content=personal_content,
-            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "coffee", "cats"],
+            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "hybrid", "office", "in-office", "onsite", "relocation", "coffee", "cats"],
             source_file="personal.yaml",
             token_estimate=estimate_tokens(personal_content),
             metadata={"location": personal.location, "current_employer": personal.employers.get("current")}

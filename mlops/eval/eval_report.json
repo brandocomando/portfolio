@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T19:02:41.411724Z",
+  "timestamp": "2026-10-06T19:26:05.366173Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
@@ -36,7 +36,7 @@
       "retrieved_ids": [
         "chunk-bio-overview",
         "chunk-exp-finops-optimization",
-        "chunk-skills-cloud-and-multi-cloud-architecture"
+        "chunk-exp-kafka-confluent-migration"
       ],
       "hit_top3": true,
       "rank": 2,
@@ -64,7 +64,7 @@
       "retrieved_ids": [
         "chunk-proj-terraform-provider-neo4j",
         "chunk-skills-observability,-sre-and-reliability",
-        "chunk-bio-overview"
+        "chunk-personal-profile"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -133,8 +133,8 @@
       "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
         "chunk-exp-cicd-github-migration",
-        "chunk-bio-overview",
-        "chunk-skills-ci/cd-and-delivery-engineering"
+        "chunk-skills-ci/cd-and-delivery-engineering",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,

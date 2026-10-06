@@ -53,6 +53,18 @@ class SkillCategory(BaseModel):
     skills: List[SkillItem] = Field(..., min_length=1)
 
 
+class PersonalProfile(BaseModel):
+    location: str = Field(..., description="Geographic location")
+    work_preferences: Dict[str, Any] = Field(..., description="Work preference details")
+    years_of_experience: str = Field(..., description="DevOps experience years")
+    experience_summary: str = Field(..., description="Experience summary statement")
+    employers: Dict[str, Any] = Field(..., description="Current and past employers")
+    education: Dict[str, Any] = Field(..., description="School and degree")
+    fun_facts: Dict[str, Any] = Field(..., description="Fun personal facts and preferences")
+    socials: Dict[str, str] = Field(..., description="Social profile URLs")
+
+
+
 class KnowledgeChunk(BaseModel):
     """Silver-layer semantic chunk ready for vectorization and keyword indexing."""
     id: str = Field(..., description="Unique chunk identifier")

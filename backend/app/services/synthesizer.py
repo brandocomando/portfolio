@@ -55,14 +55,158 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "You can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded directly to him."
         )
 
-    # 4. Personal Information Inquiries (Kids, Family, Location, Age, Salary, Lifestyle, etc.)
+    # 4. Approved Personal Information & Preferences (Explicitly authorized from personal.yaml)
+    # Residential street address is private; general location is Southern California
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(street\s+address|home\s+address|house\s+number|zip\s*code|apartment)\b"
+    ]):
+        return (
+            "I don't know—maybe you should ask him! Specific residential address information is private. "
+            "Brandon is based in Southern California. You can reach out directly through the **[Contact Page](#contact)**."
+        )
+
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bwhere\s+(?:does\s+he|is\s+he|do\s+you|does\s+brandon)\s+(?:live|reside|based)\b",
+        r"\bwhere\s+(?:is\s+brandon|are\s+you)\s+(?:from|located|based)\b",
+        r"\b(?:his|brandon\'?s?)\s+location\b",
+        r"\bwhere\s+(?:are\s+you|is\s+he)\s+located\b",
+    ]):
+        return "Brandon lives and is based in **Southern California**."
+
+    # Work Preferences & Relocation
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bwork\s+preference[s]?\b",
+        r"\b(?:relocat\w*|willing\s+to\s+relocate|relocation)\b",
+        r"\b(?:is\s+he|are\s+you)\s+open\s+to\s+(?:relocation|relocating|hybrid|remote)\b",
+        r"\b(?:remote|hybrid)\s+(?:work|preferences?|roles?|opportunities?)\b",
+    ]):
+        return (
+            "Brandon prefers **remote** roles, but is open to **hybrid opportunities in Orange County, CA**. "
+            "He is **not willing to relocate**."
+        )
+
+    # Years of DevOps & Platform Experience
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bhow\s+many\s+years\s+(?:of\s+)?(?:experience|devops|platform)\b",
+        r"\byears\s+of\s+(?:devops|experience|engineering|platform)\b",
+        r"\bhow\s+long\s+has\s+he\s+been\s+(?:doing\s+devops|in\s+devops|an\s+engineer)\b",
+    ]):
+        return (
+            "Brandon has **14+ years** of DevOps, Platform Engineering, and distributed systems architecture experience."
+        )
+
+    # Former & Current Employers / Career History
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:former|past|previous|current)\s+employer[s]?\b",
+        r"\b(?:former|past|previous|current)\s+compan(?:y|ies)\b",
+        r"\bwhere\s+(?:has|did)\s+(?:he|brandon|you)\s+work(?:ed)?\b",
+        r"\bcompan(?:y|ies)\s+(?:has\s+he|has\s+brandon|he\s+has|brandon\s+has)?\s*work(?:ed)?\b",
+        r"\bwork(?:ed)?\s+at\b",
+        r"\bwork(?:ed)?\s+for\b",
+        r"\b(?:liferay|lakeshore|melrok|persefoni|life360)\b",
+        r"\bcurrent\s+(?:company|role|job|employer)\b",
+    ]):
+        return (
+            "Brandon's engineering career spans 14+ years across several companies:\n\n"
+            "• **Life360** (Current)\n"
+            "• **Persefoni AI**\n"
+            "• **Melrok**\n"
+            "• **Lakeshore Learning Materials**\n"
+            "• **Liferay**\n\n"
+            "Would you like to hear more about his architectural initiatives or migrations at any of these companies?"
+        )
+
+    # Favorite Color
+    if re.search(r"\b(?:favorite|fav)\s+colou?r\b|\bwhat\s+(?:is\s+his|is\s+your)\s+colou?r\b", q_lower):
+        return "Brandon's favorite color is **Blue**!"
+
+    # Coffee or Tea
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bcoffee\s+or\s+tea\b",
+        r"\btea\s+or\s+coffee\b",
+        r"\b(?:does\s+he\s+drink|do\s+you\s+drink)\s+(?:coffee|tea)\b",
+        r"\b(?:favorite|fav)\s+drink\b",
+    ]):
+        return "**COFFEE!!!!!!** (Hands down—he runs on coffee! ☕)"
+
+    # Cats or Dogs / Pets
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bcats?\s+or\s+dogs?\b",
+        r"\bdogs?\s+or\s+cats?\b",
+        r"\b(?:cats|dogs)\s+person\b",
+        r"\b(?:does\s+he\s+have|do\s+you\s+have)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
+        r"\b(?:his|your)\s+pets?\b",
+    ]):
+        return "**Cats!!!!!** (Brandon is definitely a cat person! 🐱)"
+
+    # Education & University
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:where\s+did\s+he\s+go\s+to\s+school|where\s+did\s+you\s+go\s+to\s+school)\b",
+        r"\b(?:education|college|university|degree|school|alma\s+mater|biola)\b",
+        r"\bwhat\s+did\s+he\s+study\b",
+    ]):
+        return (
+            "Brandon attended **Biola University**, graduating with a Bachelor of Science (**BS**) in **Computer Science**."
+        )
+
+    # Tabs or Spaces
+    if re.search(r"\btabs?\s+or\s+spaces?\b|\bspaces?\s+or\s+tabs?\b", q_lower):
+        return "**Tabs**!"
+
+    # Night Owl or Early Bird
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bnight\s*owl\s+or\s+early\s*bird\b",
+        r"\bearly\s*bird\s+or\s+night\s*owl\b",
+        r"\bnight\s*owl\b",
+        r"\bearly\s*bird\b",
+        r"\bmorning\s+person\b",
+    ]):
+        return "Brandon is an **early bird**! 🌅"
+
+    # Pineapple on Pizza
+    if re.search(r"\b(?:pineapple\s+on\s+pizza|pizza\s+with\s+pineapple|pineapple\s+belong\s+on\s+pizza)\b", q_lower):
+        return "**YES!** Pineapple definitely belongs on pizza! 🍕🍍"
+
+    # Favorite Season
+    if re.search(r"\b(?:favorite|fav)\s+season\b|\bwhich\s+season\b", q_lower):
+        return "Brandon's favorite season is **Fall**! 🍂"
+
+    # Dad Jokes
+    if re.search(r"\bdad\s+jokes?\b", q_lower):
+        return "**All the time!** (Brandon loves a good dad joke! 😄)"
+
+    # Beach or Mountains
+    if re.search(r"\bbeach\s+or\s+mountains?\b|\bmountains?\s+or\s+beach\b", q_lower):
+        return "**Mountains**! 🏔️"
+
+    # Favorite Place
+    if re.search(r"\b(?:favorite|fav)\s+place\b|\byosemite\b", q_lower):
+        return "Brandon's favorite place is **Yosemite**! 🏞️"
+
+    # Most Commonly Used Emoji
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:most\s+common(?:ly)?\s+used\s+emoji|favorite\s+emoji|emojis?)\b",
+        r"\bwhat\s+emoji\b",
+    ]):
+        return (
+            "Brandon's most commonly used emojis are **ThumbsUp** (👍), **Roger roger** (🫡), and **Facepalm** (🤦)!"
+        )
+
+    # Social Profiles (LinkedIn & GitHub)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:socials?|social\s+media|profiles?|linkedin|github\s+profile)\b"
+    ]):
+        return (
+            "You can find Brandon on [LinkedIn](https://www.linkedin.com/in/brandon-foster) "
+            "and check out his open-source work on [GitHub](https://github.com/brandocomando)!"
+        )
+
+    # 5. Strictly Protected Personal Information Inquiries (Kids, Family, Age, Salary, Private matters)
+    # ONLY the approved data above may be shared. Everything else is strictly private!
     if any(re.search(pat, q_lower) for pat in [
         r"\b(kid|kids|child|children|son|sons|daughter|daughters|baby|babies)\b",
         r"\b(wife|husband|spouse|partner|married|marry|single|dating|girlfriend|boyfriend|ex-wife|fiance)\b",
         r"\b(family|parents|mom|mother|dad|father|brother|brothers|sister|sisters|relatives)\b",
-        r"\bwhere\s+(does|is)\s+(he|brandon)\s+(live|located|from|stay|reside|sleep)\b",
-        r"\b(where\s+does\s+he\s+live|where\s+is\s+he\s+located|where\s+is\s+he\s+from|where\s+was\s+he\s+born)\b",
-        r"\b(his|brandon\'?s?)\s+(address|home|house|apartment|city|state|zip|neighborhood|town)\b",
         r"\bhow\s+old\s+is\s+(he|brandon)\b",
         r"\b(birthday|birth\s*date|date\s+of\s+birth|when\s+was\s+he\s+born|where\s+was\s+he\s+born)\b",
         r"\b(his|brandon\'?s?)\s+age\b",
@@ -71,22 +215,20 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         r"\b(his|brandon\'?s?)\s+(email(\s*address)?|phone\s*number|cell\s*phone|contact\s*info)\b",
         r"\b(salary|net\s*worth|income|compensation|how\s+much\s+does\s+he\s+(make|earn|get\s*paid))\b",
         r"\b(personal|private)\s+(life|info|question|details|matters)\b",
-        r"\b(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color|free\s+time|weekend|weekends)\b",
         r"\b(religion|religious|political|politics|faith|church|god)\b",
-        r"\b(pet|pets|dog|dogs|cat|cats)\b",
     ]):
         return (
-            "I don't know—maybe you should ask him! That personal information is not in his public engineering docs. "
+            "I don't know—maybe you should ask him! That personal information is not in his public docs. "
             "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to Brandon's inbox."
         )
 
-    # 5. Contact & Hiring Inquiries (Zero email/phone exposure)
+    # 6. Contact & Hiring Inquiries (Zero email/phone exposure)
     if any(w in q_lower for w in ["contact", "hire", "email", "reach", "resume"]):
         return (
             "Brandon doesn't publish his direct email or phone number on the site, but you can message him directly "
             "through the **[Contact Page](#contact)**!\n\n"
             "Just submit your question and email, and your message will be forwarded straight to his inbox. "
-            "You can also connect with him on [LinkedIn](https://linkedin.com/in/brandocomando) and [GitHub](https://github.com/brandocomando)."
+            "You can also connect with him on [LinkedIn](https://www.linkedin.com/in/brandon-foster) and [GitHub](https://github.com/brandocomando)."
         )
 
     # 6. Core Technical Topics

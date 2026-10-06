@@ -1,0 +1,53 @@
+{
+  "source_type": "local_yaml",
+  "file_name": "personal.yaml",
+  "raw_hash": "c4cd32fb3661fc21f31167056be1bcd148ae66bdb263d6f73190befbba46029d",
+  "ingested_at": "2026-10-06T18:51:31.932937Z",
+  "payload": {
+    "personal_profile": {
+      "location": "Southern California",
+      "work_preferences": {
+        "arrangement": "Remote preferred, Hybrid OK in Orange County",
+        "relocation": "Not willing to relocate",
+        "summary": "Remote preferred, Hybrid OK in Orange County, CA (not willing to relocate)."
+      },
+      "years_of_experience": "14+",
+      "experience_summary": "14+ years of DevOps, Platform Engineering, and Distributed Systems experience.",
+      "employers": {
+        "current": "Life360",
+        "past": [
+          "Persefoni AI",
+          "Melrok",
+          "Lakeshore Learning Materials",
+          "Liferay"
+        ]
+      },
+      "education": {
+        "institution": "Biola University",
+        "degree": "BS in Computer Science",
+        "summary": "Biola University, graduated with a BS in Computer Science."
+      },
+      "fun_facts": {
+        "favorite_color": "Blue",
+        "coffee_or_tea": "COFFEE!!!!!!",
+        "cats_or_dogs": "Cats!!!!!",
+        "tabs_or_spaces": "Tabs",
+        "chronotype": "Early bird",
+        "pineapple_on_pizza": "YES!",
+        "favorite_season": "Fall",
+        "dad_jokes": "All the time",
+        "beach_or_mountains": "Mountains",
+        "favorite_place": "Yosemite",
+        "common_emojis": [
+          "ThumbsUp (\ud83d\udc4d)",
+          "Roger roger (\ud83e\udee1)",
+          "Facepalm (\ud83e\udd26)"
+        ]
+      },
+      "socials": {
+        "linkedin": "https://www.linkedin.com/in/brandon-foster",
+        "github": "https://github.com/brandocomando"
+      }
+    }
+  }
+}

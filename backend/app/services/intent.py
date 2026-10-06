@@ -39,24 +39,22 @@ GUARDRAIL_PATTERNS = [
     r"bypass\s+safety",
 ]
 
-# 2. Personal Information Inquiries (NOT in docs)
+# 2. Protected Personal Information Inquiries (Strictly private; NOT in public docs)
 PERSONAL_PATTERNS = [
-    # Family, Kids, Children, Relationships
+    # Family, Kids, Children, Relationships (excluding dad jokes)
     r"\b(kid|kids|child|children|son|sons|daughter|daughters|baby|babies)\b",
     r"\b(wife|husband|spouse|partner|married|marry|single|dating|girlfriend|boyfriend|ex-wife|fiance)\b",
-    r"\b(family|parents|mom|mother|dad|father|brother|brothers|sister|sisters|relatives)\b",
+    r"\b(family|parents|mom|mother|dad(?![\s\-_]+jokes?)|father|brother|brothers|sister|sisters|relatives)\b",
 
-    # Location / Living / Origin
-    r"\bwhere\s+(does|is)\s+(he|brandon)\s+(live|located|from|stay|reside|sleep)\b",
-    r"\b(where\s+does\s+he\s+live|where\s+is\s+he\s+located|where\s+is\s+he\s+from|where\s+was\s+he\s+born)\b",
-    r"\b(his|brandon\'?s?)\s+(address|home|house|apartment|city|state|zip|neighborhood|town)\b",
+    # Residential street address is private (general location in Southern California is authorized)
+    r"\b(street\s+address|home\s+address|house\s+number|zip\s*code|apartment)\b",
 
     # Age, Birthday
     r"\bhow\s+old\s+is\s+(he|brandon)\b",
     r"\b(birthday|birth\s*date|date\s+of\s+birth|when\s+was\s+he\s+born|where\s+was\s+he\s+born)\b",
     r"\b(his|brandon\'?s?)\s+age\b",
 
-    # Contact Details
+    # Contact Details (Zero exposure)
     r"\b(phone|cell|mobile)\s*(number)?\b",
     r"\bwhat\s+is\s+(his|brandon\'?s?)\s+(email|phone|number|address|salary|net\s*worth)\b",
     r"\b(his|brandon\'?s?)\s+(email(\s*address)?|phone\s*number|cell\s*phone|contact\s*info)\b",
@@ -64,11 +62,9 @@ PERSONAL_PATTERNS = [
     # Money / Salary / Compensation
     r"\b(salary|net\s*worth|income|compensation|how\s+much\s+does\s+he\s+(make|earn|get\s*paid))\b",
 
-    # Personal Life, Free Time, Lifestyle, Beliefs
+    # Private Matters & Beliefs
     r"\b(personal|private)\s+(life|info|question|details|matters)\b",
-    r"\b(hobbies|hobby|favorite\s+food|favorite\s+movie|favorite\s+color|free\s+time|weekend|weekends)\b",
     r"\b(religion|religious|political|politics|faith|church|god)\b",
-    r"\b(pet|pets|dog|dogs|cat|cats)\b",
 ]
 
 # 3. System Diagnostic / Ping Patterns
@@ -188,7 +184,7 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
         if re.search(pat, q_lower):
             return (
                 IntentType.PERSONAL,
-                "I don't know—maybe you should ask him! That personal information is not in his public engineering docs. "
+                "I don't know—maybe you should ask him! That personal information is not in his public docs. "
                 "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to Brandon's inbox.",
             )
 

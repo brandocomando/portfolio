@@ -167,17 +167,20 @@ async def test_contact_form_submission_validation():
 
 @pytest.mark.asyncio
 async def test_personal_questions_deflection_and_privacy():
-    """Verify that personal questions not in docs deflect to contact page and never leak email/phone."""
+    """Verify that private personal questions (family, age, salary, street address) deflect to contact page."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         questions = [
-            "Where does Brandon live?",
+            "What is his home address?",
             "What is his phone number?",
             "What is Brandon's email address?",
             "Who is his wife?",
             "How old is he?",
+            "What is his salary?",
+            "What is his religion?",
         ]
         for q in questions:
+            rate_limiter._buckets.clear()
             resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": q})
             assert resp.status_code == 200
             streamed = extract_streamed_text(resp.text)
@@ -187,6 +190,41 @@ async def test_personal_questions_deflection_and_privacy():
             # Zero personal contact info leaked
             assert "brandocomando8@gmail.com" not in streamed
             assert "gmail.com" not in streamed
+
+
+@pytest.mark.asyncio
+async def test_approved_personal_profile_answers():
+    """Verify that authorized personal data in personal.yaml is accurately and delightfully answered."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        cases = [
+            ("Where does Brandon live?", ["Southern California"]),
+            ("What are his work preferences?", ["remote", "Orange County", "not willing to relocate"]),
+            ("How many years of devops experience does he have?", ["14+"]),
+            ("Where has Brandon worked?", ["Life360", "Persefoni AI", "Melrok", "Lakeshore", "Liferay"]),
+            ("What is his favorite color?", ["Blue"]),
+            ("Coffee or tea?", ["COFFEE"]),
+            ("Cats or dogs?", ["Cats"]),
+            ("Where did he go to school?", ["Biola University", "Computer Science"]),
+            ("Tabs or spaces?", ["Tabs"]),
+            ("Night owl or early bird?", ["early bird"]),
+            ("Does pineapple belong on pizza?", ["YES"]),
+            ("What is his favorite season?", ["Fall"]),
+            ("Does he like dad jokes?", ["All the time"]),
+            ("Beach or mountains?", ["Mountains"]),
+            ("What is his favorite place?", ["Yosemite"]),
+            ("What emojis does he use most?", ["ThumbsUp", "Roger roger", "Facepalm"]),
+            ("What are his socials?", ["linkedin.com/in/brandon-foster", "github.com/brandocomando"]),
+        ]
+        for question, expected_tokens in cases:
+            rate_limiter._buckets.clear()
+            resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": question})
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            assert "I don't know—maybe you should ask him!" not in streamed, f"Failed for '{question}': was deflected"
+            for token in expected_tokens:
+                assert token.lower() in streamed.lower(), f"Expected '{token}' in answer to '{question}', got: {streamed}"
+
 
 
 @pytest.mark.asyncio

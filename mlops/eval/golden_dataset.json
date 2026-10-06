@@ -96,5 +96,12 @@
     "question": "How did Brandon implement paved roads and developer tooling for engineering teams?",
     "expected_keywords": ["paved", "cli", "slo", "docker compose", "developer"],
     "target_chunk_id": "chunk-exp-developer-tooling-paved-roads"
+  },
+  {
+    "id": "eval-15-personal-profile-preferences",
+    "category": "personal",
+    "question": "Where does Brandon live and what are his work preferences?",
+    "expected_keywords": ["southern california", "remote", "orange county", "relocate"],
+    "target_chunk_id": "chunk-personal-profile"
   }
 ]

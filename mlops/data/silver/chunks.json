@@ -3,7 +3,7 @@
     "id": "chunk-bio-overview",
     "title": "Brandon Foster Professional Overview & Domains",
     "category": "bio",
-    "content": "Brandon Foster (brandocomando) is a Senior Platform & MLOps Engineer based in United States.\nHeadline: Building high-throughput distributed systems, sovereign AI infrastructure, and autonomous agent workflows.\nOverview: Senior Platform, Distributed Systems, and MLOps Engineer with deep expertise in architecting cloud-native infrastructure, high-concurrency microservices, and AI-powered systems. Specialized in Kubernetes (EKS/GKE), GitOps (ArgoCD), Infrastructure as Code (Terraform), enterprise streaming platforms (Kafka/Confluent), zero-trust security (mTLS, App Mesh), and local/production AI agent architectures. Proven track record leading multi-account cloud consolidations, large-scale Bitbucket-to-GitHub migrations, and saving over $10K/month in cloud FinOps optimizations.\n\nCore Technical Domains: Platform Engineering & Infrastructure as Code (Terraform), Distributed Systems & Service Mesh (Kubernetes, AWS App Mesh, mTLS), AI Infrastructure & MLOps (Local LLMs, Agentic Teams, RAG Pipelines), Data Platforms & Streaming (Kafka, Confluent Cloud, Snowflake, Databricks), Observability & SRE (Prometheus, Datadog, Grafana, OpenTelemetry), FinOps & Cloud Cost Optimization.\nContact: Connect via Portfolio Contact Page | GitHub: https://github.com/brandocomando | LinkedIn: https://linkedin.com/in/brandon-foster",
+    "content": "Brandon Foster (brandocomando) is a Senior Platform & MLOps Engineer based in Southern California.\nHeadline: Building high-throughput distributed systems, sovereign AI infrastructure, and autonomous agent workflows.\nOverview: Senior Platform, Distributed Systems, and MLOps Engineer with deep expertise in architecting cloud-native infrastructure, high-concurrency microservices, and AI-powered systems. Specialized in Kubernetes (EKS/GKE), GitOps (ArgoCD), Infrastructure as Code (Terraform), enterprise streaming platforms (Kafka/Confluent), zero-trust security (mTLS, App Mesh), and local/production AI agent architectures. Proven track record leading multi-account cloud consolidations, large-scale Bitbucket-to-GitHub migrations, and saving over $10K/month in cloud FinOps optimizations.\n\nCore Technical Domains: Platform Engineering & Infrastructure as Code (Terraform), Distributed Systems & Service Mesh (Kubernetes, AWS App Mesh, mTLS), AI Infrastructure & MLOps (Local LLMs, Agentic Teams, RAG Pipelines), Data Platforms & Streaming (Kafka, Confluent Cloud, Snowflake, Databricks), Observability & SRE (Prometheus, Datadog, Grafana, OpenTelemetry), FinOps & Cloud Cost Optimization.\nContact: Connect via Portfolio Contact Page | GitHub: https://github.com/brandocomando | LinkedIn: https://www.linkedin.com/in/brandon-foster",
     "tags": [
       "bio",
       "overview",
@@ -12,10 +12,34 @@
       "distributed_systems"
     ],
     "source_file": "bio.yaml",
-    "token_estimate": 331,
+    "token_estimate": 333,
     "metadata": {
       "handle": "brandocomando",
-      "location": "United States"
+      "location": "Southern California"
+    }
+  },
+  {
+    "id": "chunk-personal-profile",
+    "title": "Brandon Foster Personal Profile & Preferences",
+    "category": "personal",
+    "content": "[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\nLocation: Southern California\nWork Preferences: Remote preferred, Hybrid OK in Orange County, CA (not willing to relocate).\nDevOps Experience: 14+ years (14+ years of DevOps, Platform Engineering, and Distributed Systems experience.)\nEmployers: Current: Life360 | Past: Persefoni AI, Melrok, Lakeshore Learning Materials, Liferay\nEducation: Biola University, graduated with a BS in Computer Science.\nPersonal Preferences & Fun Facts:\n  \u2022 Favorite Color: Blue\n  \u2022 Coffee or Tea: COFFEE!!!!!!\n  \u2022 Cats or Dogs: Cats!!!!!\n  \u2022 Tabs or Spaces: Tabs\n  \u2022 Night Owl or Early Bird: Early bird\n  \u2022 Pineapple on Pizza: YES!\n  \u2022 Favorite Season: Fall\n  \u2022 Dad Jokes: All the time\n  \u2022 Beach or Mountains: Mountains\n  \u2022 Favorite Place: Yosemite\n  \u2022 Common Emojis: ThumbsUp (\ud83d\udc4d), Roger roger (\ud83e\udee1), Facepalm (\ud83e\udd26)\nSocials: LinkedIn: https://www.linkedin.com/in/brandon-foster | GitHub: https://github.com/brandocomando",
+    "tags": [
+      "personal",
+      "preferences",
+      "location",
+      "education",
+      "employers",
+      "trivia",
+      "california",
+      "remote",
+      "coffee",
+      "cats"
+    ],
+    "source_file": "personal.yaml",
+    "token_estimate": 235,
+    "metadata": {
+      "location": "Southern California",
+      "current_employer": "Life360"
     }
   },
   {

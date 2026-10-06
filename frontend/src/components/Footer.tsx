@@ -1,5 +1,5 @@
 import React from 'react';
-import { Terminal, Github } from 'lucide-react';
+import { Terminal, Github, Linkedin } from 'lucide-react';
 
 interface FooterProps {
   onOpenContact?: () => void;
@@ -39,6 +39,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             >
               <Github className="w-3.5 h-3.5" />
               <span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/brandon-foster"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+            >
+              <Linkedin className="w-3.5 h-3.5" />
+              <span>LinkedIn</span>
             </a>
           </div>
 

@@ -14,6 +14,7 @@ from mlops.pipeline.schemas import (
     CareerMilestone,
     ProjectEntry,
     SkillCategory,
+    PersonalProfile,
     KnowledgeChunk,
 )
 
@@ -39,6 +40,12 @@ def run_silver_transform():
     with open(BRONZE_DIR / "skills_raw.json", "r") as f:
         skills_raw = json.load(f)["payload"]["skill_categories"]
 
+    personal_raw = None
+    personal_file = BRONZE_DIR / "personal_raw.json"
+    if personal_file.exists():
+        with open(personal_file, "r") as f:
+            personal_raw = json.load(f)["payload"]["personal_profile"]
+
     # Load GitHub live repos for enrichment (if available)
     gh_repos_map = {}
     gh_file = BRONZE_DIR / "github_repos_raw.json"
@@ -53,8 +60,9 @@ def run_silver_transform():
     milestones = [CareerMilestone.model_validate(m) for m in exp_raw]
     projects = [ProjectEntry.model_validate(p) for p in proj_raw]
     skill_categories = [SkillCategory.model_validate(s) for s in skills_raw]
+    personal = PersonalProfile.model_validate(personal_raw) if personal_raw else None
 
-    print(f"✅ Schema validation passed: Bio, {len(milestones)} milestones, {len(projects)} projects, {len(skill_categories)} skill groups")
+    print(f"✅ Schema validation passed: Bio, {len(milestones)} milestones, {len(projects)} projects, {len(skill_categories)} skill groups, Personal Profile: {'Yes' if personal else 'No'}")
 
     # 3. Semantic Chunk Generation
     chunks: List[KnowledgeChunk] = []
@@ -77,6 +85,41 @@ def run_silver_transform():
         token_estimate=estimate_tokens(bio_content),
         metadata={"handle": bio.handle, "location": bio.location}
     ))
+
+    # Personal Profile & Preferences Chunk
+    if personal:
+        employers_past = ", ".join(personal.employers.get("past", []))
+        personal_content = (
+            f"[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\n"
+            f"Location: {personal.location}\n"
+            f"Work Preferences: {personal.work_preferences.get('summary', '')}\n"
+            f"DevOps Experience: {personal.years_of_experience} years ({personal.experience_summary})\n"
+            f"Employers: Current: {personal.employers.get('current', '')} | Past: {employers_past}\n"
+            f"Education: {personal.education.get('summary', '')}\n"
+            f"Personal Preferences & Fun Facts:\n"
+            f"  • Favorite Color: {personal.fun_facts.get('favorite_color', '')}\n"
+            f"  • Coffee or Tea: {personal.fun_facts.get('coffee_or_tea', '')}\n"
+            f"  • Cats or Dogs: {personal.fun_facts.get('cats_or_dogs', '')}\n"
+            f"  • Tabs or Spaces: {personal.fun_facts.get('tabs_or_spaces', '')}\n"
+            f"  • Night Owl or Early Bird: {personal.fun_facts.get('chronotype', '')}\n"
+            f"  • Pineapple on Pizza: {personal.fun_facts.get('pineapple_on_pizza', '')}\n"
+            f"  • Favorite Season: {personal.fun_facts.get('favorite_season', '')}\n"
+            f"  • Dad Jokes: {personal.fun_facts.get('dad_jokes', '')}\n"
+            f"  • Beach or Mountains: {personal.fun_facts.get('beach_or_mountains', '')}\n"
+            f"  • Favorite Place: {personal.fun_facts.get('favorite_place', '')}\n"
+            f"  • Common Emojis: {', '.join(personal.fun_facts.get('common_emojis', []))}\n"
+            f"Socials: LinkedIn: {personal.socials.get('linkedin', '')} | GitHub: {personal.socials.get('github', '')}"
+        )
+        chunks.append(KnowledgeChunk(
+            id="chunk-personal-profile",
+            title="Brandon Foster Personal Profile & Preferences",
+            category="personal",
+            content=personal_content,
+            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "coffee", "cats"],
+            source_file="personal.yaml",
+            token_estimate=estimate_tokens(personal_content),
+            metadata={"location": personal.location, "current_employer": personal.employers.get("current")}
+        ))
 
     # Experience Chunks
     for m in milestones:

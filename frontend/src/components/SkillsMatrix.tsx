@@ -29,7 +29,7 @@ const SKILL_GROUPS: SkillCategory[] = [
       { name: "ArgoCD / GitOps", proficiency: "Expert", context: "Declarative continuous delivery, multi-cluster application sets, automated rollbacks." },
       { name: "Docker", proficiency: "Expert", context: "Multi-stage distroless/slim builds, rootless containers, OCI optimization." },
       { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, GitOps releases." },
-      { name: "CI/CD & Automation", proficiency: "Expert", context: "GitHub Actions, Bitbucket migration (100+ repos, 99.8% reliability), reusable workflows, keyless OIDC/WIF." }
+      { name: "CI/CD & Automation", proficiency: "Expert", context: "GitHub Actions, Bitbucket & Jenkins migration (100+ repos, 99.8% reliability), reusable workflows, keyless OIDC/WIF." }
     ]
   },
   {

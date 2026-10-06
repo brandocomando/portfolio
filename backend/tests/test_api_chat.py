@@ -259,6 +259,23 @@ async def test_chat_stream_cicd_queries():
 
 
 @pytest.mark.asyncio
+async def test_chat_stream_jenkins_experience():
+    """Verify that asking about Jenkins directly answers conversationally with CI/CD experience."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        resp = await ac.post(
+            "/api/v1/chat/stream",
+            json={"messages": [], "question": "does he have jenkins experience?"}
+        )
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Jenkins" in streamed
+        assert "Yes, Brandon has hands-on experience with **Jenkins**" in streamed
+        assert "GitHub Actions" in streamed or "ArgoCD" in streamed
+
+
+@pytest.mark.asyncio
 async def test_chat_stream_upstream_forks_disclaimer():
     """Verify that FirstMate and Agent Deck queries clarify they are upstream forks."""
     transport = ASGITransport(app=app)
@@ -270,5 +287,7 @@ async def test_chat_stream_upstream_forks_disclaimer():
             assert "forks" in streamed.lower() or "upstream" in streamed.lower()
             assert "not" in streamed.lower() and "original work" in streamed.lower()
             assert "My Agentic Team" in streamed
+
+
 
 

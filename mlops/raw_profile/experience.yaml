@@ -25,8 +25,9 @@ milestones:
     role: "Principal Infrastructure / DevOps Lead"
     summary: >
       Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+
-      repositories from Bitbucket to GitHub Actions. Designed reusable workflow templates, automated
-      linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.
+      repositories, transitioning workloads from legacy Bitbucket and Jenkins setups to GitHub Actions.
+      Designed reusable workflow templates, automated linting, security scans, and container build pipelines
+      supporting thousands of concurrent Linux build runners.
     impact_metrics:
       - "100+ repositories seamlessly migrated"
       - "Build reliability increased to 99.8%"
@@ -36,6 +37,7 @@ milestones:
       - "CI/CD Pipelines"
       - "GitHub Actions"
       - "Bitbucket"
+      - "Jenkins"
       - "Docker"
       - "Bash"
       - "Python"

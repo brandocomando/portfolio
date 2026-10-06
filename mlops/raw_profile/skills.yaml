@@ -51,7 +51,7 @@ skill_categories:
         context: "Parameterized chart authoring, dependency management, automated releases via GitOps."
       - name: "CI/CD & Pipeline Automation"
         proficiency: "Expert"
-        context: "Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket migration (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates."
+        context: "Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket and Jenkins migrations (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates."
 
   - name: "AI Infrastructure & MLOps"
     skills:

@@ -44,12 +44,13 @@
     "id": "chunk-exp-cicd-github-migration",
     "title": "Experience: Enterprise CI/CD Migration: Bitbucket to GitHub Actions",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories from Bitbucket to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: CI/CD, CI/CD Pipelines, GitHub Actions, Bitbucket, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
+    "content": "[CAREER EXPERIENCE] Enterprise CI/CD Migration: Bitbucket to GitHub Actions\nRole: Principal Infrastructure / DevOps Lead | Category: platform_engineering\nSummary: Configured from scratch and engineered an enterprise CI/CD pipeline modernization across 100+ repositories, transitioning workloads from legacy Bitbucket and Jenkins setups to GitHub Actions. Designed reusable workflow templates, automated linting, security scans, and container build pipelines supporting thousands of concurrent Linux build runners.\nQuantified Impact & Metrics:\n  \u2022 100+ repositories seamlessly migrated\n  \u2022 Build reliability increased to 99.8%\n  \u2022 Eliminated vendor fragmentation and boosted developer velocity across the organization\nTechnologies Utilized: CI/CD, CI/CD Pipelines, GitHub Actions, Bitbucket, Jenkins, Docker, Bash, Python, Security Scanning (Trivy/Snyk)",
     "tags": [
       "ci/cd",
       "ci/cd pipelines",
       "github actions",
       "bitbucket",
+      "jenkins",
       "docker",
       "bash",
       "python",
@@ -58,7 +59,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 198,
+    "token_estimate": 213,
     "metadata": {
       "role": "Principal Infrastructure / DevOps Lead",
       "milestone_id": "exp-cicd-github-migration"
@@ -293,7 +294,7 @@
     "id": "chunk-skills-containers-and-orchestration",
     "title": "Skills: Containers & Orchestration",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.\n  \u2022 CI/CD & Pipeline Automation (Expert): Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket migration (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates.",
+    "content": "[TECHNICAL SKILLS: CONTAINERS & ORCHESTRATION]\nSkills and Production Proof-Points:\n  \u2022 Kubernetes (K8s) (Expert): EKS cluster administration, ingress controllers, HPA, client-go operator authoring, custom resource definitions (CRDs).\n  \u2022 ArgoCD / GitOps (Expert): Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines.\n  \u2022 Docker (Expert): Multi-stage distroless/slim builds, rootless containers, OCI image optimization.\n  \u2022 Helm (Expert): Parameterized chart authoring, dependency management, automated releases via GitOps.\n  \u2022 CI/CD & Pipeline Automation (Expert): Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket and Jenkins migrations (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates.",
     "tags": [
       "kubernetes (k8s)",
       "argocd / gitops",
@@ -304,7 +305,7 @@
       "containers & orchestration"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 204,
+    "token_estimate": 207,
     "metadata": {
       "category_name": "Containers & Orchestration",
       "skills_count": 5

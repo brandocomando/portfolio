@@ -130,6 +130,32 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "Would you like to explore his multi-agent orchestration patterns, local LLM tooling, or RAG evaluation pipelines?"
         )
 
+    # Jenkins & Traditional CI/CD Tooling
+    if "jenkins" in q_lower:
+        return (
+            "Yes, Brandon has hands-on experience with **Jenkins** and traditional CI/CD pipelines alongside modern platforms "
+            "like GitHub Actions and ArgoCD.\n\n"
+            "Throughout his infrastructure and platform engineering career, he has managed Jenkins build environments, automated "
+            "agent runner scaling on Linux and Docker, and configured multi-stage build, test, and container packaging pipelines. "
+            "In his enterprise leadership work, he transitioned squads from legacy CI setups (including Bitbucket and Jenkins) to modern "
+            "GitHub Actions and ArgoCD GitOps pipelines—authoring reusable workflow templates, automated vulnerability scanning (Trivy/Snyk), "
+            "and keyless OIDC authentication that achieved 99.8% build reliability across 100+ repositories.\n\n"
+            "His core CI/CD philosophy—pipeline-as-code, ephemeral container runners, immutable artifacts, and fast feedback loops—applies "
+            "equally across Jenkins, GitHub Actions, or GitLab CI.\n\n"
+            "Are you looking to modernize a Jenkins setup or wondering how his pipeline experience fits your engineering stack?"
+        )
+
+    # GitLab CI / CircleCI / Other CI Tooling
+    if any(w in q_lower for w in ["gitlab", "circleci", "travis", "tekton", "spinnaker", "teamcity", "bamboo"]):
+        return (
+            "While Brandon's primary production focus has centered on **GitHub Actions**, **Bitbucket Pipelines**, and **ArgoCD GitOps**, "
+            "his deep CI/CD and platform engineering background translates directly across modern CI runners including GitLab CI and CircleCI.\n\n"
+            "He specializes in designing declarative pipelines-as-code, runner autoscaling on Kubernetes and Linux, multi-stage container builds, "
+            "and keyless cloud authentication (OIDC/WIF). As Principal Infrastructure Lead, he modernized over 100 repositories to standardized "
+            "reusable pipelines with 99.8% build reliability.\n\n"
+            "Would you like to know more about his pipeline architectures, automated testing gates, or runner scaling?"
+        )
+
     # CI/CD & Pipeline Engineering
     if any(re.search(pat, q_lower) for pat in [
         r"\bci[\s\-_/]*cd\b",
@@ -138,6 +164,11 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         r"\bpiplines?\b",
         r"\bgithub\s+actions\b",
         r"\bbitbucket\b",
+        r"\bjenkins\b",
+        r"\bgitlab\b",
+        r"\bcircleci\b",
+        r"\btekton\b",
+        r"\bspinnaker\b",
     ]):
         return (
             "Brandon has deep, battle-tested expertise in **CI/CD and pipeline engineering**, including architecting "
@@ -153,6 +184,26 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             "• **MLOps Quality Gates**: Built continuous offline evaluation pipelines running LLM-as-a-judge tests in CI to benchmark retrieval context recall, "
             "MRR, and answer faithfulness before promoting model or retrieval changes.\n\n"
             "Would you like to know more about his reusable workflow design, runner scaling, or GitOps deployment strategies?"
+        )
+
+    # Cloud Providers: Azure & Multi-Cloud
+    if "azure" in q_lower:
+        return (
+            "Brandon's primary cloud expertise is focused on **AWS** and **GCP**, where he manages multi-account organizations, "
+            "EKS/GKE clusters, serverless Cloud Run, and large-scale Terraform automation.\n\n"
+            "However, because he architects infrastructure declaratively using **Terraform / OpenTofu** and containerized workloads "
+            "on Kubernetes, his multi-cloud and distributed systems patterns translate directly to Microsoft Azure (AKS, Azure DevOps, ARM/Terraform).\n\n"
+            "Are you evaluating him for an Azure or hybrid cloud infrastructure environment?"
+        )
+
+    # Configuration Management: Ansible / Chef / Puppet
+    if any(w in q_lower for w in ["ansible", "puppet", "chef"]):
+        return (
+            "Brandon has worked with configuration management tools like **Ansible** for host provisioning and Linux system automation, "
+            "though his primary modern focus is immutable infrastructure using **Terraform / OpenTofu**, Docker multi-stage container builds, "
+            "and declarative Kubernetes/GitOps configurations.\n\n"
+            "He pairs systems automation with POSIX Bash and Go daemons for high-reliability platform tooling.\n\n"
+            "What kind of infrastructure automation setup does your team use?"
         )
 
     # Kubernetes & GitOps
@@ -272,6 +323,23 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
 
         has_substantive_match = any(w in normalized_doc for w in query_words)
         if query_words and not has_substantive_match:
+            TECH_INDICATORS = {
+                "experience", "tool", "tools", "stack", "tech", "technology", "technologies",
+                "database", "db", "framework", "library", "platform", "cloud", "infra",
+                "infrastructure", "language", "pipeline", "ci", "cd", "k8s", "docker",
+                "container", "deploy", "deployment", "service", "architecture", "engineer",
+                "developer", "code", "devops", "mlops", "sre", "monitoring", "metrics",
+                "observability", "api", "backend", "system", "systems", "cluster", "server",
+                "software", "skills", "proficient", "know", "use", "using", "work"
+            }
+            is_technical_query = any(w in TECH_INDICATORS for w in query_words)
+            if is_technical_query:
+                return (
+                    "While that specific technology isn't explicitly highlighted in Brandon's portfolio docs, "
+                    "his core expertise is focused on **Platform Engineering, Kubernetes, Terraform, Confluent Kafka, CI/CD, and MLOps**.\n\n"
+                    "If you'd like to ask Brandon directly about his experience in that area or discuss how his background maps to your team's stack, "
+                    "you can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded straight to him!"
+                )
             return (
                 "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs. "
                 "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."

@@ -1,10 +1,10 @@
 {
   "stage": "bronze",
-  "ingested_at": "2026-10-06T16:49:58.010950Z",
+  "ingested_at": "2026-10-06T17:20:25.838470Z",
   "artifacts": {
     "skills": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/skills_raw.json",
-      "hash": "c0b365b4c8e55dc10a4367c8db7f4c7c15169016c295eea567a7682032840220"
+      "hash": "21d73cd03ab4e52a5fce9c93f860a3642d1ad113ef9bfc6c25b32c0b38cb6108"
     },
     "bio": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/bio_raw.json",
@@ -16,7 +16,7 @@
     },
     "experience": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/experience_raw.json",
-      "hash": "000a0063ac43500ef81be1bc79e1807ba4441d8a1a4de7e4cb664009b5b4643f"
+      "hash": "22b3242c3ca196e227b3910b1ea9aa756107a4444f2e4cab4f724ce64379b9e7"
     },
     "github_repos": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/github_repos_raw.json",

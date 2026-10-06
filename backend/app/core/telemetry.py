@@ -28,6 +28,9 @@ class TraceContextFilter(logging.Filter):
 
 
 logger.addFilter(TraceContextFilter())
+logging.getLogger().addFilter(TraceContextFilter())
+for handler in logging.root.handlers:
+    handler.addFilter(TraceContextFilter())
 
 
 class RequestTracingMiddleware(BaseHTTPMiddleware):

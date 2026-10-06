@@ -19,3 +19,9 @@ variable "environment" {
   type        = string
   default     = "prod"
 }
+
+variable "smtp_password_secret_id" {
+  description = "Optional Secret Manager secret ID for the SMTP password. Leave empty to skip creating it."
+  type        = string
+  default     = ""
+}

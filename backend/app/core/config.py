@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # AI Model Settings
     GEMINI_API_KEY: Optional[str] = None
-    GEMINI_MODEL: str = "gemini-2.0-flash"
+    GEMINI_MODEL: str = "gemini-flash-latest"
     MAX_TOKENS: int = 1024
     TEMPERATURE: float = 0.2
 

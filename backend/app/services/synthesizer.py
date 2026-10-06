@@ -9,6 +9,8 @@ import re
 import difflib
 from typing import List, Dict, Any, Optional
 
+from backend.app.services.intent import detect_approved_personal
+
 
 def clean_text(text: str) -> str:
     """Removes internal tags, bracketed headers, and metadata."""
@@ -105,7 +107,50 @@ def is_conversational_followup(
         if relevant_candidates and matches_topic(q, relevant_candidates):
             return True
 
+    # Short reply (<= 8 words) that echoes one of the options offered in the assistant's trailing question,
+    # e.g. "Would you like ... the CI/CD eval quality gates, or the Terraform setup?" -> "eval gates"
+    if len(words) <= 8:
+        offered = re.findall(r"[^.!?\n]*\?", last_asst)
+        if offered:
+            option_words = {
+                w for w in re.findall(r"[a-z0-9][a-z0-9/\-]{2,}", offered[-1])
+                if w not in _OPTION_STOPWORDS
+            }
+            reply_words = [w for w in re.findall(r"[a-z0-9][a-z0-9/\-]{2,}", q) if w not in _OPTION_STOPWORDS]
+            for rw in reply_words:
+                for ow in option_words:
+                    if rw == ow or (len(rw) >= 4 and (ow.startswith(rw) or rw.startswith(ow))) \
+                            or difflib.SequenceMatcher(None, rw, ow).ratio() >= 0.8:
+                        return True
+
     return False
+
+
+_OPTION_STOPWORDS = {
+    "the", "and", "you", "your", "would", "like", "know", "more", "about", "want", "learn", "hear",
+    "explore", "dive", "into", "deeper", "next", "his", "how", "what", "are", "there", "any", "specific",
+    "curious", "tell", "with", "for", "that", "this", "does", "did", "can", "next", "patterns",
+}
+
+
+_CONTINUATION_FILLER_WORDS = {
+    "yes", "yea", "yeah", "yep", "yup", "sure", "ok", "okay", "please", "pls", "thing",
+    "tell", "me", "more", "go", "on", "continue", "elaborate", "details", "detail",
+    "about", "that", "this", "it", "the", "a", "an", "of", "on", "sounds", "good", "great",
+    "let", "lets", "let's", "hear", "i", "i'd", "id", "would", "love", "like", "want", "to",
+    "know", "learn", "give", "can", "you", "explain", "both", "all", "them", "three", "any",
+    "and", "so", "cool", "awesome", "interesting", "go", "ahead", "do", "be", "great",
+}
+
+
+def is_generic_continuation(query: str) -> bool:
+    """True when the reply carries no topic of its own (e.g. 'yes', 'yea tell me more', 'sure, go on').
+
+    Only these replies should be answered from the previous assistant turn's topic. A reply that names
+    a topic ('terraform setup', 'the CI/CD eval gates') must be answered on the topic the user picked.
+    """
+    words = re.findall(r"[a-z0-9_'\-/]+", query.lower())
+    return bool(words) and all(w in _CONTINUATION_FILLER_WORDS for w in words)
 
 
 def synthesize_conversational_response(
@@ -131,11 +176,50 @@ def synthesize_conversational_response(
                 break
 
         hist_text = (last_asst + " " + last_user).lower()
+        generic = is_generic_continuation(question)
         if any(w in hist_text for w in [
             "hybrid rag", "medallion", "cold start", "scale-to-zero", "scale to zero",
             "portfolio platform", "portfolio assistant", "cloud run", "gemini flash", "this platform",
             "finops-optimized cloud portfolio"
         ]):
+            # Options offered by the platform answers: check what the USER picked first.
+            if matches_topic(q_lower, ["terraform", "opentofu", "iac", "infrastructure as code"]):
+                return (
+                    "Here's how the **Terraform setup** for this platform is organized:\n\n"
+                    "• **Small, single-purpose modules** (`infra/modules/`): `apis`, `artifact_registry`, `cloud_run`, `firestore`, `iam_wif`, and `secrets`—each with its own variables, outputs, and pinned provider versions.\n"
+                    "• **Thin environment roots** (`infra/envs/dev` and `infra/envs/prod`): each environment just composes the modules, with remote state in a GCS backend and explicit `depends_on` ordering behind API enablement.\n"
+                    "• **Secrets never touch code**: the Gemini API key lives in Secret Manager, the Cloud Run service account is granted accessor rights, and the key is injected as an environment variable at runtime—never in tfvars or the container image.\n"
+                    "• **Keyless IaC pipelines**: `terraform-ci` runs `terraform fmt -check`, a Trivy IaC security scan, and `terraform validate` on pull requests; `terraform-cd` applies production on merge to `main`, authenticating through Workload Identity Federation (zero JSON service account keys).\n\n"
+                    "Would you like to dig into the Workload Identity Federation setup or how Cloud Run is configured to scale to zero?"
+                )
+            if matches_topic(q_lower, ["ci/cd", "cicd", "eval", "evals", "evaluation", "quality gate", "gates", "github actions", "deploy"]):
+                return (
+                    "Here's how the **CI/CD eval quality gates** protect this assistant:\n\n"
+                    "• **Rebuild on every change**: the MLOps workflow re-runs the Medallion pipeline (Bronze → Silver → Gold) so the retrieval index is always rebuilt from source data, never hand-edited.\n"
+                    "• **Continuous evaluation benchmark**: `evaluate_agent.py` replays a golden dataset of questions against the fresh index, measuring Top-3 retrieval hit rate, Mean Reciprocal Rank (MRR), expected-keyword recall, and adversarial (prompt-injection) deflection rate.\n"
+                    "• **Hard gates**: the build fails if Top-3 hit rate drops below **85%** or MRR below **0.70**, or if guardrail deflection regresses—so a retrieval regression can't ship silently.\n"
+                    "• **Auditable artifacts**: every run archives the Gold index and the evaluation report.\n"
+                    "• **Backend & infra gates**: the backend pipeline runs the pytest suite before deploying the container to Cloud Run, and Terraform changes go through fmt/Trivy/validate before apply—all using keyless OIDC auth.\n\n"
+                    "Would you like to hear about the Terraform setup or the scale-to-zero FinOps design?"
+                )
+            if matches_topic(q_lower, ["rate limit", "rate-limit", "rate limiting", "token bucket", "quota", "throttle"]):
+                return (
+                    "Here's how **rate limiting** protects the LLM budget on this platform:\n\n"
+                    "• **Tiered quotas**: anonymous visitors get 5 questions per 24 hours (keyed by client IP), and signed-in visitors get 30 per 24 hours (keyed by Firebase UID).\n"
+                    "• **Sliding-window limiter**: requests are tracked as timestamps per key in memory, with periodic cleanup, so there's no Redis or database to pay for.\n"
+                    "• **Lead capture**: hitting the anonymous limit nudges visitors to sign in, and conversations are recorded in Firestore as lead interactions.\n\n"
+                    "Would you like to explore the scale-to-zero FinOps design or the CI/CD eval quality gates?"
+                )
+            if matches_topic(q_lower, ["finops", "cost", "costs", "idle", "budget", "cheap", "pricing"]):
+                return (
+                    "Here's the **scale-to-zero FinOps design** behind this platform:\n\n"
+                    "• **Scale-to-zero compute**: the FastAPI backend runs on Cloud Run with `min-instances: 0`, so when nobody is chatting there are no CPU or memory charges—**$0/month idle**.\n"
+                    "• **No database bill for search**: the hybrid retrieval index is loaded into container memory at startup instead of paying for a managed vector database.\n"
+                    "• **Static frontend on a CDN**: the React app is served from Firebase Hosting's global CDN on the free tier.\n"
+                    "• **Serverless state**: Firestore and Firebase Auth are pay-per-use, and per-visitor rate limits cap LLM spend.\n"
+                    "• **Fast cold starts**: a slim multi-stage Docker image and index pre-warming in the FastAPI lifespan keep cold starts under ~2 seconds, so scaling to zero doesn't hurt the experience.\n\n"
+                    "Would you like to know more about the Terraform setup or the CI/CD eval quality gates?"
+                )
             if matches_topic(q_lower, ["rag", "retrieval", "rrf", "hybrid", "dense", "bm25"]):
                 return (
                     "Here is a deeper architectural look into the **In-Memory Hybrid RAG engine (Dense + BM25 RRF)**:\n\n"
@@ -160,24 +244,25 @@ def synthesize_conversational_response(
                     "• **Lifespan Pre-Warming**: The Gold retrieval index is deserialized and pre-warmed during the FastAPI lifespan startup event, keeping cold starts under 2 seconds.\n\n"
                     "Would you like to learn more about the Hybrid RAG engine or Medallion data pipeline?"
                 )
-            return (
-                "Here is a deeper architectural look into the **Hybrid RAG engine, Medallion data pipeline, and cold start optimization** "
-                "powering this platform:\n\n"
-                "• **In-Memory Hybrid RAG (Dense + BM25 RRF)**:\n"
-                "  Rather than paying for an expensive managed vector database (like Pinecone or Cloud SQL Vector), this service loads a "
-                "  pre-computed, signed Gold retrieval index directly into container memory on startup. When a query arrives, it calculates "
-                "  BM25 keyword scores alongside cosine similarity against 384-dimensional dense semantic embeddings, merging them with "
-                "  Reciprocal Rank Fusion (RRF). Retrieval latency is **sub-10ms** with zero database hosting fees!\n\n"
-                "• **Medallion Data Lakehouse (Bronze → Silver → Gold)**:\n"
-                "  The offline data pipeline validates raw YAML/JSON profile data using Pydantic v2 schemas (Bronze), chunks achievements "
-                "  semantically with strict quality gates (Silver), and vectorizes and hashes the index bundle (Gold) with SHA-256 verification.\n\n"
-                "• **Cold Start & FinOps Optimization**:\n"
-                "  Cloud Run is configured with `min-instances: 0` to achieve $0 idle cost. To minimize cold start latency when traffic arrives, "
-                "  the container utilizes a lightweight multi-stage Docker build, lazy dependency loading, and pre-warms the index during "
-                "  FastAPI lifespan initialization—keeping cold starts under 2 seconds.\n\n"
-                "Would you like to know more about the GitHub Actions CI/CD deployment or the rate-limiting token bucket architecture?"
-            )
-        elif any(w in hist_text for w in ["bitbucket", "github actions", "runner", "workflow design", "ci/cd", "oidc", "wif"]):
+            if generic:
+                return (
+                    "Here is a deeper architectural look into the **Hybrid RAG engine, Medallion data pipeline, and cold start optimization** "
+                    "powering this platform:\n\n"
+                    "• **In-Memory Hybrid RAG (Dense + BM25 RRF)**:\n"
+                    "  Rather than paying for an expensive managed vector database (like Pinecone or Cloud SQL Vector), this service loads a "
+                    "  pre-computed, signed Gold retrieval index directly into container memory on startup. When a query arrives, it calculates "
+                    "  BM25 keyword scores alongside cosine similarity against 384-dimensional dense semantic embeddings, merging them with "
+                    "  Reciprocal Rank Fusion (RRF). Retrieval latency is **sub-10ms** with zero database hosting fees!\n\n"
+                    "• **Medallion Data Lakehouse (Bronze → Silver → Gold)**:\n"
+                    "  The offline data pipeline validates raw YAML/JSON profile data using Pydantic v2 schemas (Bronze), chunks achievements "
+                    "  semantically with strict quality gates (Silver), and vectorizes and hashes the index bundle (Gold) with SHA-256 verification.\n\n"
+                    "• **Cold Start & FinOps Optimization**:\n"
+                    "  Cloud Run is configured with `min-instances: 0` to achieve $0 idle cost. To minimize cold start latency when traffic arrives, "
+                    "  the container utilizes a lightweight multi-stage Docker build, lazy dependency loading, and pre-warms the index during "
+                    "  FastAPI lifespan initialization—keeping cold starts under 2 seconds.\n\n"
+                    "Would you like to know more about the GitHub Actions CI/CD deployment or the rate-limiting token bucket architecture?"
+                )
+        elif generic and any(w in hist_text for w in ["bitbucket", "github actions", "runner", "workflow design", "ci/cd", "oidc", "wif"]):
             return (
                 "Here are the deeper architectural details on Brandon's workflow design, runner scaling, and GitOps delivery:\n\n"
                 "• **Reusable Workflow Architecture**: He standardized reusable GitHub Actions workflows across 100+ repositories with automated linting, container builds, and security gates (Trivy/Snyk), boosting build reliability to 99.8%.\n"
@@ -223,15 +308,16 @@ def synthesize_conversational_response(
                     "for granular audit logs and traffic path analysis across microservices.\n\n"
                     "Would you like to explore the zero-downtime migration cutover or the ArgoCD GitOps pipeline?"
                 )
-            return (
-                "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
-                "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning 30+ services from ECS to EKS with zero customer impact.\n"
-                "• **ArgoCD Declarative GitOps**: Configured multi-cluster ApplicationSets managing Helm charts and Kustomize overlays, eliminating manual kubectl interventions and reducing deploy lead times from hours to under 10 minutes.\n"
-                "• **Custom Go Ingress Observability**: Authored `prometheus-ingress-status-exporter` to continuously probe ingress availability and export metrics directly to Prometheus and Datadog.\n"
-                "• **Karpenter Dynamic Compute**: Replaced static EC2 node groups with Karpenter autoscaling and Spot instance fleets, cutting thousands in idle compute costs.\n\n"
-                "Are there specific Kubernetes networking, security (mTLS), or storage patterns you'd like to dive into?"
-            )
-        elif any(w in hist_text for w in ["app mesh", "service mesh", "mtls", "envoy"]):
+            if generic:
+                return (
+                    "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
+                    "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning 30+ services from ECS to EKS with zero customer impact.\n"
+                    "• **ArgoCD Declarative GitOps**: Configured multi-cluster ApplicationSets managing Helm charts and Kustomize overlays, eliminating manual kubectl interventions and reducing deploy lead times from hours to under 10 minutes.\n"
+                    "• **Custom Go Ingress Observability**: Authored `prometheus-ingress-status-exporter` to continuously probe ingress availability and export metrics directly to Prometheus and Datadog.\n"
+                    "• **Karpenter Dynamic Compute**: Replaced static EC2 node groups with Karpenter autoscaling and Spot instance fleets, cutting thousands in idle compute costs.\n\n"
+                    "Are there specific Kubernetes networking, security (mTLS), or storage patterns you'd like to dive into?"
+                )
+        elif generic and any(w in hist_text for w in ["app mesh", "service mesh", "mtls", "envoy"]):
             return (
                 "Here are deeper architectural details on Brandon's zero-trust service mesh implementation:\n\n"
                 "• **Automated mTLS & ACM Certificate Rotation**: Envoy proxies run as sidecars alongside microservice containers in Kubernetes, "
@@ -242,7 +328,7 @@ def synthesize_conversational_response(
                 "and Datadog APM, enabling end-to-end distributed latency tracing across the entire cluster.\n\n"
                 "Are there specific mesh networking or security controls you'd like to dive into?"
             )
-        elif any(w in hist_text for w in ["kafka", "confluent", "msk", "streaming"]):
+        elif generic and any(w in hist_text for w in ["kafka", "confluent", "msk", "streaming"]):
             return (
                 "Here are the deeper architectural details on his Kafka & Confluent Cloud platform work:\n\n"
                 "• **Zero-Downtime MSK Cutover**: Implemented MirrorMaker2 replication between AWS MSK and Confluent Cloud, enabling seamless consumer offset translation and zero message drop during cluster migration.\n"
@@ -250,7 +336,7 @@ def synthesize_conversational_response(
                 "• **Terraform GitOps for Kafka**: Automated topic creation, retention configurations, and ACL policies declaratively through Terraform pipelines.\n\n"
                 "Would you like to hear more about his stream processing patterns or event throughput?"
             )
-        elif any(w in hist_text for w in ["terraform", "opentofu", "iac"]):
+        elif generic and any(w in hist_text for w in ["terraform", "opentofu", "iac"]):
             return (
                 "Here are key patterns in Brandon's enterprise Terraform module architecture:\n\n"
                 "• **Modular Golden Templates**: Standardized multi-tier modules for VPCs, EKS clusters, and RDS databases shared across 20+ engineering teams with semantic versioning.\n"
@@ -258,7 +344,7 @@ def synthesize_conversational_response(
                 "• **Keyless OIDC Cloud Auth**: Integrated Workload Identity Federation in GitHub Actions to eliminate all long-lived AWS IAM access keys and GCP service account JSON keys.\n\n"
                 "Would you like to know more about his CI/CD validation gates or drift detection?"
             )
-        elif any(w in hist_text for w in ["cost", "finops", "save", "saving", "budget"]):
+        elif generic and any(w in hist_text for w in ["cost", "finops", "save", "saving", "budget"]):
             return (
                 "Here are more details on Brandon's FinOps cost optimization strategies:\n\n"
                 "• **Karpenter Dynamic Spot Compute**: Implemented Karpenter autoscaling on EKS, utilizing diversified Spot instance pools to reduce idle compute costs by over $6,500/month.\n"
@@ -302,206 +388,9 @@ def synthesize_conversational_response(
         )
 
     # 4. Approved Personal Information & Preferences (Explicitly authorized from personal.yaml)
-    # Residential street address is private; general location is Southern California
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(street\s+address|home\s+address|house\s+number|zip\s*code|apartment)\b"
-    ]):
-        return (
-            "I don't know—maybe you should ask him! Specific residential address information is private. "
-            "Brandon is based in Southern California. You can reach out directly through the **[Contact Page](#contact)**."
-        )
-
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bwhere\s+(?:does\s+he|is\s+he|do\s+you|does\s+brandon)\s+(?:live|reside|based)\b",
-        r"\bwhere\s+(?:is\s+brandon|are\s+you)\s+(?:from|located|based)\b",
-        r"\b(?:his|brandon\'?s?)\s+location\b",
-        r"\bwhere\s+(?:are\s+you|is\s+he)\s+located\b",
-    ]):
-        return "Brandon lives and is based in **Southern California**."
-
-    # Specific query about Los Angeles / LA
-    if re.search(r"\b(?:los\s+angeles|\bla\b)\b", q_lower) and any(w in q_lower for w in ["work", "working", "job", "hybrid", "commute", "commuting", "office", "onsite", "in-office", "role", "open", "willing"]):
-        return (
-            "Brandon is **not open to working in or commuting to Los Angeles (LA)**.\n\n"
-            "His work preference is **Remote**, though he is open to **hybrid opportunities in Orange County, CA**. He is also not willing to relocate."
-        )
-
-    # Work Preferences, In-Office, On-Site, Hybrid, Remote, Relocation
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bwork\s+preference[s]?\b",
-        r"\b(?:relocat\w*|willing\s+to\s+relocate|relocation)\b",
-        r"\b(?:is\s+he|are\s+you|would\s+he|can\s+he|does\s+he)\s+(?:open\s+to|willing\s+to|do)\s+(?:relocation|relocating|hybrid|remote|in[\s\-_]*office|on[\s\-_]*site|office|work)\b",
-        r"\b(?:remote|hybrid|in[\s\-_]*office|on[\s\-_]*site)\s+(?:work|working|preferences?|roles?|opportunities?|job|jobs|arrangement)\b",
-        r"\b(?:open\s+to|willing\s+to\s+work|come\s+into)\s+(?:an?\s+|the\s+)?(?:in[\s\-_]*office|on[\s\-_]*site|office)\b",
-        r"\b(?:work|working)\s+(?:in[\s\-_]*office|on[\s\-_]*site|in\s+(?:an?\s+|the\s+)?office|onsite)\b",
-        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\s+work\b",
-        r"\b(?:remote\s+only|only\s+remote)\b",
-        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\b",
-        r"\borange\s+county\b",
-    ]):
-        return (
-            "Brandon's work preference is **Remote**, but he is open to **hybrid opportunities in Orange County, CA** (specifically **not Los Angeles / LA**).\n\n"
-            "He is not looking for full-time in-office roles and is **not willing to relocate**."
-        )
-
-    # Years of DevOps & Platform Experience
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bhow\s+many\s+years\s+(?:of\s+)?(?:experience|devops|platform)\b",
-        r"\byears\s+of\s+(?:devops|experience|engineering|platform)\b",
-        r"\bhow\s+long\s+has\s+he\s+been\s+(?:doing\s+devops|in\s+devops|an\s+engineer)\b",
-    ]):
-        return (
-            "Brandon has **14+ years** of DevOps, Platform Engineering, and distributed systems architecture experience."
-        )
-
-    # Former & Current Employers / Career History
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:former|past|previous|current)\s+employer[s]?\b",
-        r"\b(?:former|past|previous|current)\s+compan(?:y|ies)\b",
-        r"\bwhere\s+(?:has|did)\s+(?:he|brandon|you)\s+work(?:ed)?\b",
-        r"\bcompan(?:y|ies)\s+(?:has\s+he|has\s+brandon|he\s+has|brandon\s+has)?\s*work(?:ed)?\b",
-        r"\bwork(?:ed)?\s+at\b",
-        r"\bwork(?:ed)?\s+for\b",
-        r"\b(?:liferay|lakeshore|melrok|persefoni|life360)\b",
-        r"\bcurrent\s+(?:company|role|job|employer)\b",
-    ]):
-        return (
-            "Brandon's engineering career spans 14+ years across several companies:\n\n"
-            "• **Life360** (Current)\n"
-            "• **Persefoni AI**\n"
-            "• **Melrok**\n"
-            "• **Lakeshore Learning Materials**\n"
-            "• **Liferay**\n\n"
-            "Would you like to hear more about his architectural initiatives or migrations at any of these companies?"
-        )
-
-    # Favorite Color
-    if re.search(r"\b(?:favorite|fav)\s+colou?r\b|\bwhat\s+(?:is\s+his|is\s+your)\s+colou?r\b", q_lower):
-        return "Brandon's favorite color is **Blue**!"
-
-    # Coffee or Tea
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bcoffee\s+or\s+tea\b",
-        r"\btea\s+or\s+coffee\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:drink|have|like|prefer|love)\s+(?:coffee|tea)\b",
-        r"\b(?:like|prefer|love)\s+coffee\b",
-        r"\b(?:like|prefer|love)\s+tea\b",
-        r"\b(?:favorite|fav)\s+drink\b",
-        r"\bcoffee\b",
-        r"\btea\b",
-    ]):
-        if "tea" in q_lower and "coffee" not in q_lower:
-            return "Brandon runs on **COFFEE!!!!!!** ☕ (not much of a tea drinker)."
-        return "**COFFEE!!!!!!** (Hands down—he runs on coffee! ☕)"
-
-    # Cats or Dogs / Pets
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bcats?\s+or\s+dogs?\b",
-        r"\bdogs?\s+or\s+cats?\b",
-        r"\b(?:cats|dogs)\s+person\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:have|like|prefer|love)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
-        r"\b(?:his|your)\s+(?:pets?|cats?|dogs?)\b",
-        r"\b(?:like|prefer|love)\s+cats?\b",
-        r"\b(?:like|prefer|love)\s+dogs?\b",
-        r"\bcat\s+lover\b",
-        r"\bdog\s+lover\b",
-        r"\bcat\s+person\b",
-        r"\bdog\s+person\b",
-        r"\bcats?\b",
-        r"\bdogs?\b",
-        r"\bpets?\b",
-    ]):
-        if "dog" in q_lower and "cat" not in q_lower:
-            return "Brandon is definitely a cat person (**Cats!!!!!** 🐱), rather than dogs!"
-        return "**Cats!!!!!** (Brandon is definitely a cat person! 🐱)"
-
-    # Education & University
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:where\s+did\s+he\s+go\s+to\s+school|where\s+did\s+you\s+go\s+to\s+school)\b",
-        r"\b(?:education|college|university|degree|school|alma\s+mater|biola)\b",
-        r"\bwhat\s+did\s+he\s+study\b",
-    ]):
-        return (
-            "Brandon attended **Biola University**, graduating with a Bachelor of Science (**BS**) in **Computer Science**."
-        )
-
-    # Tabs or Spaces
-    if re.search(r"\btabs?\s+or\s+spaces?\b|\bspaces?\s+or\s+tabs?\b", q_lower):
-        return "**Tabs**!"
-
-    # Night Owl or Early Bird
-    if any(re.search(pat, q_lower) for pat in [
-        r"\bnight\s*owl\s+or\s+early\s*bird\b",
-        r"\bearly\s*bird\s+or\s+night\s*owl\b",
-        r"\bnight\s*owl\b",
-        r"\bearly\s*bird\b",
-        r"\bmorning\s+person\b",
-    ]):
-        return "Brandon is an **early bird**! 🌅"
-
-    # Pineapple on Pizza
-    if re.search(r"\b(?:pineapple\s+on\s+pizza|pizza\s+with\s+pineapple|pineapple\s+belong\s+on\s+pizza)\b", q_lower):
-        return "**YES!** Pineapple definitely belongs on pizza! 🍕🍍"
-
-    # Favorite Season
-    if re.search(r"\b(?:favorite|fav)\s+season\b|\bwhich\s+season\b", q_lower):
-        return "Brandon's favorite season is **Fall**! 🍂"
-
-    # Dad Jokes
-    if re.search(r"\bdad\s+jokes?\b", q_lower):
-        return "**All the time!** (Brandon loves a good dad joke! 😄)"
-
-    # Beach or Mountains
-    if re.search(r"\bbeach\s+or\s+mountains?\b|\bmountains?\s+or\s+beach\b", q_lower):
-        return "**Mountains**! 🏔️"
-
-    # Favorite Place
-    if re.search(r"\b(?:favorite|fav)\s+place\b|\byosemite\b", q_lower):
-        return "Brandon's favorite place is **Yosemite**! 🏞️"
-
-    # Most Commonly Used Emoji
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:most\s+common(?:ly)?\s+used\s+emoji|favorite\s+emoji|emojis?)\b",
-        r"\bwhat\s+emoji\b",
-    ]):
-        return (
-            "Brandon's most commonly used emojis are **ThumbsUp** (👍), **Roger roger** (🫡), and **Facepalm** (🤦)!"
-        )
-
-    # Social Profiles (LinkedIn & GitHub)
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:socials?|social\s+media|profiles?|linkedin|github\s+profile)\b"
-    ]):
-        return (
-            "You can find Brandon on [LinkedIn](https://www.linkedin.com/in/brandon-foster) "
-            "and check out his open-source work on [GitHub](https://github.com/brandocomando)!"
-        )
-
-    # Personal Hobbies (Hiking, Camping, Cooking)
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:what\s+are\s+his|what\s+are\s+your|what\s+are\s+brandon\'?s?)\s+hobbies\b",
-        r"\b(?:does\s+he|do\s+you)\s+have\s+any\s+hobbies\b",
-        r"\bhobb(?:y|ies)\b",
-        r"\b(?:what\s+does\s+he\s+do\s+(?:in\s+his\s+free\s+time|for\s+fun|outside\s+of\s+work))\b",
-        r"\bwhat\s+(?:are\s+his\s+interests|does\s+he\s+do\s+outside\s+work)\b",
-        r"\b(?:does\s+he\s+like\s+to\s+|does\s+he\s+enjoy\s+)(?:hike|hiking|camp|camping|cook|cooking)\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:hike|camp|cook)\b",
-        r"\b(?:like|enjoy)\s+(?:hiking|camping|cooking)\b",
-        r"\b(?:hiking|camping|cooking)\b",
-    ]):
-        if "cook" in q_lower and not any(w in q_lower for w in ["hike", "camp", "hobb"]):
-            return "Yes! Outside of engineering, **Cooking** is one of Brandon's favorite hobbies (along with **Hiking** and **Camping**)! 🍳🥾⛺"
-        if "camp" in q_lower and not any(w in q_lower for w in ["hike", "cook", "hobb"]):
-            return "Yes! Brandon loves **Camping** and spending time outdoors in nature, alongside **Hiking** and **Cooking**! ⛺🥾🍳"
-        if "hike" in q_lower and not any(w in q_lower for w in ["camp", "cook", "hobb"]):
-            return "Yes! Brandon loves **Hiking** in the mountains (his favorite place is Yosemite!), along with **Camping** and **Cooking**! 🥾🏔️⛺"
-        return (
-            "Outside of platform engineering, Brandon's favorite hobbies are:\n\n"
-            "• **Hiking** 🥾 (he loves the mountains and trails, especially Yosemite!)\n"
-            "• **Camping** ⛺ (spending time outdoors in nature)\n"
-            "• **Cooking** 🍳\n\n"
-            "Would you like to explore his technical background or architecture projects?"
-        )
+    approved_personal_resp = detect_approved_personal(question)
+    if approved_personal_resp:
+        return approved_personal_resp
 
     # 5. Strictly Protected Personal Information Inquiries (Kids, Family, Age, Salary, Private matters)
     # ONLY the approved data above may be shared. Everything else is strictly private!
@@ -976,7 +865,7 @@ def synthesize_conversational_response(
             "• **Backend & Hybrid Retrieval**: Powered by an asynchronous FastAPI service on Google Cloud Run. I use an in-memory Hybrid "
             "Retrieval engine that merges BM25 keyword search with 384-dimensional dense semantic embeddings using Reciprocal Rank Fusion (RRF)—"
             "delivering vector search precision with zero database hosting costs.\n"
-            "• **LLM Streaming**: My answers stream token-by-token via Google Gemini 2.0 Flash (with a deterministic conversational synthesizer "
+            "• **LLM Streaming**: My answers stream token-by-token via Google Gemini Flash (with a deterministic conversational synthesizer "
             "fallback for offline testing and resilience).\n"
             "• **Guardrails & Privacy**: Multi-layer intent classification intercepts prompt injections, calculates math, and enforces strict "
             "privacy guardrails so personal contact info is never exposed.\n"

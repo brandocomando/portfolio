@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, X, Send, Bot, User as UserIcon, Mail, Minus, Maximize2 } from 'lucide-react';
 import { ChatMessage, QuotaStatus } from '../types';
 import { streamChat } from '../lib/api';
@@ -13,6 +13,32 @@ interface AiChatDrawerProps {
   authToken?: string | null;
   onOpenContact?: (initialQuestion?: string) => void;
 }
+
+const STREAMING_PHRASES = [
+  "Deep thinking...",
+  "Consulting Claude...",
+  "Brewing a fresh pot of coffee...",
+  "Feeding the cats...",
+  "Checking Brandon's resume...",
+  "Untangling YAML indentation...",
+  "Querying Hybrid RAG retrieval engine...",
+  "Converting caffeine into tokens...",
+  "Running terraform plan in memory...",
+  "Grepping through git commit logs...",
+  "Calibrating Kubernetes pods...",
+  "Synthesizing distributed systems knowledge...",
+  "Asking the terminal politely...",
+  "Recalibrating Reciprocal Rank Fusion...",
+  "Double-checking ArgoCD sync status...",
+  "Optimizing scale-to-zero FinOps metrics...",
+  "Pondering distributed consensus (Raft)...",
+  "Petting the cats for extra compute..."
+];
+
+const getRandomPhrase = (current?: string): string => {
+  const pool = STREAMING_PHRASES.filter((p) => p !== current);
+  return pool[Math.floor(Math.random() * pool.length)];
+};
 
 export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   isOpen,
@@ -34,9 +60,86 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   ]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [streamingPhrase, setStreamingPhrase] = useState<string>(() => getRandomPhrase());
   const [rateLimitExceeded, setRateLimitExceeded] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const [isMinimized, setIsMinimized] = useState(false);
+
+  // Adjustable Drawer Width
+  const DEFAULT_DRAWER_WIDTH = 420;
+  const MIN_DRAWER_WIDTH = 340;
+  const [width, setWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('portfolio_chat_width');
+        if (saved) {
+          const parsed = parseInt(saved, 10);
+          if (!isNaN(parsed) && parsed >= MIN_DRAWER_WIDTH) {
+            return Math.min(parsed, window.innerWidth - 48);
+          }
+        }
+      } catch {}
+    }
+    return DEFAULT_DRAWER_WIDTH;
+  });
+
+  const [isResizing, setIsResizing] = useState(false);
+  const isResizingRef = useRef(false);
+  const widthRef = useRef(width);
+  widthRef.current = width;
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      const maxW = Math.max(MIN_DRAWER_WIDTH, window.innerWidth - 48);
+      setWidth((prev) => (prev > maxW ? maxW : prev));
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
+  const startResizing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    isResizingRef.current = true;
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    if (isResizingRef.current) {
+      setIsResizing(false);
+      isResizingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      try {
+        localStorage.setItem('portfolio_chat_width', widthRef.current.toString());
+      } catch {}
+    }
+  }, []);
+
+  const resize = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isResizingRef.current) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const maxW = Math.max(MIN_DRAWER_WIDTH, Math.min(900, window.innerWidth - 48));
+    const calculatedWidth = window.innerWidth - clientX;
+    const newWidth = Math.max(MIN_DRAWER_WIDTH, Math.min(calculatedWidth, maxW));
+    setWidth(newWidth);
+    widthRef.current = newWidth;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', resize);
+    window.addEventListener('mouseup', stopResizing);
+    window.addEventListener('touchmove', resize);
+    window.addEventListener('touchend', stopResizing);
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+      window.removeEventListener('touchmove', resize);
+      window.removeEventListener('touchend', stopResizing);
+    };
+  }, [resize, stopResizing]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +151,15 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages, isStreaming]);
+
+  useEffect(() => {
+    if (!isWaitingForResponse) return;
+    setStreamingPhrase(getRandomPhrase());
+    const interval = setInterval(() => {
+      setStreamingPhrase((prev) => getRandomPhrase(prev));
+    }, 2400);
+    return () => clearInterval(interval);
+  }, [isWaitingForResponse]);
 
   useEffect(() => {
     if (isOpen) {
@@ -173,6 +285,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     setMessages((prev) => [...prev, userMsg, initialAssistantMsg]);
     setInput('');
     setIsStreaming(true);
+    setIsWaitingForResponse(true);
     await streamChat({
       question: promptText,
       history: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -183,6 +296,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         );
       },
       onToken: (token) => {
+        setIsWaitingForResponse(false);
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMsgId ? { ...msg, content: msg.content + token } : msg
@@ -190,11 +304,13 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         );
       },
       onDone: () => {
+        setIsWaitingForResponse(false);
         setIsStreaming(false);
         onRefreshQuota();
         setTimeout(() => inputRef.current?.focus(), 10);
       },
       onError: (err) => {
+        setIsWaitingForResponse(false);
         setIsStreaming(false);
         if (err?.error === 'rate_limit_exceeded') {
           setRateLimitExceeded(true);
@@ -246,7 +362,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
             </h4>
             <p className="text-[10px] font-mono text-cyan-400 truncate">
-              {isStreaming
+              {isWaitingForResponse
+                ? streamingPhrase
+                : isStreaming
                 ? "Streaming response..."
                 : `${messages.filter((m) => m.role === 'user').length} quer${
                     messages.filter((m) => m.role === 'user').length === 1 ? 'y' : 'ies'
@@ -281,7 +399,49 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   }
 
   return (
-    <div className="fixed top-16 bottom-0 right-0 z-40 w-full sm:w-[400px] bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+    <div
+      style={{
+        width: typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : `${width}px`,
+        maxWidth: '100vw'
+      }}
+      className={`fixed top-16 bottom-0 right-0 z-40 bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col ${
+        isResizing ? 'transition-none select-none' : 'animate-in slide-in-from-right duration-300'
+      }`}
+    >
+      {/* Resizable Left Edge Handle */}
+      <div
+        onMouseDown={startResizing}
+        onTouchStart={startResizing}
+        onDoubleClick={() => {
+          setWidth(DEFAULT_DRAWER_WIDTH);
+          widthRef.current = DEFAULT_DRAWER_WIDTH;
+          try {
+            localStorage.setItem('portfolio_chat_width', DEFAULT_DRAWER_WIDTH.toString());
+          } catch {}
+        }}
+        title="Drag left/right to resize width • Double-click to reset"
+        className="hidden sm:flex absolute -left-2 top-0 bottom-0 w-4 cursor-ew-resize items-center justify-center z-50 group/handle select-none"
+      >
+        <div
+          className={`w-1 h-full transition-colors duration-150 rounded-full ${
+            isResizing
+              ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)]'
+              : 'group-hover/handle:bg-cyan-500/80 bg-transparent'
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-8 rounded-full border border-slate-700/80 transition-all duration-150 flex flex-col items-center justify-center gap-1 shadow-md ${
+            isResizing
+              ? 'bg-cyan-950 border-cyan-400 opacity-100 scale-105'
+              : 'bg-slate-900 group-hover/handle:bg-slate-800 group-hover/handle:border-cyan-500/60 opacity-0 group-hover/handle:opacity-100'
+          }`}
+        >
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+        </div>
+      </div>
+
       {/* Drawer Header */}
       <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -360,7 +520,18 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
               }`}
             >
               <div className="whitespace-pre-wrap">
-                {m.role === 'assistant' ? renderFormattedContent(m.content, m.id) : m.content}
+                {m.role === 'assistant' ? (
+                  m.content ? (
+                    renderFormattedContent(m.content, m.id)
+                  ) : (
+                    <div className="flex items-center gap-2 font-mono text-xs text-slate-300">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shrink-0" />
+                      <span className="transition-all duration-300">{streamingPhrase}</span>
+                    </div>
+                  )
+                ) : (
+                  m.content
+                )}
               </div>
 
               {/* Direct Contact CTA if redirected to contact page or off-topic */}
@@ -402,13 +573,6 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             )}
           </div>
         ))}
-
-        {isStreaming && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>Streaming tokens from Gemini 2.0 Flash...</span>
-          </div>
-        )}
 
         <div ref={messagesEndRef} />
       </div>

@@ -19,6 +19,7 @@ from typing import Tuple, Optional
 class IntentType(str, Enum):
     GUARDRAIL = "guardrail"
     PERSONAL = "personal"
+    APPROVED_PERSONAL = "approved_personal"
     PING = "ping"
     GREETING = "greeting"
     CONTACT = "contact"
@@ -121,7 +122,38 @@ OFF_TOPIC_GENERAL_PATTERNS = [
     r"what\s+is\s+the\s+capital\s+of",
     r"recipe\s+for",
     r"who\s+won\s+the\s+(super\s+bowl|world\s+series|world\s+cup|election)",
+    # World history, presidents, politics, royalty
+    r"\b(?:who\s+(?:was|is)\s+(?:the\s+)?(?:\d+(?:st|nd|rd|th)\s+)?(?:president|vice\s+president|prime\s+minister|king|queen|emperor|pope|senator|governor))\b",
+    r"\bpresident\s+of\s+(?:the\s+)?(?:us|united\s+states|america)\b",
+    # World geography, astronomy, distances
+    r"\b(?:capital|population|currency|anthem|flag)\s+of\b",
+    r"\b(?:how\s+tall\s+is|height\s+of|how\s+far\s+is|distance\s+(?:to|between)|speed\s+of\s+light|mass\s+of)\b",
+    # Famous historical figures & general encyclopedic "who was / who is <name>" (excluding Brandon / assistant)
+    r"^who\s+(?:was|is)\s+(?!brandon\b|he\b|this\b|your\b)[a-z]+(?:\s+[a-z]+){1,2}\??$",
+    r"\bwho\s+(?:invented|discovered|painted|directed|wrote\s+the\s+book)\b",
+    # Science, nature, cooking
+    r"\b(?:photosynthesis|quantum\s+physics|black\s+hole|speed\s+of\s+sound|solar\s+system|theory\s+of\s+relativity)\b",
+    r"\b(?:how\s+to\s+(?:bake|cook|make)\s+(?:a\s+)?(?:cake|cookies?|bread|pie|soup|pasta|steak))\b",
 ]
+
+# 7. Arbitrary Code Generation & Homework Patterns (Avoid free ChatGPT coding assistant abuse)
+CODE_GENERATION_PATTERNS = [
+    r"\b(?:write|create|implement|give\s+me|generate)\s+(?:me\s+)?(?:a\s+)?(?:[a-z0-9_\-]+\s+)?(?:script|function|class|algorithm|code|program)\s+(?:for|to|that)\s+(?:creating|making|building|solving|reversing|calculating|sorting)?\s*(?:a\s+)?(?:linked\s+list|binary\s+tree|bubble\s+sort|quicksort|merge\s+sort|leetcode|fizzbuzz|fibonacci)\b",
+    r"\b(?:linked\s+list|binary\s+tree|bubble\s+sort|quicksort|merge\s+sort|fizzbuzz|fibonacci)\s+in\s+(?:python|go|golang|java|c\+\+|javascript|typescript|rust)\b",
+    r"\bwrite\s+(?:me\s+)?(?:a\s+)?(?:script|code)\s+for\s+(?:creating|implementing|reversing)\s+(?:a\s+)?(?:linked\s+list|binary\s+tree)\b",
+]
+
+
+def detect_code_generation_request(query: str) -> Optional[str]:
+    """Detects attempts to use the portfolio bot as an arbitrary coding tutor or homework script generator."""
+    q_lower = query.lower()
+    if any(re.search(pat, q_lower) for pat in CODE_GENERATION_PATTERNS):
+        return (
+            "While Brandon writes plenty of Python and Go, I'm here specifically to discuss his platform engineering "
+            "background, system architectures, and projects rather than write custom scripts or solve general programming exercises.\n\n"
+            "Feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
+        )
+    return None
 
 
 def check_guardrails(query: str) -> bool:
@@ -162,6 +194,215 @@ def detect_math(query: str) -> Optional[str]:
             "If you have non-engineering questions or personal inquiries, I don't know—maybe you should ask him! "
             "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to him."
         )
+def detect_approved_personal(query: str) -> Optional[str]:
+    """System-1 Fast Path: Calibrated deterministic routing for authorized personal profile facts & trivia.
+
+    Serves verified facts from personal.yaml instantly (<5ms) with zero LLM API cost, zero token burn,
+    and no vector search latency. Escalates unhandled/technical questions to System-2 (Gemini Flash).
+    """
+    q_lower = query.lower().strip()
+
+    # Residential street address is private; general location is Southern California
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(street\s+address|home\s+address|house\s+number|zip\s*code|apartment)\b"
+    ]):
+        return (
+            "I don't know—maybe you should ask him! Specific residential address information is private. "
+            "Brandon is based in Southern California. You can reach out directly through the **[Contact Page](#contact)**."
+        )
+
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bwhere\s+(?:does\s+he|is\s+he|do\s+you|does\s+brandon)\s+(?:live|reside|based)\b",
+        r"\bwhere\s+(?:is\s+brandon|are\s+you)\s+(?:from|located|based)\b",
+        r"\b(?:his|brandon\'?s?)\s+location\b",
+        r"\bwhere\s+(?:are\s+you|is\s+he)\s+located\b",
+    ]):
+        return "Brandon lives and is based in **Southern California**."
+
+    # Specific query about Los Angeles / LA
+    if re.search(r"\b(?:los\s+angeles|\bla\b)\b", q_lower) and any(w in q_lower for w in ["work", "working", "job", "hybrid", "commute", "commuting", "office", "onsite", "in-office", "role", "open", "willing"]):
+        return (
+            "Brandon is **not open to working in or commuting to Los Angeles (LA)**.\n\n"
+            "His work preference is **Remote**, though he is open to **hybrid opportunities in Orange County, CA**. He is also not willing to relocate."
+        )
+
+    # Work Preferences, In-Office, On-Site, Hybrid, Remote, Relocation
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bwork\s+preference[s]?\b",
+        r"\b(?:relocat\w*|willing\s+to\s+relocate|relocation)\b",
+        r"\b(?:is\s+he|are\s+you|would\s+he|can\s+he|does\s+he)\s+(?:open\s+to|willing\s+to|do)\s+(?:relocation|relocating|hybrid|remote|in[\s\-_]*office|on[\s\-_]*site|office|work)\b",
+        r"\b(?:remote|hybrid|in[\s\-_]*office|on[\s\-_]*site)\s+(?:work|working|preferences?|roles?|opportunities?|job|jobs|arrangement)\b",
+        r"\b(?:open\s+to|willing\s+to\s+work|come\s+into)\s+(?:an?\s+|the\s+)?(?:in[\s\-_]*office|on[\s\-_]*site|office)\b",
+        r"\b(?:work|working)\s+(?:in[\s\-_]*office|on[\s\-_]*site|in\s+(?:an?\s+|the\s+)?office|onsite)\b",
+        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\s+work\b",
+        r"\b(?:remote\s+only|only\s+remote)\b",
+        r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\b",
+        r"\borange\s+county\b",
+    ]):
+        return (
+            "Brandon's work preference is **Remote**, but he is open to **hybrid opportunities in Orange County, CA** (specifically **not Los Angeles / LA**).\n\n"
+            "He is not looking for full-time in-office roles and is **not willing to relocate**."
+        )
+
+    # Years of DevOps & Platform Experience
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bhow\s+many\s+years\s+(?:of\s+)?(?:experience|devops|platform)\b",
+        r"\byears\s+of\s+(?:devops|experience|engineering|platform)\b",
+        r"\bhow\s+long\s+has\s+he\s+been\s+(?:doing\s+devops|in\s+devops|an\s+engineer)\b",
+    ]):
+        return (
+            "Brandon has **14+ years** of DevOps, Platform Engineering, and distributed systems architecture experience."
+        )
+
+    # Former & Current Employers / Career History
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:former|past|previous|current)\s+employer[s]?\b",
+        r"\b(?:former|past|previous|current)\s+compan(?:y|ies)\b",
+        r"\bwhere\s+(?:has|did)\s+(?:he|brandon|you)\s+work(?:ed)?\b",
+        r"\bcompan(?:y|ies)\s+(?:has\s+he|has\s+brandon|he\s+has|brandon\s+has)?\s*work(?:ed)?\b",
+        r"\bwork(?:ed)?\s+at\b",
+        r"\bwork(?:ed)?\s+for\b",
+        r"\b(?:liferay|lakeshore|melrok|persefoni|life360)\b",
+        r"\bcurrent\s+(?:company|role|job|employer)\b",
+    ]):
+        return (
+            "Brandon's engineering career spans 14+ years across several companies:\n\n"
+            "• **Life360** (Current)\n"
+            "• **Persefoni AI**\n"
+            "• **Melrok**\n"
+            "• **Lakeshore Learning Materials**\n"
+            "• **Liferay**\n\n"
+            "Would you like to hear more about his architectural initiatives or migrations at any of these companies?"
+        )
+
+    # Favorite Color
+    if re.search(r"\b(?:favorite|fav)\s+colou?r\b|\bwhat\s+(?:is\s+his|is\s+your)\s+colou?r\b", q_lower):
+        return "Brandon's favorite color is **Blue**!"
+
+    # Coffee or Tea
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bcoffee\s+or\s+tea\b",
+        r"\btea\s+or\s+coffee\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:drink|have|like|prefer|love)\s+(?:coffee|tea)\b",
+        r"\b(?:like|prefer|love)\s+coffee\b",
+        r"\b(?:like|prefer|love)\s+tea\b",
+        r"\b(?:favorite|fav)\s+drink\b",
+        r"\bcoffee\b",
+        r"\btea\b",
+    ]):
+        if "tea" in q_lower and "coffee" not in q_lower:
+            return "Brandon runs on **COFFEE!!!!!!** ☕ (not much of a tea drinker)."
+        return "**COFFEE!!!!!!** (Hands down—he runs on coffee! ☕)"
+
+    # Cats or Dogs / Pets
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bcats?\s+or\s+dogs?\b",
+        r"\bdogs?\s+or\s+cats?\b",
+        r"\b(?:cats|dogs)\s+person\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:have|like|prefer|love)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
+        r"\b(?:his|your)\s+(?:pets?|cats?|dogs?)\b",
+        r"\b(?:like|prefer|love)\s+cats?\b",
+        r"\b(?:like|prefer|love)\s+dogs?\b",
+        r"\bcat\s+lover\b",
+        r"\bdog\s+lover\b",
+        r"\bcat\s+person\b",
+        r"\bdog\s+person\b",
+        r"\bcats?\b",
+        r"\bdogs?\b",
+        r"\bpets?\b",
+    ]):
+        if "dog" in q_lower and "cat" not in q_lower:
+            return "Brandon is definitely a cat person (**Cats!!!!!** 🐱), rather than dogs!"
+        return "**Cats!!!!!** (Brandon is definitely a cat person! 🐱)"
+
+    # Education & University
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:where\s+did\s+he\s+go\s+to\s+school|where\s+did\s+you\s+go\s+to\s+school)\b",
+        r"\b(?:education|college|university|degree|school|alma\s+mater|biola)\b",
+        r"\bwhat\s+did\s+he\s+study\b",
+    ]):
+        return (
+            "Brandon attended **Biola University**, graduating with a Bachelor of Science (**BS**) in **Computer Science**."
+        )
+
+    # Tabs or Spaces
+    if re.search(r"\btabs?\s+or\s+spaces?\b|\bspaces?\s+or\s+tabs?\b", q_lower):
+        return "**Tabs**!"
+
+    # Night Owl or Early Bird
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bnight\s*owl\s+or\s+early\s*bird\b",
+        r"\bearly\s*bird\s+or\s+night\s*owl\b",
+        r"\bnight\s*owl\b",
+        r"\bearly\s*bird\b",
+        r"\bmorning\s+person\b",
+    ]):
+        return "Brandon is an **early bird**! 🌅"
+
+    # Pineapple on Pizza
+    if re.search(r"\b(?:pineapple\s+on\s+pizza|pizza\s+with\s+pineapple|pineapple\s+belong\s+on\s+pizza)\b", q_lower):
+        return "**YES!** Pineapple definitely belongs on pizza! 🍕🍍"
+
+    # Favorite Season
+    if re.search(r"\b(?:favorite|fav)\s+season\b|\bwhich\s+season\b", q_lower):
+        return "Brandon's favorite season is **Fall**! 🍂"
+
+    # Dad Jokes
+    if re.search(r"\bdad\s+jokes?\b", q_lower):
+        return "**All the time!** (Brandon loves a good dad joke! 😄)"
+
+    # Beach or Mountains
+    if re.search(r"\bbeach\s+or\s+mountains?\b|\bmountains?\s+or\s+beach\b", q_lower):
+        return "**Mountains**! 🏔️"
+
+    # Favorite Place
+    if re.search(r"\b(?:favorite|fav)\s+place\b|\byosemite\b", q_lower):
+        return "Brandon's favorite place is **Yosemite**! 🏞️"
+
+    # Most Commonly Used Emoji
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:most\s+common(?:ly)?\s+used\s+emoji|favorite\s+emoji|emojis?)\b",
+        r"\bwhat\s+emoji\b",
+    ]):
+        return (
+            "Brandon's most commonly used emojis are **ThumbsUp** (👍), **Roger roger** (🫡), and **Facepalm** (🤦)!"
+        )
+
+    # Social Profiles (LinkedIn & GitHub)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:socials?|social\s+media|profiles?|linkedin|github\s+profile)\b"
+    ]):
+        return (
+            "You can find Brandon on [LinkedIn](https://www.linkedin.com/in/brandon-foster) "
+            "and check out his open-source work on [GitHub](https://github.com/brandocomando)!"
+        )
+
+    # Personal Hobbies (Hiking, Camping, Cooking)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:what\s+are\s+his|what\s+are\s+your|what\s+are\s+brandon\'?s?)\s+hobbies\b",
+        r"\b(?:does\s+he|do\s+you)\s+have\s+any\s+hobbies\b",
+        r"\bhobb(?:y|ies)\b",
+        r"\b(?:what\s+does\s+he\s+do\s+(?:in\s+his\s+free\s+time|for\s+fun|outside\s+of\s+work))\b",
+        r"\bwhat\s+(?:are\s+his\s+interests|does\s+he\s+do\s+outside\s+work)\b",
+        r"\b(?:does\s+he\s+like\s+to\s+|does\s+he\s+enjoy\s+)(?:hike|hiking|camp|camping|cook|cooking)\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:hike|camp|cook)\b",
+        r"\b(?:like|enjoy)\s+(?:hiking|camping|cooking)\b",
+        r"\b(?:hiking|camping|cooking)\b",
+    ]):
+        if "cook" in q_lower and not any(w in q_lower for w in ["hike", "camp", "hobb"]):
+            return "Yes! Outside of engineering, **Cooking** is one of Brandon's favorite hobbies (along with **Hiking** and **Camping**)! 🍳🥾⛺"
+        if "camp" in q_lower and not any(w in q_lower for w in ["hike", "cook", "hobb"]):
+            return "Yes! Brandon loves **Camping** and spending time outdoors in nature, alongside **Hiking** and **Cooking**! ⛺🥾🍳"
+        if "hike" in q_lower and not any(w in q_lower for w in ["camp", "cook", "hobb"]):
+            return "Yes! Brandon loves **Hiking** in the mountains (his favorite place is Yosemite!), along with **Camping** and **Cooking**! 🥾🏔️⛺"
+        return (
+            "Outside of platform engineering, Brandon's favorite hobbies are:\n\n"
+            "• **Hiking** 🥾 (he loves the mountains and trails, especially Yosemite!)\n"
+            "• **Camping** ⛺ (spending time outdoors in nature)\n"
+            "• **Cooking** 🍳\n\n"
+            "Would you like to explore his technical background or architecture projects?"
+        )
+
     return None
 
 
@@ -188,7 +429,12 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
                 "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to Brandon's inbox.",
             )
 
-    # 3. Math Check
+    # 3. Approved Personal Information & Preferences (System 1 Fast Path)
+    approved_personal_resp = detect_approved_personal(q_raw)
+    if approved_personal_resp:
+        return (IntentType.APPROVED_PERSONAL, approved_personal_resp)
+
+    # 4. Math Check
     math_resp = detect_math(q_raw)
     if math_resp:
         return (IntentType.OFF_TOPIC_MATH, math_resp)
@@ -233,7 +479,12 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
                 "You can also connect on [LinkedIn](https://www.linkedin.com/in/brandon-foster) or [GitHub](https://github.com/brandocomando).",
             )
 
-    # 7. Off-Topic General Check
+    # 7. Arbitrary Code Generation & Homework Solver Check
+    code_gen_resp = detect_code_generation_request(q_raw)
+    if code_gen_resp:
+        return (IntentType.OFF_TOPIC_GENERAL, code_gen_resp)
+
+    # 8. Off-Topic General Check
     for pat in OFF_TOPIC_GENERAL_PATTERNS:
         if re.search(pat, q_lower):
             return (

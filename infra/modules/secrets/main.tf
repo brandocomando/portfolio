@@ -19,3 +19,22 @@ resource "google_project_iam_member" "secret_accessor" {
   role    = "roles/secretmanager.secretAccessor"
   member  = "serviceAccount:${var.cloud_run_sa_email}"
 }
+
+# Optional SMTP password secret (contact-form email forwarding).
+# Terraform only creates the secret container; add the value out-of-band so it never lands in state:
+#   printf '%s' "$SMTP_PASSWORD" | gcloud secrets versions add <secret_id> --data-file=-
+resource "google_secret_manager_secret" "smtp_password" {
+  count     = var.smtp_password_secret_id != "" ? 1 : 0
+  project   = var.project_id
+  secret_id = var.smtp_password_secret_id
+
+  labels = {
+    environment = var.environment
+    managed_by  = "terraform"
+    repository  = "portfolio"
+  }
+
+  replication {
+    auto {}
+  }
+}

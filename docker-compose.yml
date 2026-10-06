@@ -12,7 +12,7 @@ services:
       - ENV=development
       - PORT=8080
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GEMINI_MODEL=gemini-2.0-flash
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-flash-latest}
     volumes:
       # Mount gold MLOps index so vector updates take effect immediately
       - ./mlops/data/gold:/app/mlops/data/gold:ro

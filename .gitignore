@@ -75,3 +75,6 @@ service-account*.json
 .DS_Store
 .idea/
 .vscode/
+
+# Git Worktrees
+.worktrees/

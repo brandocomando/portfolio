@@ -90,6 +90,8 @@ def run_silver_transform():
     if personal:
         employers_past = ", ".join(personal.employers.get("past", []))
         in_office_pref = personal.work_preferences.get('in_office', 'Open to hybrid in Orange County, CA (not Los Angeles / LA); not open to full-time in-office or relocating')
+        hobbies_list = personal.hobbies or ["Hiking", "Camping", "Cooking"]
+        hobbies_str = ", ".join(hobbies_list)
         personal_content = (
             f"[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\n"
             f"Location: {personal.location}\n"
@@ -98,7 +100,9 @@ def run_silver_transform():
             f"DevOps Experience: {personal.years_of_experience} years ({personal.experience_summary})\n"
             f"Employers: Current: {personal.employers.get('current', '')} | Past: {employers_past}\n"
             f"Education: {personal.education.get('summary', '')}\n"
+            f"Hobbies: {hobbies_str}\n"
             f"Personal Preferences & Fun Facts:\n"
+            f"  • Hobbies: {hobbies_str} (Outdoor adventures and culinary creativity)\n"
             f"  • Favorite Color: {personal.fun_facts.get('favorite_color', '')}\n"
             f"  • Coffee or Tea: {personal.fun_facts.get('coffee_or_tea', '')}\n"
             f"  • Cats or Dogs: {personal.fun_facts.get('cats_or_dogs', '')}\n"
@@ -117,10 +121,10 @@ def run_silver_transform():
             title="Brandon Foster Personal Profile & Preferences",
             category="personal",
             content=personal_content,
-            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "hybrid", "orange-county", "la", "los-angeles", "office", "in-office", "onsite", "relocation", "coffee", "cats"],
+            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "hybrid", "orange-county", "la", "los-angeles", "office", "in-office", "onsite", "relocation", "coffee", "cats", "hobbies", "hobby", "hiking", "camping", "cooking"],
             source_file="personal.yaml",
             token_estimate=estimate_tokens(personal_content),
-            metadata={"location": personal.location, "current_employer": personal.employers.get("current")}
+            metadata={"location": personal.location, "current_employer": personal.employers.get("current"), "hobbies": hobbies_list}
         ))
 
     # Experience Chunks

@@ -60,6 +60,7 @@ class PersonalProfile(BaseModel):
     experience_summary: str = Field(..., description="Experience summary statement")
     employers: Dict[str, Any] = Field(..., description="Current and past employers")
     education: Dict[str, Any] = Field(..., description="School and degree")
+    hobbies: List[str] = Field(default_factory=list, description="Personal hobbies")
     fun_facts: Dict[str, Any] = Field(..., description="Fun personal facts and preferences")
     socials: Dict[str, str] = Field(..., description="Social profile URLs")
 

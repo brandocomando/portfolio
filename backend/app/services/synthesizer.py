@@ -301,6 +301,32 @@ def synthesize_conversational_response(
             "and check out his open-source work on [GitHub](https://github.com/brandocomando)!"
         )
 
+    # Personal Hobbies (Hiking, Camping, Cooking)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:what\s+are\s+his|what\s+are\s+your|what\s+are\s+brandon\'?s?)\s+hobbies\b",
+        r"\b(?:does\s+he|do\s+you)\s+have\s+any\s+hobbies\b",
+        r"\bhobb(?:y|ies)\b",
+        r"\b(?:what\s+does\s+he\s+do\s+(?:in\s+his\s+free\s+time|for\s+fun|outside\s+of\s+work))\b",
+        r"\bwhat\s+(?:are\s+his\s+interests|does\s+he\s+do\s+outside\s+work)\b",
+        r"\b(?:does\s+he\s+like\s+to\s+|does\s+he\s+enjoy\s+)(?:hike|hiking|camp|camping|cook|cooking)\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:hike|camp|cook)\b",
+        r"\b(?:like|enjoy)\s+(?:hiking|camping|cooking)\b",
+        r"\b(?:hiking|camping|cooking)\b",
+    ]):
+        if "cook" in q_lower and not any(w in q_lower for w in ["hike", "camp", "hobb"]):
+            return "Yes! Outside of engineering, **Cooking** is one of Brandon's favorite hobbies (along with **Hiking** and **Camping**)! 🍳🥾⛺"
+        if "camp" in q_lower and not any(w in q_lower for w in ["hike", "cook", "hobb"]):
+            return "Yes! Brandon loves **Camping** and spending time outdoors in nature, alongside **Hiking** and **Cooking**! ⛺🥾🍳"
+        if "hike" in q_lower and not any(w in q_lower for w in ["camp", "cook", "hobb"]):
+            return "Yes! Brandon loves **Hiking** in the mountains (his favorite place is Yosemite!), along with **Camping** and **Cooking**! 🥾🏔️⛺"
+        return (
+            "Outside of platform engineering, Brandon's favorite hobbies are:\n\n"
+            "• **Hiking** 🥾 (he loves the mountains and trails, especially Yosemite!)\n"
+            "• **Camping** ⛺ (spending time outdoors in nature)\n"
+            "• **Cooking** 🍳\n\n"
+            "Would you like to explore his technical background or architecture projects?"
+        )
+
     # 5. Strictly Protected Personal Information Inquiries (Kids, Family, Age, Salary, Private matters)
     # ONLY the approved data above may be shared. Everything else is strictly private!
     if any(re.search(pat, q_lower) for pat in [

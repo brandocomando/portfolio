@@ -22,7 +22,7 @@
     "id": "chunk-personal-profile",
     "title": "Brandon Foster Personal Profile & Preferences",
     "category": "personal",
-    "content": "[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\nLocation: Southern California\nWork Preferences: Remote preferred, Hybrid OK in Orange County, CA (not Los Angeles / LA; not open to full-time in-office, not willing to relocate).\nWorkplace Arrangement (In-Office / Remote / Hybrid): Open to hybrid in Orange County, CA (not Los Angeles / LA); not open to full-time in-office or relocating. Brandon prefers remote roles, is open to hybrid opportunities in Orange County, CA (not Los Angeles/LA), but is not looking for full-time in-office positions and is not willing to relocate.\nDevOps Experience: 14+ years (14+ years of DevOps, Platform Engineering, and Distributed Systems experience.)\nEmployers: Current: Life360 | Past: Persefoni AI, Melrok, Lakeshore Learning Materials, Liferay\nEducation: Biola University, graduated with a BS in Computer Science.\nPersonal Preferences & Fun Facts:\n  \u2022 Favorite Color: Blue\n  \u2022 Coffee or Tea: COFFEE!!!!!!\n  \u2022 Cats or Dogs: Cats!!!!!\n  \u2022 Tabs or Spaces: Tabs\n  \u2022 Night Owl or Early Bird: Early bird\n  \u2022 Pineapple on Pizza: YES!\n  \u2022 Favorite Season: Fall\n  \u2022 Dad Jokes: All the time\n  \u2022 Beach or Mountains: Mountains\n  \u2022 Favorite Place: Yosemite\n  \u2022 Common Emojis: ThumbsUp (\ud83d\udc4d), Roger roger (\ud83e\udee1), Facepalm (\ud83e\udd26)\nSocials: LinkedIn: https://www.linkedin.com/in/brandon-foster | GitHub: https://github.com/brandocomando",
+    "content": "[PERSONAL & CAREER PROFILE: BRANDON FOSTER]\nLocation: Southern California\nWork Preferences: Remote preferred, Hybrid OK in Orange County, CA (not Los Angeles / LA; not open to full-time in-office, not willing to relocate).\nWorkplace Arrangement (In-Office / Remote / Hybrid): Open to hybrid in Orange County, CA (not Los Angeles / LA); not open to full-time in-office or relocating. Brandon prefers remote roles, is open to hybrid opportunities in Orange County, CA (not Los Angeles/LA), but is not looking for full-time in-office positions and is not willing to relocate.\nDevOps Experience: 14+ years (14+ years of DevOps, Platform Engineering, and Distributed Systems experience.)\nEmployers: Current: Life360 | Past: Persefoni AI, Melrok, Lakeshore Learning Materials, Liferay\nEducation: Biola University, graduated with a BS in Computer Science.\nHobbies: Hiking, Camping, Cooking\nPersonal Preferences & Fun Facts:\n  \u2022 Hobbies: Hiking, Camping, Cooking (Outdoor adventures and culinary creativity)\n  \u2022 Favorite Color: Blue\n  \u2022 Coffee or Tea: COFFEE!!!!!!\n  \u2022 Cats or Dogs: Cats!!!!!\n  \u2022 Tabs or Spaces: Tabs\n  \u2022 Night Owl or Early Bird: Early bird\n  \u2022 Pineapple on Pizza: YES!\n  \u2022 Favorite Season: Fall\n  \u2022 Dad Jokes: All the time\n  \u2022 Beach or Mountains: Mountains\n  \u2022 Favorite Place: Yosemite\n  \u2022 Common Emojis: ThumbsUp (\ud83d\udc4d), Roger roger (\ud83e\udee1), Facepalm (\ud83e\udd26)\nSocials: LinkedIn: https://www.linkedin.com/in/brandon-foster | GitHub: https://github.com/brandocomando",
     "tags": [
       "personal",
       "preferences",
@@ -41,13 +41,23 @@
       "onsite",
       "relocation",
       "coffee",
-      "cats"
+      "cats",
+      "hobbies",
+      "hobby",
+      "hiking",
+      "camping",
+      "cooking"
     ],
     "source_file": "personal.yaml",
-    "token_estimate": 336,
+    "token_estimate": 365,
     "metadata": {
       "location": "Southern California",
-      "current_employer": "Life360"
+      "current_employer": "Life360",
+      "hobbies": [
+        "Hiking",
+        "Camping",
+        "Cooking"
+      ]
     }
   },
   {

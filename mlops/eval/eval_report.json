@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T20:42:38.593843Z",
+  "timestamp": "2026-10-06T20:47:19.057390Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-skills-data-platforms-and-distributed-storage",
-        "chunk-bio-overview"
+        "chunk-bio-overview",
+        "chunk-skills-data-platforms-and-distributed-storage"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -147,7 +147,7 @@
       "target_chunk": "chunk-skills-languages-and-core-systems",
       "retrieved_ids": [
         "chunk-skills-languages-and-core-systems",
-        "chunk-personal-profile",
+        "chunk-bio-overview",
         "chunk-proj-portfolio-platform"
       ],
       "hit_top3": true,

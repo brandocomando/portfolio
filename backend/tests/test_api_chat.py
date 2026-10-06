@@ -633,6 +633,49 @@ async def test_chat_stream_scale_to_zero_gcp_infra():
         assert "Overview:" not in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_personal_hobbies_list():
+    """Verify personal hobbies inquiries return Hiking, Camping, and Cooking."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "What are his hobbies?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Hiking" in streamed
+        assert "Camping" in streamed
+        assert "Cooking" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_personal_hobby_cooking():
+    """Verify specific inquiry about cooking returns Brandon's cooking hobby."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does he like cooking?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Cooking" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_personal_hobby_hiking_camping():
+    """Verify inquiry about hiking and camping returns outdoor hobbies."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "Does Brandon enjoy hiking or camping?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Hiking" in streamed
+        assert "Camping" in streamed
+
+
+
 
 
 

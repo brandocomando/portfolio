@@ -18,6 +18,10 @@ personal_profile:
     institution: "Biola University"
     degree: "BS in Computer Science"
     summary: "Biola University, graduated with a BS in Computer Science."
+  hobbies:
+    - "Hiking"
+    - "Camping"
+    - "Cooking"
   fun_facts:
     favorite_color: "Blue"
     coffee_or_tea: "COFFEE!!!!!!"

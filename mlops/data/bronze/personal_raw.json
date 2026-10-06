@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "personal.yaml",
-  "raw_hash": "29c5d3adb4c910f17a1f07e4c9f9520a9613dd3b1f68f8179c81f96b8b655763",
-  "ingested_at": "2026-10-06T20:38:28.486072Z",
+  "raw_hash": "75f213c9c06489066e0e606e3d001cf8ef4d06df4578e2a5add393d540517a40",
+  "ingested_at": "2026-10-06T20:47:14.444978Z",
   "payload": {
     "personal_profile": {
       "location": "Southern California",
@@ -28,6 +28,11 @@
         "degree": "BS in Computer Science",
         "summary": "Biola University, graduated with a BS in Computer Science."
       },
+      "hobbies": [
+        "Hiking",
+        "Camping",
+        "Cooking"
+      ],
       "fun_facts": {
         "favorite_color": "Blue",
         "coffee_or_tea": "COFFEE!!!!!!",

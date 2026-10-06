@@ -108,7 +108,7 @@ CONTACT_PATTERNS = [
     r"contact\s+info",
     r"reach\s+(out\s+to\s+)?brandon",
     r"hire\s+brandon",
-    r"is\s+he\s+(open\s+to|looking\s+for)\s+(roles|jobs|work)",
+    r"is\s+he\s+(open\s+to|looking\s+for)\s+(roles|jobs|work\b(?!\w))(?!\s+(?:in|at|remotely|hybrid|onsite|office))",
     r"where\s+can\s+i\s+(find|see)\s+his\s+resume",
 ]
 
@@ -218,10 +218,15 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
             )
 
     # 6. Contact / Hiring Check (Zero email/phone exposure)
-    for pat in CONTACT_PATTERNS:
-        if re.search(pat, q_lower):
-            return (
-                IntentType.CONTACT,
+    is_workplace_query = bool(re.search(
+        r"\b(remote|hybrid|in[\s\-_]*office|on[\s\-_]*site|office|la|los\s+angeles|orange\s+county|relocat\w*|preference[s]?)\b",
+        q_lower
+    ))
+    if not is_workplace_query:
+        for pat in CONTACT_PATTERNS:
+            if re.search(pat, q_lower):
+                return (
+                    IntentType.CONTACT,
                 "Brandon doesn't publish his direct email or phone number on the site, but you can message him directly "
                 "through the **[Contact Page](#contact)**!\n\n"
                 "Just submit your question and email, and your message will be forwarded straight to his inbox. "

@@ -486,7 +486,7 @@ async def test_chat_stream_devex_paved_roads():
 
 @pytest.mark.asyncio
 async def test_chat_stream_in_office_work_preferences():
-    """Verify in-office, hybrid, and onsite workplace queries return work preferences without cloud confusion."""
+    """Verify in-office, hybrid, and onsite workplace queries return work preferences without cloud confusion, specifying OC not LA."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         queries = [
@@ -503,10 +503,19 @@ async def test_chat_stream_in_office_work_preferences():
             assert "I don't know—maybe you should ask him!" not in streamed
             assert "remote" in streamed.lower()
             assert "orange county" in streamed.lower()
+            assert "not los angeles" in streamed.lower() or "not la" in streamed.lower()
             assert "relocate" in streamed.lower()
             # Ensure it didn't confuse with cloud/AWS/GCP
             assert "[technical skills" not in streamed.lower()
             assert "amazon web services" not in streamed.lower()
+
+        # Specific query for LA
+        rate_limiter._buckets.clear()
+        la_resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "is he open to working in LA?"})
+        assert la_resp.status_code == 200
+        la_streamed = extract_streamed_text(la_resp.text)
+        assert "not open to working in or commuting to los angeles" in la_streamed.lower()
+        assert "orange county" in la_streamed.lower()
 
 
 @pytest.mark.asyncio
@@ -521,6 +530,60 @@ async def test_chat_stream_clean_bullet_headers():
         assert "[technical skills" not in streamed.lower()
         assert "• [technical" not in streamed.lower()
         assert "Amazon Web Services (AWS)" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_followup_affirmation():
+    """Verify multi-turn conversations where user says 'yes' to a technical follow-up prompt expand the technical topic."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "how did he migrate from bitbucket to github?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has deep, battle-tested expertise in CI/CD... "
+                    "Would you like to know more about his reusable workflow design, runner scaling, or GitOps deployment strategies?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "yes"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "reusable workflow" in streamed.lower()
+        assert "runner" in streamed.lower()
+        assert "brandon foster personal profile" not in streamed.lower()
+        assert "location: southern california" not in streamed.lower()
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_in_office_then_cats():
+    """Verify topic transitions across multiple turns (work preferences followed by cats)."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        # Turn 1
+        resp1 = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "is he open to in office work?"})
+        assert resp1.status_code == 200
+        text1 = extract_streamed_text(resp1.text)
+        assert "remote" in text1.lower()
+        assert "orange county" in text1.lower()
+        assert "not los angeles" in text1.lower() or "not la" in text1.lower()
+
+        # Turn 2
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "is he open to in office work?"},
+            {"role": "assistant", "content": text1},
+        ]
+        resp2 = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "does he like cats?"})
+        assert resp2.status_code == 200
+        text2 = extract_streamed_text(resp2.text)
+        assert "cats" in text2.lower()
+        assert "brandon foster personal profile" not in text2.lower()
+        assert "location: southern california" not in text2.lower()
+
 
 
 

@@ -16,9 +16,79 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
-def synthesize_conversational_response(question: str, raw_sources: List[Dict[str, Any]]) -> str:
+def is_affirmative_followup(query: str) -> bool:
+    """Checks if a user query is an affirmative continuation like 'yes', 'sure', 'tell me more'."""
+    q = query.lower().strip().rstrip(".!?,")
+    return bool(re.match(
+        r"^(yes|yeah|yep|sure|ok|okay|please|tell\s+me\s+more|go\s+on|y|yes\s+please|more\s+details|elaborate|definitely|absolutely)$",
+        q
+    ))
+
+
+def synthesize_conversational_response(
+    question: str,
+    raw_sources: List[Dict[str, Any]],
+    conversation_history: Optional[List[Dict[str, str]]] = None
+) -> str:
     """Produces a natural, fluid conversational response strictly grounded in Brandon's experience."""
     q_lower = question.lower().strip()
+
+    # 0. Multi-turn Affirmative Continuations ("yes", "sure", "tell me more")
+    if is_affirmative_followup(question) and conversation_history:
+        last_asst = ""
+        last_user = ""
+        for m in reversed(conversation_history):
+            role = m.get("role", "")
+            content = m.get("content", "")
+            if role in ("assistant", "model") and not last_asst:
+                last_asst = content
+            elif role == "user" and not last_user:
+                last_user = content
+            if last_asst and last_user:
+                break
+
+        hist_text = (last_asst + " " + last_user).lower()
+        if any(w in hist_text for w in ["bitbucket", "github actions", "runner", "workflow design", "ci/cd"]):
+            return (
+                "Here are the deeper architectural details on Brandon's workflow design, runner scaling, and GitOps delivery:\n\n"
+                "• **Reusable Workflow Architecture**: He standardized reusable GitHub Actions workflows across 100+ repositories with automated linting, container builds, and security gates (Trivy/Snyk), boosting build reliability to 99.8%.\n"
+                "• **Dynamic Runner Autoscaling**: Engineered autoscaling self-hosted Linux runners orchestrated to absorb hundreds of concurrent CI job spikes, cutting queue times to near-zero while optimizing runner compute costs.\n"
+                "• **Declarative GitOps Delivery**: Paired GitHub Actions with ArgoCD so container image pushes trigger automated syncs, canary testing, and instant rollbacks on anomaly detection.\n"
+                "• **Keyless Cloud Auth (OIDC / WIF)**: Eliminated static credentials across CI runners by implementing Workload Identity Federation between GitHub Actions, AWS, and GCP.\n\n"
+                "Would you like to explore his security validation gates or how he implemented MLOps eval quality gates in CI?"
+            )
+        elif any(w in hist_text for w in ["eks", "kubernetes", "migration", "argocd", "ecs"]):
+            return (
+                "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
+                "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning 30+ services from ECS to EKS with zero customer impact.\n"
+                "• **ArgoCD Declarative GitOps**: Configured multi-cluster ApplicationSets managing Helm charts and Kustomize overlays, eliminating manual kubectl interventions and reducing deploy lead times from hours to under 10 minutes.\n"
+                "• **Custom Go Ingress Observability**: Authored `prometheus-ingress-status-exporter` to continuously probe ingress availability and export metrics directly to Prometheus and Datadog.\n"
+                "• **Karpenter Dynamic Compute**: Replaced static EC2 node groups with Karpenter autoscaling and Spot instance fleets, cutting thousands in idle compute costs.\n\n"
+                "Are there specific Kubernetes networking, security (mTLS), or storage patterns you'd like to dive into?"
+            )
+        elif any(w in hist_text for w in ["kafka", "confluent", "msk", "streaming"]):
+            return (
+                "Here are the deeper architectural details on his Kafka & Confluent Cloud platform work:\n\n"
+                "• **Zero-Downtime MSK Cutover**: Implemented MirrorMaker2 replication between AWS MSK and Confluent Cloud, enabling seamless consumer offset translation and zero message drop during cluster migration.\n"
+                "• **Schema Registry Governance**: Enforced Avro and Protobuf schema compatibility checks directly in CI, preventing breaking schema mutations across event streams.\n"
+                "• **Terraform GitOps for Kafka**: Automated topic creation, retention configurations, and ACL policies declaratively through Terraform pipelines.\n\n"
+                "Would you like to hear more about his stream processing patterns or event throughput?"
+            )
+        elif any(w in hist_text for w in ["terraform", "opentofu", "iac"]):
+            return (
+                "Here are key patterns in Brandon's enterprise Terraform module architecture:\n\n"
+                "• **Modular Golden Templates**: Standardized multi-tier modules for VPCs, EKS clusters, and RDS databases shared across 20+ engineering teams with semantic versioning.\n"
+                "• **Custom Go Provider Authoring**: Authored `terraform-provider-neo4j` using the HashiCorp Terraform Plugin SDK to declaratively manage graph databases alongside standard cloud resources.\n"
+                "• **Keyless OIDC Cloud Auth**: Integrated Workload Identity Federation in GitHub Actions to eliminate all long-lived AWS IAM access keys and GCP service account JSON keys.\n\n"
+                "Would you like to know more about his CI/CD validation gates or drift detection?"
+            )
+        elif any(w in hist_text for w in ["cost", "finops", "save", "saving", "budget"]):
+            return (
+                "Here are more details on Brandon's FinOps cost optimization strategies:\n\n"
+                "• **Karpenter Dynamic Spot Compute**: Implemented Karpenter autoscaling on EKS, utilizing diversified Spot instance pools to reduce idle compute costs by over $6,500/month.\n"
+                "• **Storage & Database Optimization**: Right-sized over-provisioned Aurora RDS instances, converted gp2 EBS volumes to gp3, and instituted automated S3 lifecycle tiering.\n"
+                "• **Serverless FinOps Portfolio**: Architected this portfolio platform on Cloud Run and Firebase Hosting with scale-to-zero compute, costing $0/month while idle."
+            )
 
     # 1. Greetings & Warm-ups
     if re.search(r"^(hi+|hello+|hey+|howdy+|sup+|greetings)\b", q_lower):
@@ -73,6 +143,13 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
     ]):
         return "Brandon lives and is based in **Southern California**."
 
+    # Specific query about Los Angeles / LA
+    if re.search(r"\b(?:los\s+angeles|\bla\b)\b", q_lower) and any(w in q_lower for w in ["work", "working", "job", "hybrid", "commute", "commuting", "office", "onsite", "in-office", "role", "open", "willing"]):
+        return (
+            "Brandon is **not open to working in or commuting to Los Angeles (LA)**.\n\n"
+            "His work preference is **Remote**, though he is open to **hybrid opportunities in Orange County, CA**. He is also not willing to relocate."
+        )
+
     # Work Preferences, In-Office, On-Site, Hybrid, Remote, Relocation
     if any(re.search(pat, q_lower) for pat in [
         r"\bwork\s+preference[s]?\b",
@@ -84,9 +161,10 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\s+work\b",
         r"\b(?:remote\s+only|only\s+remote)\b",
         r"\b(?:in[\s\-_]*office|on[\s\-_]*site)\b",
+        r"\borange\s+county\b",
     ]):
         return (
-            "Brandon's work preference is **Remote**, but he is open to **hybrid opportunities in Orange County, CA**.\n\n"
+            "Brandon's work preference is **Remote**, but he is open to **hybrid opportunities in Orange County, CA** (specifically **not Los Angeles / LA**).\n\n"
             "He is not looking for full-time in-office roles and is **not willing to relocate**."
         )
 
@@ -129,9 +207,15 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
     if any(re.search(pat, q_lower) for pat in [
         r"\bcoffee\s+or\s+tea\b",
         r"\btea\s+or\s+coffee\b",
-        r"\b(?:does\s+he\s+drink|do\s+you\s+drink)\s+(?:coffee|tea)\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:drink|have|like|prefer|love)\s+(?:coffee|tea)\b",
+        r"\b(?:like|prefer|love)\s+coffee\b",
+        r"\b(?:like|prefer|love)\s+tea\b",
         r"\b(?:favorite|fav)\s+drink\b",
+        r"\bcoffee\b",
+        r"\btea\b",
     ]):
+        if "tea" in q_lower and "coffee" not in q_lower:
+            return "Brandon runs on **COFFEE!!!!!!** ☕ (not much of a tea drinker)."
         return "**COFFEE!!!!!!** (Hands down—he runs on coffee! ☕)"
 
     # Cats or Dogs / Pets
@@ -139,9 +223,20 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         r"\bcats?\s+or\s+dogs?\b",
         r"\bdogs?\s+or\s+cats?\b",
         r"\b(?:cats|dogs)\s+person\b",
-        r"\b(?:does\s+he\s+have|do\s+you\s+have)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
-        r"\b(?:his|your)\s+pets?\b",
+        r"\b(?:does\s+he|do\s+you)\s+(?:have|like|prefer|love)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
+        r"\b(?:his|your)\s+(?:pets?|cats?|dogs?)\b",
+        r"\b(?:like|prefer|love)\s+cats?\b",
+        r"\b(?:like|prefer|love)\s+dogs?\b",
+        r"\bcat\s+lover\b",
+        r"\bdog\s+lover\b",
+        r"\bcat\s+person\b",
+        r"\bdog\s+person\b",
+        r"\bcats?\b",
+        r"\bdogs?\b",
+        r"\bpets?\b",
     ]):
+        if "dog" in q_lower and "cat" not in q_lower:
+            return "Brandon is definitely a cat person (**Cats!!!!!** 🐱), rather than dogs!"
         return "**Cats!!!!!** (Brandon is definitely a cat person! 🐱)"
 
     # Education & University
@@ -637,7 +732,11 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
         # Parse content into clean conversational highlights
         raw_lines = content.split("\n")
         detail_lines = []
-        intro = f"In his work with **{title}**, Brandon has extensive hands-on experience.\n\n"
+        is_personal_chunk = (top_hit.get("id") == "chunk-personal-profile")
+        if is_personal_chunk:
+            intro = "Regarding Brandon's background and personal preferences:\n\n"
+        else:
+            intro = f"In his work with **{title}**, Brandon has extensive hands-on experience.\n\n"
 
         for line in raw_lines:
             l = line.strip()
@@ -657,12 +756,18 @@ def synthesize_conversational_response(question: str, raw_sources: List[Dict[str
             cleaned = l.lstrip("•- *").strip()
             if (cleaned.startswith("[") and cleaned.endswith("]")) or re.match(r"^\[.*\]$", cleaned):
                 continue
-            if cleaned and len(cleaned) > 10:
+            if cleaned and len(cleaned) > 5:
                 detail_lines.append(f"• {cleaned}")
 
         response = intro
         if detail_lines:
-            response += "Key highlights include:\n" + "\n".join(detail_lines[:3]) + "\n\n"
+            matching_lines = [l for l in detail_lines if any(qw in l.lower() for qw in query_words)]
+            other_lines = [l for l in detail_lines if not any(qw in l.lower() for qw in query_words)]
+            if is_personal_chunk and matching_lines:
+                selected_lines = matching_lines[:3]
+            else:
+                selected_lines = (matching_lines + other_lines)[:3]
+            response += "Key highlights include:\n" + "\n".join(selected_lines) + "\n\n"
         response += "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
         return response
 

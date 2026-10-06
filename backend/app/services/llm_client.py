@@ -141,15 +141,28 @@ class LLMClient:
                 logger.error(f"Gemini API error during streaming: {e}. Falling back to conversational synthesizer.")
 
         # 3. Conversational Synthesizer (Works offline, in testing, and as reliable fallback)
-        fallback_text = synthesize_conversational_response(question, sources)
+        fallback_text = synthesize_conversational_response(
+            question=question,
+            raw_sources=sources,
+            conversation_history=conversation_history
+        )
         tokens = re.findall(r"\S+|\n", fallback_text)
         for t in tokens:
             yield json.dumps({"token": t + (" " if t != "\n" else "")}) + "\n"
             await asyncio.sleep(0.015)
 
-    def _synthesize_fallback(self, question: str, sources: List[Dict[str, Any]]) -> str:
+    def _synthesize_fallback(
+        self,
+        question: str,
+        sources: List[Dict[str, Any]],
+        conversation_history: Optional[List[Dict[str, str]]] = None
+    ) -> str:
         """Grounded conversational synthesis for offline dev/test environments."""
-        return synthesize_conversational_response(question, sources)
+        return synthesize_conversational_response(
+            question=question,
+            raw_sources=sources,
+            conversation_history=conversation_history
+        )
 
 
 llm_client = LLMClient()

@@ -11,6 +11,7 @@ from backend.app.core.security import UserIdentity, get_current_user_optional
 from backend.app.core.rate_limiter import RateLimitStatus, rate_limit_gate
 from backend.app.services.retrieval_service import retrieval_service
 from backend.app.services.llm_client import llm_client
+from backend.app.services.synthesizer import is_affirmative_followup
 from backend.app.services.intent import classify_intent, IntentType
 from backend.app.services.firestore_service import firestore_service
 
@@ -26,6 +27,20 @@ async def chat_stream(
     rate_status: RateLimitStatus = Depends(rate_limit_gate)
 ):
     """Streams conversational token-by-token answer grounded in Brandon's portfolio."""
+    # Resolve contextual query for multi-turn affirmations ("yes", "tell me more")
+    search_query = request.question
+    if is_affirmative_followup(request.question) and request.messages:
+        last_asst = ""
+        last_user = ""
+        for m in reversed(request.messages):
+            if m.role == "assistant" and not last_asst:
+                last_asst = m.content
+            elif m.role == "user" and not last_user:
+                last_user = m.content
+            if last_asst and last_user:
+                break
+        search_query = f"{last_user} {last_asst[:150]}"
+
     # 1. Intent Classification
     intent_type, precomputed_answer = classify_intent(request.question)
 
@@ -35,7 +50,7 @@ async def chat_stream(
         formatted_sources = []
     else:
         # Genuine technical/portfolio query
-        raw_sources = retrieval_service.retrieve(request.question, top_k=3)
+        raw_sources = retrieval_service.retrieve(search_query, top_k=3)
         formatted_sources = [
             {
                 "id": s["id"],

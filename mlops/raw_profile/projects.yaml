@@ -78,10 +78,14 @@ projects:
       answering queries via Gemini Flash. Features multi-tier token bucket rate limiting, Firebase Auth recruiter lead capture,
       a Medallion Data Lakehouse, and an offline LLM-as-a-judge evaluation suite running as a quality gate in GitHub Actions.
       100% Terraform IaC with Workload Identity Federation (zero static keys).
+      Developed by Brandon utilizing modern AI pair-programming agents as an engineering force multiplier, while maintaining strict
+      human architectural design, schema enforcement, comprehensive automated testing, and CI/CD quality gates.
     highlights:
       - "Strict FinOps compliance: $0/month idle cost via Cloud Run and Firebase Hosting"
+      - "In-memory Hybrid RAG: BM25 keyword search + 384-dim dense embeddings merged with Reciprocal Rank Fusion (RRF)"
       - "Workload Identity Federation (OIDC) eliminating static GCP credentials in CI/CD"
       - "Continuous evaluation CI gate testing context recall and answer faithfulness"
+      - "Engineered with agentic AI pair programming under human architectural direction and verification"
     technologies:
       - "Terraform"
       - "Google Cloud Run"
@@ -92,3 +96,7 @@ projects:
       - "Gemini 2.0 Flash"
       - "Hybrid Search (BM25 + Dense RRF)"
       - "GitHub Actions (OIDC/WIF)"
+      - "AI Pair Programming"
+      - "RAG Assistant"
+      - "FinOps"
+      - "Scale-to-Zero"

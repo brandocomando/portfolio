@@ -220,25 +220,25 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+    <div className="fixed top-16 bottom-0 right-0 z-40 w-full sm:w-[400px] bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
       {/* Drawer Header */}
-      <div className="px-4 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+      <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <div>
-            <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm text-white flex items-center gap-1.5 truncate">
               Brandon's AI Agent
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
             </h3>
-            <p className="text-[11px] font-mono text-cyan-400">
-              Gemini 2.0 Flash • Hybrid RAG (Dense+BM25)
+            <p className="text-[10.5px] font-mono text-cyan-400 truncate">
+              Gemini 2.0 Flash • Hybrid RAG
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {quota && (
             <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
               {quota.remaining}/{quota.limit} left
@@ -246,7 +246,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           )}
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T20:31:53.468886Z",
+  "timestamp": "2026-10-06T20:42:38.593843Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
@@ -22,7 +22,7 @@
       "retrieved_ids": [
         "chunk-exp-eks-migration",
         "chunk-bio-overview",
-        "chunk-exp-kafka-confluent-migration"
+        "chunk-proj-terraform-provider-neo4j"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -36,7 +36,7 @@
       "retrieved_ids": [
         "chunk-bio-overview",
         "chunk-exp-finops-optimization",
-        "chunk-exp-kafka-confluent-migration"
+        "chunk-proj-portfolio-platform"
       ],
       "hit_top3": true,
       "rank": 2,
@@ -91,7 +91,7 @@
       "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
         "chunk-exp-cicd-github-migration",
-        "chunk-bio-overview",
+        "chunk-skills-ci/cd-and-delivery-engineering",
         "chunk-skills-languages-and-core-systems"
       ],
       "hit_top3": true,
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-bio-overview",
-        "chunk-skills-data-platforms-and-distributed-storage"
+        "chunk-skills-data-platforms-and-distributed-storage",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -133,8 +133,8 @@
       "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
         "chunk-exp-cicd-github-migration",
-        "chunk-bio-overview",
-        "chunk-skills-ci/cd-and-delivery-engineering"
+        "chunk-skills-ci/cd-and-delivery-engineering",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -147,8 +147,8 @@
       "target_chunk": "chunk-skills-languages-and-core-systems",
       "retrieved_ids": [
         "chunk-skills-languages-and-core-systems",
-        "chunk-bio-overview",
-        "chunk-personal-profile"
+        "chunk-personal-profile",
+        "chunk-proj-portfolio-platform"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -210,8 +210,8 @@
       "target_chunk": "chunk-personal-profile",
       "retrieved_ids": [
         "chunk-personal-profile",
-        "chunk-bio-overview",
-        "chunk-skills-ai-infrastructure-and-mlops"
+        "chunk-skills-ai-infrastructure-and-mlops",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,

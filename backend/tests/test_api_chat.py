@@ -585,6 +585,55 @@ async def test_chat_stream_multi_turn_in_office_then_cats():
         assert "location: southern california" not in text2.lower()
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_code_authorship_ai_collaboration():
+    """Verify code authorship inquiries explain Brandon's architectural direction and AI pair-programming."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "did he write any of your code? or ws it all AI?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Brandon architected" in streamed or "architected and engineered" in streamed
+        assert "pair-programmer" in streamed or "force multiplier" in streamed
+        assert "quality gates" in streamed or "unit and integration tests" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_how_brandon_built_ai_assistant():
+    """Verify inquiries about how the AI assistant was built explain FastAPI, Cloud Run, Hybrid RAG, and Gemini."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "how did he make you?"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "FastAPI" in streamed
+        assert "Cloud Run" in streamed
+        assert "Hybrid" in streamed or "BM25" in streamed
+        assert "Gemini" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_scale_to_zero_gcp_infra():
+    """Verify scale-to-zero infra questions explain FinOps design and Cloud Run without raw metadata labels."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": "tell me about this scale to zero GCP infra"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "min-instances: 0" in streamed or "scale-to-zero" in streamed.lower()
+        assert "$0/month" in streamed or "$0 idle cost" in streamed
+        assert "Firebase Hosting" in streamed
+        assert "Tagline:" not in streamed
+        assert "Overview:" not in streamed
+
+
+
 
 
 

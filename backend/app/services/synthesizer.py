@@ -679,6 +679,77 @@ def synthesize_conversational_response(
             "What areas of his background or projects would you like to explore?"
         )
 
+    # Code Authorship & AI Collaboration
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(write|wrote)\s+(?:any\s+of\s+)?(?:your|the|this)\s+code\b",
+        r"\ball\s+ai\b",
+        r"\bdid\s+ai\s+write\b",
+        r"\bwho\s+wrote\s+(?:your|the|this)\s+code\b",
+        r"\bis\s+(?:this\s+)?code\s+ai\b",
+        r"\bai\s+generated\b",
+        r"\bdid\s+he\s+write\b",
+    ]):
+        return (
+            "Brandon architected and engineered this entire platform, utilizing modern AI as an agentic pair-programmer "
+            "and force multiplier.\n\n"
+            "Key aspects of how this codebase was developed:\n"
+            "• **Human-Led Architecture & Direction**: Brandon designed the overall system topology—the scale-to-zero GCP architecture, "
+            "the Medallion data lakehouse, the in-memory hybrid retrieval engine (Dense + BM25 RRF), and multi-tier rate limiting.\n"
+            "• **Agentic AI Pair-Programming**: He directed advanced coding agents (such as Google Antigravity and Gemini) to rapidly "
+            "implement features and boilerplate, while personally conducting code reviews, defining domain schemas, and directing refactoring.\n"
+            "• **Engineering Rigor & Quality Gates**: Every line of code is verified by over 36 automated unit and integration tests, "
+            "TypeScript type checking, strict linter rules, and offline continuous evaluation gates (LLM-as-a-judge benchmarking retrieval "
+            "context recall and faithfulness) running in CI/CD.\n\n"
+            "So while AI accelerated the implementation under his direction, the architectural vision, engineering standards, prompt engineering, "
+            "and quality gates are 100% Brandon's!"
+        )
+
+    # How Brandon Built this AI Assistant
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bhow\s+(?:did\s+he|was|were\s+you)\s+(?:make|build|create|program)\s+(?:you|this\s+(?:bot|assistant|ai|portfolio|app|website))\b",
+        r"\bhow\s+(?:do\s+you|does\s+this\s+(?:bot|ai|assistant|app|site|platform))\s+work\b",
+        r"\bhow\s+were\s+you\s+(?:built|made|created)\b",
+    ]):
+        return (
+            "I am Brandon's custom AI portfolio assistant, built as a full-stack, scale-to-zero RAG (Retrieval-Augmented Generation) "
+            "application on Google Cloud!\n\n"
+            "Here is how Brandon engineered my architecture:\n"
+            "• **Backend & Hybrid Retrieval**: Powered by an asynchronous FastAPI service on Google Cloud Run. I use an in-memory Hybrid "
+            "Retrieval engine that merges BM25 keyword search with 384-dimensional dense semantic embeddings using Reciprocal Rank Fusion (RRF)—"
+            "delivering vector search precision with zero database hosting costs.\n"
+            "• **LLM Streaming**: My answers stream token-by-token via Google Gemini 2.0 Flash (with a deterministic conversational synthesizer "
+            "fallback for offline testing and resilience).\n"
+            "• **Guardrails & Privacy**: Multi-layer intent classification intercepts prompt injections, calculates math, and enforces strict "
+            "privacy guardrails so personal contact info is never exposed.\n"
+            "• **Medallion Data Lakehouse**: Brandon built a Medallion pipeline (Bronze raw JSON → Silver Pydantic validation & semantic chunking "
+            "→ Gold signed hybrid index) that compiles his career achievements and technical projects into semantic chunks.\n"
+            "• **Frontend**: A reactive single-page app built with React, Vite, and Tailwind CSS hosted globally on Firebase Hosting's CDN.\n\n"
+            "Would you like to know more about the scale-to-zero FinOps design, the CI/CD eval quality gates, or the Terraform setup?"
+        )
+
+    # Scale-to-Zero GCP Infrastructure & Portfolio Architecture
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bscale[\s\-_]*to[\s\-_]*zero\b",
+        r"\b(?:tell\s+me\s+about\s+)?(?:this\s+(?:portfolio|repo|platform|website|project|app|infra|codebase)|portfolio\s+platform)\b",
+    ]):
+        return (
+            "This portfolio platform is engineered specifically around strict **FinOps principles** to achieve **$0/month in idle "
+            "infrastructure costs** while maintaining production performance and security!\n\n"
+            "Key architectural components include:\n"
+            "• **Scale-to-Zero Compute (Cloud Run)**: The FastAPI backend runs containerized on Google Cloud Run configured with "
+            "`min-instances: 0` and `max-instances: 10`. When no visitors are active, the container scales completely to zero so you never pay "
+            "for idle CPU or memory.\n"
+            "• **Global Edge Delivery (Firebase Hosting)**: The React SPA frontend is served statically via Firebase Hosting's worldwide CDN cache, "
+            "providing sub-50ms page loads with generous free-tier bandwidth.\n"
+            "• **Serverless Lead Capture & Auth (Firestore & Firebase Auth)**: Visitor rate limiting and recruiter lead captures are recorded "
+            "in Firestore, paired with Firebase Authentication for recruiter verification.\n"
+            "• **Keyless CI/CD (Workload Identity Federation)**: GitHub Actions deploys infrastructure and container builds to GCP using OpenID "
+            "Connect (OIDC) Workload Identity Federation—completely eliminating static service account JSON keys.\n"
+            "• **100% Terraform IaC**: The entire platform—IAM roles, Cloud Run services, Artifact Registry, and Firebase Hosting—is declared "
+            "and deployed declaratively via Terraform.\n\n"
+            "Are you curious about the hybrid RAG engine, the Medallion data pipeline, or how cold starts are handled?"
+        )
+
     # Fallback from retrieved sources (synthesized conversationally)
     if raw_sources:
         top_hit = raw_sources[0]
@@ -745,16 +816,25 @@ def synthesize_conversational_response(
             if (l.startswith("[") and l.endswith("]")) or re.match(r"^\[.*\]$", l):
                 continue
             if any(l.startswith(prefix) for prefix in [
-                "Role:", "Tech Stack:", "Category:", "Summary:", "Skills and Production Proof-Points:",
-                "Quantified Impact", "Technologies", "Impact Metrics"
+                "Role:", "Tech Stack:", "Category:", "Summary:", "Overview:", "Tagline:",
+                "Repository:", "Live Demo:", "Skills and Production Proof-Points:",
+                "Quantified Impact", "Technologies", "Impact Metrics",
+                "Key Architectural Highlights", "Highlights", "Key Highlights"
             ]):
                 if l.startswith("Summary:"):
                     intro += f"{l.replace('Summary:', '').strip()}\n\n"
+                elif l.startswith("Overview:"):
+                    intro += f"{l.replace('Overview:', '').strip()}\n\n"
                 continue
             if l.lower() == title.lower() or l.lower() in title.lower():
                 continue
             cleaned = l.lstrip("•- *").strip()
             if (cleaned.startswith("[") and cleaned.endswith("]")) or re.match(r"^\[.*\]$", cleaned):
+                continue
+            if any(cleaned.startswith(prefix) for prefix in [
+                "Role:", "Tech Stack:", "Category:", "Summary:", "Overview:", "Tagline:",
+                "Repository:", "Live Demo:", "Key Architectural Highlights", "Highlights", "Key Highlights"
+            ]):
                 continue
             if cleaned and len(cleaned) > 5:
                 detail_lines.append(f"• {cleaned}")

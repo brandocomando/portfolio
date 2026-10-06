@@ -310,7 +310,7 @@
     "id": "chunk-proj-portfolio-platform",
     "title": "Project: FinOps-Optimized Cloud Portfolio & AI MLOps Platform",
     "category": "platform_engineering",
-    "content": "[TECHNICAL PROJECT] FinOps-Optimized Cloud Portfolio & AI MLOps Platform\nRepository: https://github.com/brandocomando/portfolio (GitHub Stars: 0)\nTagline: Production-grade, scale-to-zero GCP portfolio featuring hybrid RAG, Medallion data pipeline, CI/CD, and Terraform.\nOverview: An end-to-end cloud platform hosting a modern React SPA on Firebase Hosting (CDN), a FastAPI backend on Cloud Run scaling to zero ($0 idle cost), and an in-memory Hybrid RAG engine (Dense + BM25 + Reciprocal Rank Fusion) answering queries via Gemini Flash. Features multi-tier token bucket rate limiting, Firebase Auth recruiter lead capture, a Medallion Data Lakehouse, and an offline LLM-as-a-judge evaluation suite running as a quality gate in GitHub Actions. 100% Terraform IaC with Workload Identity Federation (zero static keys).\nKey Architectural Highlights:\n  \u2022 Strict FinOps compliance: $0/month idle cost via Cloud Run and Firebase Hosting\n  \u2022 Workload Identity Federation (OIDC) eliminating static GCP credentials in CI/CD\n  \u2022 Continuous evaluation CI gate testing context recall and answer faithfulness\nTech Stack: Terraform, Google Cloud Run, Firebase Hosting, FastAPI, Python, React / Vite / TypeScript, Gemini 2.0 Flash, Hybrid Search (BM25 + Dense RRF), GitHub Actions (OIDC/WIF)",
+    "content": "[TECHNICAL PROJECT] FinOps-Optimized Cloud Portfolio & AI MLOps Platform\nRepository: https://github.com/brandocomando/portfolio (GitHub Stars: 0)\nTagline: Production-grade, scale-to-zero GCP portfolio featuring hybrid RAG, Medallion data pipeline, CI/CD, and Terraform.\nOverview: An end-to-end cloud platform hosting a modern React SPA on Firebase Hosting (CDN), a FastAPI backend on Cloud Run scaling to zero ($0 idle cost), and an in-memory Hybrid RAG engine (Dense + BM25 + Reciprocal Rank Fusion) answering queries via Gemini Flash. Features multi-tier token bucket rate limiting, Firebase Auth recruiter lead capture, a Medallion Data Lakehouse, and an offline LLM-as-a-judge evaluation suite running as a quality gate in GitHub Actions. 100% Terraform IaC with Workload Identity Federation (zero static keys). Developed by Brandon utilizing modern AI pair-programming agents as an engineering force multiplier, while maintaining strict human architectural design, schema enforcement, comprehensive automated testing, and CI/CD quality gates.\nKey Architectural Highlights:\n  \u2022 Strict FinOps compliance: $0/month idle cost via Cloud Run and Firebase Hosting\n  \u2022 In-memory Hybrid RAG: BM25 keyword search + 384-dim dense embeddings merged with Reciprocal Rank Fusion (RRF)\n  \u2022 Workload Identity Federation (OIDC) eliminating static GCP credentials in CI/CD\n  \u2022 Continuous evaluation CI gate testing context recall and answer faithfulness\n  \u2022 Engineered with agentic AI pair programming under human architectural direction and verification\nTech Stack: Terraform, Google Cloud Run, Firebase Hosting, FastAPI, Python, React / Vite / TypeScript, Gemini 2.0 Flash, Hybrid Search (BM25 + Dense RRF), GitHub Actions (OIDC/WIF), AI Pair Programming, RAG Assistant, FinOps, Scale-to-Zero",
     "tags": [
       "terraform",
       "google cloud run",
@@ -321,12 +321,16 @@
       "gemini 2.0 flash",
       "hybrid search (bm25 + dense rrf)",
       "github actions (oidc/wif)",
+      "ai pair programming",
+      "rag assistant",
+      "finops",
+      "scale-to-zero",
       "platform_engineering",
       "project",
       "finops-optimized cloud portfolio & ai mlops platform"
     ],
     "source_file": "projects.yaml",
-    "token_estimate": 318,
+    "token_estimate": 445,
     "metadata": {
       "repo": "brandocomando/portfolio",
       "stars": 0,

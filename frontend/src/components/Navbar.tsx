@@ -10,19 +10,19 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ quota, onLogout, onOpenContact }) => {
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#090d16]/80 border-b border-slate-800/80">
+    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-[#090d16]/80 border-b border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 shrink-0">
             <Terminal className="w-5 h-5 text-white" />
           </div>
-          <div>
-            <a href="#" className="font-bold text-base sm:text-lg tracking-tight hover:text-cyan-400 transition-colors">
+          <div className="flex flex-col justify-center">
+            <a href="#" className="font-bold text-sm sm:text-base tracking-tight hover:text-cyan-400 transition-colors leading-tight">
               Brandon Foster
             </a>
-            <span className="hidden sm:inline-block ml-2 text-xs font-mono text-cyan-400/90 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/50">
-              Staff / Senior Platform & MLOps
+            <span className="text-[10px] sm:text-xs font-mono text-cyan-400/90 leading-tight mt-0.5">
+              Staff/ Senior Platform & MLOps Engineer
             </span>
           </div>
         </div>

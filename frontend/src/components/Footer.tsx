@@ -16,7 +16,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
             </div>
             <div>
               <div className="font-bold text-white text-sm">Brandon Foster</div>
-              <p className="text-slate-500 text-[11px]">Senior Platform & MLOps Engineer</p>
+              <p className="text-slate-500 text-[11px]">Staff/ Senior Platform & MLOps Engineer</p>
             </div>
           </div>
 

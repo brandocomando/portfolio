@@ -802,6 +802,79 @@ async def test_chat_stream_multi_turn_continuation_gitops_workflow():
         assert "Pineapple on Pizza" not in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_short_topic_reply_gitopss_typo():
+    """Verify 'gitopss' typo smoothly resolves to GitOps architecture when offered by assistant."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "does he know much about eks?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption. "
+                    "Are you curious about the migration process, the GitOps workflow, or his observability tooling?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "gitopss"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "ArgoCD" in streamed
+        assert "ApplicationSets" in streamed
+        assert "Pineapple on Pizza" not in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_short_topic_reply_the_process():
+    """Verify 'the process' resolves to the zero-downtime migration playbook without conversational filler."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "does he know much about eks?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption. "
+                    "Are you curious about the migration process, the GitOps workflow, or his observability tooling?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "the process"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "zero-downtime migration" in streamed.lower()
+        assert "Route 53" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_multi_turn_short_topic_reply_securirty_typo():
+    """Verify 'securirty' resolves to service mesh & zero-trust security when security was offered."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        history = [
+            {"role": "user", "content": "does he know much about eks?"},
+            {
+                "role": "assistant",
+                "content": (
+                    "Brandon has extensive hands-on experience with Kubernetes... "
+                    "Are there specific Kubernetes networking, security (mTLS), or storage patterns you'd like to dive into?"
+                ),
+            },
+        ]
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": history, "question": "securirty"})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "zero-trust" in streamed.lower() or "mTLS" in streamed or "App Mesh" in streamed
+
+
+
 
 
 

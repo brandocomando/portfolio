@@ -11,7 +11,7 @@ from backend.app.core.security import UserIdentity, get_current_user_optional
 from backend.app.core.rate_limiter import RateLimitStatus, rate_limit_gate
 from backend.app.services.retrieval_service import retrieval_service
 from backend.app.services.llm_client import llm_client
-from backend.app.services.synthesizer import is_affirmative_followup
+from backend.app.services.synthesizer import is_conversational_followup
 from backend.app.services.intent import classify_intent, IntentType
 from backend.app.services.firestore_service import firestore_service
 
@@ -27,9 +27,9 @@ async def chat_stream(
     rate_status: RateLimitStatus = Depends(rate_limit_gate)
 ):
     """Streams conversational token-by-token answer grounded in Brandon's portfolio."""
-    # Resolve contextual query for multi-turn affirmations ("yes", "tell me more")
+    # Resolve contextual query for multi-turn continuations, options, and short followups
     search_query = request.question
-    if is_affirmative_followup(request.question) and request.messages:
+    if is_conversational_followup(request.question, request.messages):
         last_asst = ""
         last_user = ""
         for m in reversed(request.messages):

@@ -6,6 +6,7 @@ Strictly protects personal privacy: never reveals email, phone, or private data.
 """
 
 import re
+import difflib
 from typing import List, Dict, Any, Optional
 
 
@@ -26,19 +27,85 @@ PERSONAL_TOPIC_KEYWORDS = {
 }
 
 
+def matches_topic(query: str, targets: List[str], threshold: float = 0.75) -> bool:
+    """Fuzzy and substring topic matcher supporting plurals, typos, and variations."""
+    q = query.lower().strip()
+    for t in targets:
+        if t in q:
+            return True
+    words = re.findall(r"\b[a-zA-Z0-9_\-]{3,}\b", q)
+    for w in words:
+        for t in targets:
+            if t.startswith(w) or w.startswith(t):
+                return True
+            if difflib.SequenceMatcher(None, w, t).ratio() >= threshold:
+                return True
+    return False
+
+
 def is_affirmative_followup(query: str) -> bool:
     """Checks if a user query is an affirmative continuation like 'yes', 'yea tell me more', 'sure'."""
     q = query.lower().strip().rstrip(".!?,")
     patterns = [
         r"^(?:(?:yes|yea|yeah|yep|yup|sure|ok|okay)\b|tell\s+me\s+more\b|go\s+on\b|continue\b|elaborate\b|more\s+details\b)",
-        r"^tell\s+me\s+(?:more\s+)?about\b",
-        r"^give\s+me\s+more\b",
+        r"^tell\s+me\s+more(?:\s+about\s+(?:that|this|it))?\b",
+        r"^give\s+me\s+more(?:\s+details)?\b",
         r"^(?:i(?:'d|\s+would)?\s+)?(?:love|like|want)\s+to\s+(?:hear|know|learn)\s+more\b",
         r"^sounds\s+good\b",
         r"^let'?s\s+hear\s+it\b",
         r"^sure\s+thing\b",
     ]
     return any(re.match(pat, q) for pat in patterns)
+
+
+def is_conversational_followup(
+    query: str,
+    conversation_history: Optional[List[Any]] = None
+) -> bool:
+    """Detects if query is an affirmative continuation, short topic reply, or follow-up to prior assistant turn."""
+    if not conversation_history:
+        return False
+
+    if is_affirmative_followup(query):
+        return True
+
+    q = query.lower().strip().rstrip(".!?,")
+    words = re.findall(r"\b[a-zA-Z0-9_\-]+\b", q)
+
+    # Referential phrases ("the process", "that one", "tell me about that", "how does that work")
+    referential_patterns = [
+        r"^(?:the|that|this)\s+(?:process|workflow|tooling|system|architecture|part|one|second\s+one|first\s+one|third\s+one)$",
+        r"^(?:what\s+about|how\s+about|tell\s+me\s+about)\s+(?:the\s+)?(?:process|workflow|tooling|gitops|security|observability|rag|pipeline|cold\s+starts?)$",
+        r"^(?:can\s+you\s+elaborate|can\s+you\s+explain|give\s+me\s+more(?:\s+details)?)$",
+        r"^(?:both|all\s+of\s+them|all\s+three|any\s+of\s+them)$",
+    ]
+    if any(re.match(pat, q) for pat in referential_patterns):
+        return True
+
+    # Find last assistant message
+    last_asst = ""
+    for m in reversed(conversation_history):
+        role = m.get("role", "") if isinstance(m, dict) else getattr(m, "role", "")
+        content = m.get("content", "") if isinstance(m, dict) else getattr(m, "content", "")
+        if role in ("assistant", "model") and content:
+            last_asst = content.lower()
+            break
+
+    if not last_asst:
+        return False
+
+    # Short response (1-4 words) that matches key topics offered in previous assistant turn
+    if len(words) <= 4:
+        candidate_topics = [
+            "process", "migration", "gitops", "workflow", "argocd", "observability", "tooling",
+            "security", "mtls", "mesh", "networking", "rag", "retrieval", "medallion", "pipeline",
+            "cold start", "cold starts", "scale to zero", "finops", "ci/cd", "runners", "terraform"
+        ]
+        relevant_candidates = [t for t in candidate_topics if t in last_asst]
+        if relevant_candidates and matches_topic(q, relevant_candidates):
+            return True
+
+    return False
 
 
 def synthesize_conversational_response(
@@ -49,8 +116,8 @@ def synthesize_conversational_response(
     """Produces a natural, fluid conversational response strictly grounded in Brandon's experience."""
     q_lower = question.lower().strip()
 
-    # 0. Multi-turn Affirmative Continuations ("yes", "sure", "tell me more", "yea tell me more")
-    if is_affirmative_followup(question) and conversation_history:
+    # 0. Multi-turn Continuations and Contextual Followups
+    if conversation_history and is_conversational_followup(question, conversation_history):
         last_asst = ""
         last_user = ""
         for m in reversed(conversation_history):
@@ -69,7 +136,7 @@ def synthesize_conversational_response(
             "portfolio platform", "portfolio assistant", "cloud run", "gemini flash", "this platform",
             "finops-optimized cloud portfolio"
         ]):
-            if any(w in q_lower for w in ["rag", "retrieval", "rrf", "hybrid", "dense", "bm25"]):
+            if matches_topic(q_lower, ["rag", "retrieval", "rrf", "hybrid", "dense", "bm25"]):
                 return (
                     "Here is a deeper architectural look into the **In-Memory Hybrid RAG engine (Dense + BM25 RRF)**:\n\n"
                     "• **Zero-Database In-Memory Architecture**: Rather than paying for an expensive managed vector database (like Pinecone or Cloud SQL Vector), this service loads a pre-computed, signed Gold retrieval index directly into container memory on startup.\n"
@@ -77,7 +144,7 @@ def synthesize_conversational_response(
                     "• **Sub-10ms Latency**: In-memory execution provides sub-10ms retrieval latency with zero database hosting fees and zero external network hops!\n\n"
                     "Would you like to know more about the Medallion data pipeline or how cold starts are handled on Cloud Run?"
                 )
-            elif any(w in q_lower for w in ["medallion", "lakehouse", "pipeline", "bronze", "silver", "gold"]):
+            elif matches_topic(q_lower, ["medallion", "lakehouse", "pipeline", "bronze", "silver", "gold"]):
                 return (
                     "Here is a deeper look into the **Medallion Data Lakehouse (Bronze → Silver → Gold)** pipeline:\n\n"
                     "• **Bronze Stage**: Ingests raw YAML/JSON profile data and GitHub REST API metadata, enforcing Pydantic v2 schemas and recording cryptographic SHA-256 hashes.\n"
@@ -85,7 +152,7 @@ def synthesize_conversational_response(
                     "• **Gold Stage**: Vectorizes chunks with dense embeddings, builds the Okapi BM25 inverted index, and bundles the search assets with SHA-256 integrity verification.\n\n"
                     "Would you like to explore the in-memory RAG retriever or cold start optimization next?"
                 )
-            elif any(w in q_lower for w in ["cold start", "scale-to-zero", "scale to zero", "startup", "latency"]):
+            elif matches_topic(q_lower, ["cold start", "scale to zero", "startup", "latency"]):
                 return (
                     "Here is how **cold start latency is minimized** while maintaining scale-to-zero FinOps efficiency:\n\n"
                     "• **Scale-to-Zero ($0 Idle Cost)**: Cloud Run is configured with `min-instances: 0` so no compute charges accrue when the site is idle.\n"
@@ -120,7 +187,7 @@ def synthesize_conversational_response(
                 "Would you like to explore his security validation gates or how he implemented MLOps eval quality gates in CI?"
             )
         elif any(w in hist_text for w in ["eks", "kubernetes", "migration", "argocd", "ecs"]):
-            if any(w in q_lower for w in ["process", "migration", "cutover", "strategy", "dns"]):
+            if matches_topic(q_lower, ["process", "migration", "cutover", "strategy", "dns"]):
                 return (
                     "Here is a deep dive into the **zero-downtime migration process** Brandon architected from AWS ECS to Amazon EKS:\n\n"
                     "• **Dual-Running Infrastructure & Ingress**: Provisioned parallel EKS clusters alongside production ECS tasks, configuring AWS ALB Ingress Controllers and target groups to mirror routing rules across both environments.\n"
@@ -129,7 +196,7 @@ def synthesize_conversational_response(
                     "• **Zero Customer Disruption**: Migrated over 30 mission-critical microservices without a single second of customer-facing downtime.\n\n"
                     "Would you like to explore the ArgoCD GitOps delivery pipeline or his custom Kubernetes ingress observability tooling next?"
                 )
-            elif any(w in q_lower for w in ["gitops", "workflow", "argocd", "delivery"]):
+            elif matches_topic(q_lower, ["gitops", "workflow", "argocd", "delivery"]):
                 return (
                     "Here are the details on Brandon's **ArgoCD GitOps workflow and continuous delivery** architecture:\n\n"
                     "• **Multi-Cluster ApplicationSets**: Implemented ArgoCD ApplicationSets managing multi-cluster and multi-environment Helm charts with Kustomize overlays, eliminating drift and manual kubectl executions.\n"
@@ -137,13 +204,24 @@ def synthesize_conversational_response(
                     "• **Radically Reduced Lead Times**: Slashed production deployment lead times from several hours down to under 10 minutes while improving auditability.\n\n"
                     "Would you like to know more about the migration cutover process or the custom Go ingress observability exporter?"
                 )
-            elif any(w in q_lower for w in ["observability", "tooling", "prometheus", "monitoring", "exporter", "metric"]):
+            elif matches_topic(q_lower, ["observability", "tooling", "prometheus", "monitoring", "exporter", "metric"]):
                 return (
                     "Here are the details on Brandon's **Kubernetes observability tooling and custom controller development**:\n\n"
                     "• **Custom Go Controller (`prometheus-ingress-status-exporter`)**: Authored a lightweight Go controller that dynamically discovers Ingress endpoints across namespaces, probes HTTP/TCP reachability, and exports synthetic health metrics to Prometheus.\n"
                     "• **Datadog & APM Integration**: Configured cluster-wide Datadog agents and OpenTelemetry sidecars to correlate ingress latency with microservice application traces.\n"
                     "• **Actionable SLO Alerting**: Built high-signal alerts in PagerDuty and Slack based on multi-window burn rates, eliminating alarm fatigue for platform and product engineers.\n\n"
                     "Would you like to dive deeper into the zero-downtime migration process or the ArgoCD GitOps architecture?"
+                )
+            elif matches_topic(q_lower, ["security", "mtls", "mesh", "networking", "cert", "acm", "envoy"]):
+                return (
+                    "Here are deeper architectural details on Brandon's **zero-trust security and service mesh architecture**:\n\n"
+                    "• **Automated mTLS & ACM Certificate Rotation**: Deployed Envoy sidecar proxies across Kubernetes pods with AWS App Mesh, "
+                    "enforcing cryptographically verified mutual TLS (mTLS) with automated zero-downtime certificate rotation via AWS Certificate Manager (ACM).\n"
+                    "• **Network Isolation & Ingress Security**: Hardened Kubernetes network topologies using strict security groups, PrivateLink endpoints, "
+                    "and dynamic Ingress rate limiting and TLS termination.\n"
+                    "• **Distributed Tracing & Auditing**: Configured Envoy proxies to inject and propagate distributed tracing context (OpenTelemetry/W3C) "
+                    "for granular audit logs and traffic path analysis across microservices.\n\n"
+                    "Would you like to explore the zero-downtime migration cutover or the ArgoCD GitOps pipeline?"
                 )
             return (
                 "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
@@ -187,21 +265,6 @@ def synthesize_conversational_response(
                 "• **Storage & Database Optimization**: Right-sized over-provisioned Aurora RDS instances, converted gp2 EBS volumes to gp3, and instituted automated S3 lifecycle tiering.\n"
                 "• **Serverless FinOps Portfolio**: Architected this portfolio platform on Cloud Run and Firebase Hosting with scale-to-zero compute, costing $0/month while idle."
             )
-        elif raw_sources:
-            # Filter out personal chunk if not a personal query
-            valid_sources = [
-                s for s in raw_sources
-                if s.get("id") != "chunk-personal-profile" or any(kw in q_lower for kw in PERSONAL_TOPIC_KEYWORDS)
-            ]
-            if valid_sources:
-                top_hit = valid_sources[0]
-                title = top_hit.get("title", "").replace("Experience: ", "").replace("Project: ", "").replace("Skills: ", "")
-                content = clean_text(top_hit.get("content", ""))
-                return (
-                    f"Continuing with deeper details on **{title}**:\n\n"
-                    f"{content}\n\n"
-                    "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
-                )
 
     # 1. Greetings & Warm-ups
     if re.search(r"^(hi+|hello+|hey+|howdy+|sup+|greetings)\b", q_lower):

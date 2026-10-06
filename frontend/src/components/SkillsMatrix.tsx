@@ -69,8 +69,10 @@ const SKILL_GROUPS: SkillCategory[] = [
   {
     name: "Observability, SRE & Reliability",
     skills: [
-      { name: "Prometheus & Exporters", proficiency: "Expert", context: "Custom Go exporters, synthetic ingress probing, PromQL alerting rules, Grafana." },
+      { name: "Prometheus & Exporters", proficiency: "Expert", context: "Custom Go exporters, synthetic ingress probing, PromQL alerting rules, metric aggregations." },
       { name: "Datadog", proficiency: "Expert", context: "APM tracing, log management, synthetics, Terraform Datadog automation." },
+      { name: "Grafana", proficiency: "Expert", context: "Custom dashboards, dashboard-as-code provisioning, LogQL/PromQL visualizations, and multi-datasource alerting." },
+      { name: "OpenTelemetry (OTel)", proficiency: "Expert", context: "Distributed trace context propagation (W3C traceparent), OTel collector pipelines, and span creation for microservices." },
       { name: "SRE & Incident Management", proficiency: "Expert", context: "SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership." }
     ]
   },

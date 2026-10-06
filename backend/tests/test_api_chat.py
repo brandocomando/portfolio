@@ -675,6 +675,57 @@ async def test_chat_stream_personal_hobby_hiking_camping():
         assert "Camping" in streamed
 
 
+@pytest.mark.asyncio
+async def test_chat_stream_verification_keyless_cloud_auth_oidc():
+    """Verify specific claim challenge 'did he really do this? Keyless Cloud Auth...' directly confirms and explains OIDC."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        query = "did he really do this? Keyless Cloud Auth (OIDC / WIF): Eliminated static credentials across CI runners by implementing Workload Identity Federation between GitHub Actions, AWS, and GCP."
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": query})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Yes, Brandon really did this!" in streamed
+        assert "Workload Identity Federation" in streamed
+        assert "OpenID Connect" in streamed or "OIDC" in streamed
+        # Ensure it does NOT dump unrelated broad CI/CD bullets
+        assert "Enterprise Migration from Scratch (100+ Repos)" not in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_verification_bitbucket_migration():
+    """Verify claim challenge 'did he really migrate 100+ repos from bitbucket' directly confirms and explains Bitbucket migration."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        query = "did he really migrate 100+ repos from bitbucket to github?"
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": query})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Yes, Brandon really did this!" in streamed
+        assert "Bitbucket" in streamed
+        assert "GitHub Actions" in streamed
+
+
+@pytest.mark.asyncio
+async def test_chat_stream_keyless_cloud_auth_direct():
+    """Verify direct inquiry about keyless cloud auth returns focused OIDC/WIF architecture."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        rate_limiter._buckets.clear()
+        query = "How does keyless cloud auth work in his CI/CD setup?"
+        resp = await ac.post("/api/v1/chat/stream", json={"messages": [], "question": query})
+        assert resp.status_code == 200
+        streamed = extract_streamed_text(resp.text)
+        assert "I don't know—maybe you should ask him!" not in streamed
+        assert "Workload Identity Federation" in streamed
+        assert "OIDC" in streamed
+        assert "Enterprise Migration from Scratch" not in streamed
+
+
+
 
 
 

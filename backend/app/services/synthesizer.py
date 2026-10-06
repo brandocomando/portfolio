@@ -358,6 +358,12 @@ def synthesize_conversational_response(
         )
 
     # 6. Core Technical Topics
+    # Verification & Achievement Validation Engine ("did he really do this?", "did he actually build...", "is this true?")
+    is_verification = bool(re.search(
+        r"\b(?:did\s+he\s+(?:really|actually)|did\s+brandon\s+(?:really|actually)|is\s+(?:this|that|it)\s+(?:true|real|accurate)|really\s+do\s+this|actually\s+do\s+this|has\s+he\s+actually)\b",
+        q_lower
+    ))
+
     # Upstream Forks / External Projects (FirstMate & WezTerm Agent Deck)
     if any(w in q_lower for w in ["firstmate", "first mate", "agent deck", "agentdeck", "wezterm agent deck"]):
         return (
@@ -561,6 +567,49 @@ def synthesize_conversational_response(
             "Would you like to know more about his pipeline architectures, automated testing gates, or runner scaling?"
         )
 
+    # Keyless Cloud Auth & Workload Identity Federation (OIDC / WIF)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:keyless\s+(?:cloud\s+)?auth(?:entication)?|oidc|wif|workload\s+identity\s+federation)\b",
+        r"\b(?:eliminat\w*|remov\w*|replac\w*)\s+static\s+(?:credentials?|keys?|secrets?)\b",
+        r"\bstatic\s+credentials?\b",
+    ]):
+        confirm = "**Yes, Brandon really did this!** In fact, eliminating static credentials was one of his highest-impact security and platform initiatives.\n\n" if is_verification else ""
+        return (
+            f"{confirm}"
+            "As Principal Infrastructure / DevOps Lead, Brandon eliminated all long-lived static credentials across CI runners "
+            "by implementing **Workload Identity Federation (WIF)** and **OpenID Connect (OIDC)** keyless authentication between "
+            "GitHub Actions and cloud providers (both AWS and GCP).\n\n"
+            "**How he architected it:**\n"
+            "• **Ephemeral Token Exchange**: When a GitHub Actions workflow executes, the runner requests a short-lived OIDC JSON Web Token (JWT) signed by GitHub's certificate authority.\n"
+            "• **Direct Cloud Trust**: Cloud IAM (AWS STS `AssumeRoleWithWebIdentity` and GCP Workload Identity Pools) cryptographically validates the JWT against GitHub's issuer URL and audience, exchanging it for temporary, scoped cloud credentials that automatically expire in minutes.\n"
+            "• **Strict Least-Privilege Scoping**: IAM policies and role trust boundaries are locked down to specific GitHub repositories, branches (e.g., `main`), or deployment environments—preventing unauthorized forks or pull requests from assuming roles.\n"
+            "• **Zero Static Keys**: Completely eliminated AWS Access Keys (`AKIA...`) and GCP Service Account JSON keys from CI runners and repository secrets, removing the primary attack vector for credential leaks.\n"
+            "• **100% Codified via Terraform**: All IAM trust policies, WIF pools, and provider bindings were deployed declaratively via Terraform across all cloud accounts.\n\n"
+            "He also applied this exact same architecture to this portfolio—deploying Cloud Run and Firebase from GitHub Actions with zero static keys.\n\n"
+            "Would you like to know more about how he structured the IAM trust policies or the Terraform automation?"
+        )
+
+    # Enterprise Bitbucket to GitHub Migration (100+ Repos)
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:migrat\w*|move\w*)\s+(?:from\s+)?bitbucket\b",
+        r"\bbitbucket\s+(?:to\s+github|migration)\b",
+        r"\b100\+\s+(?:repos|repositories)\b",
+        r"\b100\s+(?:repos|repositories)\b",
+    ]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
+        return (
+            f"{confirm}"
+            "As Principal Infrastructure / DevOps Lead, Brandon led the enterprise-wide migration of over 100 repositories "
+            "from legacy Bitbucket to GitHub and GitHub Actions completely from scratch.\n\n"
+            "Key engineering achievements during this migration:\n"
+            "• **Standardized Reusable Workflows**: Designed central, modular GitHub Actions workflows for linting, container builds, "
+            "and security scanning (Trivy/Snyk) across all engineering squads.\n"
+            "• **Autoscaling Linux Runners**: Orchestrated high-performance self-hosted Linux runners to absorb hundreds of concurrent CI job spikes, "
+            "driving build reliability to 99.8% and cutting queue times to near-zero.\n"
+            "• **Keyless Security & GitOps**: Embedded Workload Identity Federation (WIF/OIDC) and connected CI to ArgoCD for continuous delivery into Kubernetes.\n\n"
+            "Would you like to know more about his reusable workflow design or how he managed team onboarding?"
+        )
+
     # CI/CD & Pipeline Engineering
     if any(re.search(pat, q_lower) for pat in [
         r"\bci[\s\-_/]*cd\b",
@@ -575,20 +624,18 @@ def synthesize_conversational_response(
         r"\btekton\b",
         r"\bspinnaker\b",
     ]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
-            "Brandon has deep, battle-tested expertise in **CI/CD and pipeline engineering**, including architecting "
-            "enterprise pipelines completely from scratch.\n\n"
-            "Key milestones and architectural patterns include:\n"
-            "• **Enterprise Migration from Scratch (100+ Repos)**: As Principal Infrastructure / DevOps Lead, he led the enterprise-wide "
-            "migration of over 100 repositories from Bitbucket to GitHub and GitHub Actions. He engineered standardized, reusable "
-            "workflow templates, automated linting, container build pipelines, and security scanning (Trivy/Snyk) across thousands of concurrent Linux runners, boosting build reliability to 99.8%.\n"
-            "• **Keyless Cloud Security (OIDC / WIF)**: Eliminated static, long-lived cloud credentials across CI runners by implementing "
-            "Workload Identity Federation (WIF) and OIDC keyless authentication between GitHub Actions and cloud providers (GCP & AWS).\n"
-            "• **Declarative GitOps Delivery**: Paired CI with ArgoCD for continuous delivery into Kubernetes (EKS/GKE), enabling automated canary "
-            "rollouts, dynamic horizontal pod autoscaling, and reducing deployment lead times from hours to under 10 minutes.\n"
-            "• **MLOps Quality Gates**: Built continuous offline evaluation pipelines running LLM-as-a-judge tests in CI to benchmark retrieval context recall, "
-            "MRR, and answer faithfulness before promoting model or retrieval changes.\n\n"
-            "Would you like to know more about his reusable workflow design, runner scaling, or GitOps deployment strategies?"
+            f"{confirm}"
+            "Brandon has deep, battle-tested expertise in **CI/CD and pipeline engineering**, having architected enterprise-scale "
+            "delivery platforms completely from scratch.\n\n"
+            "As Principal Infrastructure Lead, he migrated over 100 repositories from Bitbucket to GitHub Actions, engineering reusable "
+            "modular workflow templates, automated linting, container builds, and security scanning (Trivy/Snyk) across thousands of concurrent "
+            "Linux runners with 99.8% build reliability.\n\n"
+            "To harden security, he eliminated static cloud credentials across runners by implementing keyless Workload Identity Federation (OIDC) "
+            "with AWS and GCP. He then paired continuous integration with ArgoCD GitOps for automated, declarative deployments to Kubernetes, "
+            "reducing release lead times from hours to under 10 minutes.\n\n"
+            "Would you like to know more about his reusable workflow templates, runner autoscaling, or GitOps deployment strategies?"
         )
 
     # Cloud Providers: Azure, Oracle Cloud (OCI) & Multi-Cloud
@@ -615,7 +662,9 @@ def synthesize_conversational_response(
 
     # Kubernetes & GitOps
     if any(w in q_lower for w in ["kubernetes", "eks", "k8s", "argocd", "gitops"]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
+            f"{confirm}"
             "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption.\n\n"
             "As Lead Platform Engineer, he architected and led the zero-downtime migration of over 30 mission-critical microservices "
             "from legacy AWS ECS to Amazon EKS. To streamline delivery, he introduced ArgoCD for declarative GitOps, which slashed "
@@ -629,7 +678,9 @@ def synthesize_conversational_response(
 
     # Terraform & Infrastructure as Code
     if any(w in q_lower for w in ["terraform", "opentofu", "iac"]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
+            f"{confirm}"
             "Terraform is one of Brandon's strongest core skills. He designed and maintained a centralized Terraform module platform "
             "used by over 20 engineering squads across AWS, GCP, Datadog, Snowflake, and Confluent Cloud.\n\n"
             "Beyond authoring standard reusable modules, he's built custom native Terraform providers in Go (like `terraform-provider-neo4j`) "
@@ -641,7 +692,9 @@ def synthesize_conversational_response(
 
     # Kafka & Event Streaming
     if any(w in q_lower for w in ["kafka", "confluent", "streaming", "msk"]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
+            f"{confirm}"
             "Brandon has deep enterprise experience with Apache Kafka and Confluent Cloud. As a Staff Data Infrastructure Engineer, "
             "he led the strategic migration of 40+ microservices from self-hosted AWS MSK to Confluent Cloud—achieving zero customer downtime "
             "and zero message loss throughout the entire cutover.\n\n"
@@ -652,7 +705,9 @@ def synthesize_conversational_response(
 
     # FinOps & Cloud Cost Optimization
     if any(w in q_lower for w in ["cost", "finops", "save", "saving", "spend", "budget"]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
+            f"{confirm}"
             "Brandon led cloud infrastructure cost rationalization initiatives that eliminated over **$10,000/month** in cloud waste "
             "across enterprise AWS environments!\n\n"
             "The biggest win came from revamping Kubernetes compute: by implementing Karpenter dynamic autoscaling and Spot instance fleets, "
@@ -664,7 +719,9 @@ def synthesize_conversational_response(
 
     # AWS App Mesh & Service Mesh
     if any(w in q_lower for w in ["service mesh", "app mesh", "mtls", "envoy"]):
+        confirm = "**Yes, Brandon really did this!** " if is_verification else ""
         return (
+            f"{confirm}"
             "Brandon architected zero-trust service mesh security across Kubernetes using AWS App Mesh and Envoy proxy.\n\n"
             "He enforced end-to-end mutual TLS (mTLS) encryption for all inter-service communication with automated certificate "
             "rotation via AWS Certificate Manager (ACM). He also configured fine-grained traffic routing, circuit breakers, and distributed "
@@ -830,7 +887,9 @@ def synthesize_conversational_response(
         raw_lines = content.split("\n")
         detail_lines = []
         is_personal_chunk = (top_hit.get("id") == "chunk-personal-profile")
-        if is_personal_chunk:
+        if is_verification:
+            intro = f"**Yes, Brandon really did this!** In his work with **{title}**, he directly engineered this initiative in production.\n\n"
+        elif is_personal_chunk:
             intro = "Regarding Brandon's background and personal preferences:\n\n"
         else:
             intro = f"In his work with **{title}**, Brandon has extensive hands-on experience.\n\n"
@@ -873,7 +932,8 @@ def synthesize_conversational_response(
                 selected_lines = matching_lines[:3]
             else:
                 selected_lines = (matching_lines + other_lines)[:3]
-            response += "Key highlights include:\n" + "\n".join(selected_lines) + "\n\n"
+            lead_in = "Specifically, here is how he implemented it in production:\n" if is_verification else "Key highlights include:\n"
+            response += lead_in + "\n".join(selected_lines) + "\n\n"
         response += "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
         return response
 

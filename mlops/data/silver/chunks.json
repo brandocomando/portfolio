@@ -517,10 +517,11 @@
     "id": "chunk-skills-observability,-sre-and-reliability",
     "title": "Skills: Observability, SRE & Reliability",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: OBSERVABILITY, SRE & RELIABILITY]\nSkills and Production Proof-Points:\n  \u2022 Prometheus & Exporters (Expert): Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards.\n  \u2022 Datadog (Expert): APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation.\n  \u2022 OpenTelemetry (OTel) (Proficient): Distributed trace context propagation (W3C traceparent), span creation for microservices and AI retrieval latency.\n  \u2022 SRE Practices & Incident Management (Expert): SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership.\n  \u2022 High Availability & Disaster Recovery (HA/DR) (Expert): Multi-region failover, circuit breakers, graceful degradation, chaos engineering principles.",
+    "content": "[TECHNICAL SKILLS: OBSERVABILITY, SRE & RELIABILITY]\nSkills and Production Proof-Points:\n  \u2022 Prometheus & Exporters (Expert): Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards.\n  \u2022 Datadog (Expert): APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation.\n  \u2022 Grafana (Expert): Custom operational dashboards, dashboard-as-code provisioning, LogQL/PromQL visualizations, alerting rules, and multi-datasource integration.\n  \u2022 OpenTelemetry (OTel) (Expert): Distributed trace context propagation (W3C traceparent), OTel collector pipelines, span creation for microservices and AI retrieval latency.\n  \u2022 SRE Practices & Incident Management (Expert): SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership.\n  \u2022 High Availability & Disaster Recovery (HA/DR) (Expert): Multi-region failover, circuit breakers, graceful degradation, chaos engineering principles.",
     "tags": [
       "prometheus & exporters",
       "datadog",
+      "grafana",
       "opentelemetry (otel)",
       "sre practices & incident management",
       "high availability & disaster recovery (ha/dr)",
@@ -528,10 +529,10 @@
       "observability, sre & reliability"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 198,
+    "token_estimate": 245,
     "metadata": {
       "category_name": "Observability, SRE & Reliability",
-      "skills_count": 5
+      "skills_count": 6
     }
   },
   {

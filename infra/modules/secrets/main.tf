@@ -38,3 +38,23 @@ resource "google_secret_manager_secret" "smtp_password" {
     auto {}
   }
 }
+
+# Optional notification email secret (contact-form destination).
+# Terraform only creates the secret container; add the value out-of-band so it never lands in state:
+#   printf '%s' "$NOTIFICATION_EMAIL_TO" | gcloud secrets versions add <secret_id> --data-file=-
+resource "google_secret_manager_secret" "notification_email" {
+  count     = var.notification_email_secret_id != "" ? 1 : 0
+  project   = var.project_id
+  secret_id = var.notification_email_secret_id
+
+  labels = {
+    environment = var.environment
+    managed_by  = "terraform"
+    repository  = "portfolio"
+  }
+
+  replication {
+    auto {}
+  }
+}
+

@@ -8,7 +8,7 @@ version: '3'
 env:
   PYTHONPATH: .
   ENV: development
-  PATH: '/home/brandon/.nvm/versions/node/v20.20.2/bin:{{env "PATH"}}'
+  PATH: '{{if env "NVM_BIN"}}{{env "NVM_BIN"}}:{{end}}{{env "PATH"}}'
 
 vars:
   PYTHON: '{{.PYTHON | default ".venv/bin/python"}}'
@@ -43,7 +43,7 @@ tasks:
     dir: frontend
     cmds:
       - echo "Starting Vite frontend on http://localhost:5173..."
-      - PATH="/home/brandon/.nvm/versions/node/v20.20.2/bin:$PATH" npm run dev
+      - npm run dev
 
   dev:docker:
     desc: Run containerized backend locally with Docker Compose
@@ -67,7 +67,7 @@ tasks:
     desc: Typecheck and validate React frontend
     dir: frontend
     cmds:
-      - PATH="/home/brandon/.nvm/versions/node/v20.20.2/bin:$PATH" npm run build
+      - npm run build
 
   test:all:
     desc: Run both backend tests and frontend typechecks
@@ -101,7 +101,7 @@ tasks:
     desc: Build optimized production bundle for Firebase Hosting CDN
     dir: frontend
     cmds:
-      - PATH="/home/brandon/.nvm/versions/node/v20.20.2/bin:$PATH" npm run build
+      - npm run build
 
   build:docker:
     desc: Build minimal distroless production container for Cloud Run

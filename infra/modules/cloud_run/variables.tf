@@ -51,6 +51,12 @@ variable "lead_webhook_secret_id" {
   default     = ""
 }
 
+variable "notification_email_secret_id" {
+  description = "Optional Secret Manager secret ID containing the notification email recipient"
+  type        = string
+  default     = ""
+}
+
 variable "smtp_host" {
   description = "Optional SMTP Host (e.g. smtp.gmail.com)"
   type        = string

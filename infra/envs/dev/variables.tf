@@ -45,3 +45,10 @@ variable "smtp_password_secret_id" {
   type        = string
   default     = ""
 }
+
+variable "notification_email_secret_id" {
+  description = "Secret Manager secret ID holding the notification email recipient (e.g. notification-email). Empty disables it."
+  type        = string
+  default     = ""
+}
+

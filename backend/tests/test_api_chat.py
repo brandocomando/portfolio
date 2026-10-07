@@ -4,7 +4,9 @@ import json
 import pytest
 from httpx import AsyncClient, ASGITransport
 from backend.app.main import app
+from backend.app.core.config import settings
 from backend.app.core.rate_limiter import rate_limiter
+
 
 
 @pytest.fixture(autouse=True)
@@ -188,7 +190,8 @@ async def test_personal_questions_deflection_and_privacy():
             # Must mention Contact Page or redirect
             assert "Contact Page" in streamed or "#contact" in streamed
             # Zero personal contact info leaked
-            assert "brandocomando8@gmail.com" not in streamed
+            if settings.NOTIFICATION_EMAIL_TO:
+                assert settings.NOTIFICATION_EMAIL_TO not in streamed
             assert "gmail.com" not in streamed
 
 

@@ -507,6 +507,17 @@ def synthesize_conversational_response(
             "Are you looking to build or mature an Internal Developer Platform for your engineering teams?"
         )
 
+    # Streamlit & Customer Support Internal Tooling
+    if re.search(r"\bstreamlit\b|\bcustomer\s+(?:support|service)\b", q_lower):
+        return (
+            "Yes! Brandon engineered an internal **Streamlit** self-service web application used by customer service teams to diagnose and resolve common customer issues quickly.\n\n"
+            "Key engineering and architectural highlights:\n"
+            "• **Faster Issue Resolution**: Streamlined troubleshooting workflows into an intuitive self-service portal, drastically reducing time-to-resolution for customer-facing support tickets.\n"
+            "• **Least-Privilege Security Posture**: Enforced strict role-based access controls (RBAC) so support representatives could safely remediate issues via audited APIs without granting them direct access to production databases or underlying infrastructure.\n"
+            "• **Standardized Remediation Playbooks**: Replaced manual, error-prone database queries with validated, automated resolution workflows.\n\n"
+            "Would you like to explore his other internal developer platform tooling or Python backend services?"
+        )
+
     # Distributed NoSQL: Cassandra & Aerospike
     if re.search(r"\bcassandra\b|\baerospike\b", q_lower):
         return (

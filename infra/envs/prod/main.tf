@@ -31,9 +31,10 @@ module "cloud_run" {
   firebase_project_id = var.firebase_project_id != "" ? var.firebase_project_id : var.project_id
 
   # Contact-form SMTP forwarding (password injected from Secret Manager, never stored in Terraform)
-  smtp_host               = var.smtp_host
-  smtp_user               = var.smtp_user
-  smtp_password_secret_id = var.smtp_password_secret_id
+  smtp_host                    = var.smtp_host
+  smtp_user                    = var.smtp_user
+  smtp_password_secret_id      = var.smtp_password_secret_id
+  notification_email_secret_id = var.notification_email_secret_id
 
   depends_on = [module.apis]
 }
@@ -62,7 +63,8 @@ module "secrets" {
   environment        = var.environment
   cloud_run_sa_email = module.cloud_run.service_account_email
 
-  smtp_password_secret_id = var.smtp_password_secret_id
+  smtp_password_secret_id      = var.smtp_password_secret_id
+  notification_email_secret_id = var.notification_email_secret_id
 
   depends_on = [module.apis]
 }

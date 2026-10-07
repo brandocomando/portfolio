@@ -53,7 +53,7 @@ projects:
     category: "platform_engineering"
     tagline: "Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access."
     summary: >
-      Developed a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources,
+      Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources,
       user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.
     highlights:
       - "Implemented Terraform Plugin SDK v2 / Plugin Framework specifications"

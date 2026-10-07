@@ -43,18 +43,30 @@
                      │  └──────────────────────────────────────────────────┘  │
                      │                                                        │
                      │  ┌──────────────────────────────────────────────────┐  │
-                     │  │ Recruiter Lead Capture Service                  │  │
-                     │  │  • Cryptographic Firebase JWT verification       │  │
-                     │  │  • Stores visitor info & question logs in        │  │
-                     │  │    Google Cloud Firestore (Free Tier: 20k/day)  │  │
-                     │  │  • Optional real-time Discord / Slack Webhook    │  │
+                     │  │ System-1 Fast-Path Router (<5ms, 0 Token Cost)   │  │
+                     │  │  • Deterministic personal profile facts & trivia │  │
+                     │  │  • Anti-hijacking & script generator deflection  │  │
+                     │  │  • Strict PII & personal contact privacy guard   │  │
                      │  └──────────────────────────────────────────────────┘  │
                      │                                                        │
                      │  ┌──────────────────────────────────────────────────┐  │
-                     │  │ Hybrid Retrieval Engine (BM25 + Dense RRF)       │  │
-                     │  │  • Sub-2ms in-memory retrieval from Gold bundle  │  │
-                     │  │  • Reciprocal Rank Fusion (RRF k=60)             │  │
-                     │  │  • Gemini 2.0 Flash Streaming Token Client       │  │
+                     │  │ Hybrid Retrieval & Relevance Gate (BM25 + Dense) │  │
+                     │  │  • In-memory relevance check (dense < 0.135 gate)│  │
+                     │  │  • Contextual query synthesis & de-pollution     │  │
+                     │  │  • Sub-2ms in-memory Gold bundle retrieval       │  │
+                     │  └──────────────────────────────────────────────────┘  │
+                     │                                                        │
+                     │  ┌──────────────────────────────────────────────────┐  │
+                     │  │ System-2 Gemini 2.5 Flash Streaming              │  │
+                     │  │  • Asynchronous SDK streaming over HTTP/2 SSE    │  │
+                     │  │  • 12-turn history normalization & ground check  │  │
+                     │  └──────────────────────────────────────────────────┘  │
+                     │                                                        │
+                     │  ┌──────────────────────────────────────────────────┐  │
+                     │  │ Multi-Channel Recruiter Lead & Contact Service   │  │
+                     │  │  • Firestore lead & conversation capture         │  │
+                     │  │  • Discord / Slack webhooks + Secret Manager     │  │
+                     │  │  • Authenticated TLS SMTP & Resend API alerts    │  │
                      │  └──────────────────────────────────────────────────┘  │
                      └─────────────────────────▲──────────────────────────────┘
                                                │
@@ -109,10 +121,15 @@
   $$\text{User Prompt} \longrightarrow \text{GuardrailNode} \longrightarrow \text{HybridRetrieverNode} \longrightarrow \text{ReasoningNode} \longrightarrow \text{SynthesisNode}$$
 * **Deterministic Guardrails:** Rejects prompt injection and jailbreak attempts at the graph entrance, saving 100% of LLM API and compute costs on adversarial queries.
 
-### 6. Platform Engineering & Security
+### 6. FinOps AI: Dual-Process Cognitive Architecture (System-1 & System-2)
+* **System-1 Fast-Path Routing (<5ms, 0 Gemini Tokens):** Directly answers approved personal profile facts (`personal.yaml`), intercepts prompt injections, and deflects off-topic trivia and LeetCode/script generator requests before vector retrieval or LLM execution.
+* **System-1 In-Memory Relevance Gate:** Computes hybrid retrieval signatures (`has_bm25 == False` and dense cosine similarity $< 0.135$) to deflect out-of-domain queries without invoking external generative models.
+* **Context Continuity & Query De-Pollution:** Isolates multi-choice topic follow-ups (e.g. *"terraform setup"* or *"the process"*) from previous assistant narrative, preventing keyword poisoning across multi-turn dialogue.
+
+### 7. Platform Engineering & Security
 * **FinOps Scale-to-Zero:** Cloud Run container scales to 0 instances when idle, taking advantage of GCP's free tier (2M requests, 360k vCPU-seconds/mo).
 * **Workload Identity Federation (WIF):** 100% keyless CI/CD. GitHub Actions exchanges ephemeral OIDC JWT tokens with GCP STS—**zero long-lived service account keys stored in GitHub Secrets**.
-* **Lead Capture & Anti-Abuse:** Multi-tier token bucket rate limiting (5 queries/day for anonymous visitors by IP; 30 queries/day for authenticated users via Firebase Auth), logging recruiter interactions in Firestore.
+* **Lead Capture & Multi-Channel Alerting:** Multi-tier token bucket rate limiting (5 queries/day for anonymous visitors by IP; 30 queries/day for authenticated users via Firebase Auth) with multi-channel forwarding across Firestore, Discord/Slack webhooks, authenticated TLS SMTP, and Resend.
 
 ---
 
@@ -124,13 +141,15 @@ Key engineering trade-offs and rationale are formally documented in [`docs/adr/`
 | :--- | :--- | :--- |
 | [**ADR-001**](docs/adr/ADR-001-serverless-cloud-run-vs-gke.md) | Serverless Cloud Run vs GKE | Selected Cloud Run scale-to-zero to avoid GKE's \$74.40/mo cluster fee while preserving container portability. |
 | [**ADR-002**](docs/adr/ADR-002-medallion-lakehouse-architecture.md) | Medallion Lakehouse Architecture | Implemented Bronze/Silver/Gold pipeline with Pydantic contracts for deterministic, replayable indexing. |
-| [**ADR-003**](docs/adr/ADR-003-hybrid-search-dense-bm25-rrf.md) | Hybrid Search (Dense + BM25 + RRF) | Combined semantic vector search with BM25 keyword matching to solve exact technical acronym retrieval. |
+| [**ADR-003**](docs/adr/ADR-003-hybrid-search-dense-bm25-rrf.md) | Hybrid Search (Dense + BM25 + RRF) | Combined semantic vector search with BM25 keyword matching and dual-purpose relevance gating. |
 | [**ADR-004**](docs/adr/ADR-004-in-memory-artifact-vector-store.md) | In-Memory Vector Store vs Vector DB | Packaged index as an immutable artifact bundle yielding <2ms latency and \$0 idle cost. |
 | [**ADR-005**](docs/adr/ADR-005-workload-identity-federation.md) | Workload Identity Federation (WIF) | Replaced static service account keys with short-lived OIDC token exchanges for zero-trust CI/CD. |
 | [**ADR-006**](docs/adr/ADR-006-server-sent-events-streaming.md) | Server-Sent Events (SSE) Streaming | Used unidirectional SSE over HTTP/2 for low-latency token streaming without WebSocket state overhead. |
-| [**ADR-007**](docs/adr/ADR-007-tiered-rate-limiting-lead-capture.md) | Tiered Rate Limiting & Lead Capture | Enforced 5-query anonymous IP bucket and 30-query authenticated UID bucket with Firestore lead logging. |
+| [**ADR-007**](docs/adr/ADR-007-tiered-rate-limiting-lead-capture.md) | Tiered Rate Limiting & Lead Capture | Multi-tier rate limiting and multi-channel recruiter alerts (Firestore, Webhooks, TLS SMTP, Resend). |
 | [**ADR-008**](docs/adr/ADR-008-durable-execution-temporal-agent-workflows.md) | Durable Execution with Temporal | Orchestrated MLOps knowledge pipelines with retries, durable timers, and human-in-the-loop signals. |
 | [**ADR-009**](docs/adr/ADR-009-langgraph-stateful-multi-agent-reasoning.md) | LangGraph Multi-Agent Reasoning | Implemented stateful cyclic reasoning graph for complex multi-hop queries and input guardrails. |
+| [**ADR-010**](docs/adr/ADR-010-dual-process-cognitive-architecture.md) | Dual-Process Cognitive Architecture | Sub-5ms System-1 routing & hybrid relevance gating to protect Gemini token quotas and FinOps budget. |
+| [**ADR-011**](docs/adr/ADR-011-conversational-context-continuity.md) | Context Continuity & Query De-Pollution | Isolated search query synthesis and turn normalization to maintain multi-turn context without drift. |
 
 
 ---
@@ -147,9 +166,9 @@ portfolio/
 │       ├── backend-ci-cd.yml     # Pytest, multi-stage Docker build, push & Cloud Run deploy
 │       └── frontend-ci-cd.yml    # TypeScript typecheck, Vite build & Firebase Hosting deploy
 ├── docs/
-│   └── adr/                      # Formal Architecture Decision Records (ADR-001 to ADR-007)
+│   └── adr/                      # Formal Architecture Decision Records (ADR-001 to ADR-011)
 ├── mlops/                        # Data Platform & Continuous Evaluation
-│   ├── raw_profile/              # Source YAML data (bio, experience, projects, skills)
+│   ├── raw_profile/              # Source YAML data (bio, experience, personal, projects, skills)
 │   ├── data/
 │   │   ├── bronze/               # Raw immutable JSON payloads + GitHub API metadata
 │   │   ├── silver/               # Schema-validated, chunked data contracts
@@ -160,19 +179,23 @@ portfolio/
 │   ├── app/
 │   │   ├── api/v1/               # Streaming SSE chat, lead quota, and health endpoints
 │   │   ├── core/                 # Config, security (Firebase JWT), rate limiter, telemetry
-│   │   └── services/             # Gemini 2.0 Flash client, hybrid retriever, Firestore logger
+│   │   └── services/             # Gemini 2.5 Flash, System-1 intent & relevance gating, retriever
 │   ├── Dockerfile                # Multi-stage, non-root, slim container
 │   └── tests/                    # Pytest unit & integration test suite
 ├── frontend/                     # Modern React 18/19 SPA
 │   ├── src/
-│   │   ├── components/           # Hero, Architecture, Timeline, Projects, Skills, AiChatDrawer
+│   │   ├── components/           # Hero, Architecture, Timeline, Projects, Skills, AiChatDrawer, ContactModal
 │   │   └── lib/                  # Firebase Auth & SSE streaming client
 │   └── vite.config.ts
 ├── infra/                        # 100% Terraform IaC
 │   ├── modules/                  # Modular components: apis, artifact_registry, cloud_run, iam_wif, firestore, secrets
 │   └── envs/prod/                # Production environment root configuration
 ├── scripts/
-│   └── bootstrap_gcp.sh          # One-command idempotent GCP project bootstrapper
+│   ├── bootstrap_gcp.sh          # One-command idempotent GCP project bootstrapper
+│   └── dev.sh                    # Full-stack hot-reloading dev orchestrator
+├── Taskfile.yml                  # Unified task runner for local dev, testing, and MLOps
+├── Makefile                      # Make wrapper aliases delegating to Taskfile
+├── docker-compose.yml            # Local containerized full-stack environment
 └── firebase.json                 # Firebase CDN edge proxy to Cloud Run backend
 ```
 
@@ -184,8 +207,29 @@ portfolio/
 * Python 3.10+
 * Node.js 20+
 * Terraform 1.5+
+* [Task](https://taskfile.dev) (`task`) or GNU Make (optional convenience runners)
 
-### 1. Run the MLOps Pipeline & Evaluation Gate
+### Unified Task Runner (Recommended)
+```bash
+# Launch full-stack environment with hot-reload (FastAPI :8080 + Vite :5173)
+task dev
+# or: make dev / ./scripts/dev.sh
+
+# Run all backend unit & integration tests and frontend typechecks
+task test:all
+# or: make test-all
+
+# Run Medallion data pipeline and golden dataset evaluation quality gate
+task mlops:pipeline
+task mlops:eval
+
+# Build production assets & distroless Cloud Run container
+task build
+```
+
+### Manual Component Execution
+
+#### 1. Run the MLOps Pipeline & Evaluation Gate
 ```bash
 # Set up virtual environment
 python3 -m venv .venv
@@ -199,7 +243,7 @@ python -m mlops.pipeline.run_pipeline --stage all
 python mlops/eval/evaluate_agent.py
 ```
 
-### 2. Run Backend Microservice & Tests
+#### 2. Run Backend Microservice & Tests
 ```bash
 # Run test suite
 pytest backend/tests/
@@ -209,7 +253,7 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8080 --reload
 ```
 Access interactive OpenAPI docs at `http://localhost:8080/docs`.
 
-### 3. Run Frontend SPA
+#### 3. Run Frontend SPA
 ```bash
 cd frontend
 npm install
@@ -234,14 +278,29 @@ This script automatically:
 3. Sets up Secret Manager for the Gemini API key.
 4. Generates `infra/envs/prod/terraform.tfvars`.
 
-### 2. Terraform Apply
+### 2. Optional: Configure Multi-Channel Contact Forwarding Secrets
+To enable real-time recruiter notifications to your inbox or Discord/Slack:
+```bash
+# Create secret for SMTP password (e.g. Gmail App Password)
+printf '%s' "your-smtp-app-password" | gcloud secrets create smtp-password --data-file=-
+
+# Optionally create secret for Resend API key
+printf '%s' "your-resend-api-key" | gcloud secrets create resend-api-key --data-file=-
+
+# Configure in infra/envs/prod/terraform.tfvars:
+# smtp_host               = "smtp.gmail.com"
+# smtp_user               = "you@gmail.com"
+# smtp_password_secret_id = "smtp-password"
+```
+
+### 3. Terraform Apply
 ```bash
 cd infra/envs/prod
 terraform init -backend-config="bucket=portfolio-terraform-state-<PROJECT_ID>"
 terraform apply
 ```
 
-### 3. Configure GitHub Secrets for Keyless CI/CD
+### 4. Configure GitHub Secrets for Keyless CI/CD
 In your GitHub Repository (`Settings` > `Secrets and variables` > `Actions`), add:
 * `GCP_PROJECT_ID`: Your GCP Project ID
 * `GCP_TF_STATE_BUCKET`: `portfolio-terraform-state-<PROJECT_ID>`

@@ -5,7 +5,45 @@ Uses Pydantic v2 BaseSettings to load environment variables from Cloud Run or lo
 
 from typing import List, Optional
 from pathlib import Path
+import logging
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
+
+
+def _fetch_gcp_secret(secret_id: str, project_id: Optional[str] = None) -> Optional[str]:
+    """Attempt to retrieve secret payload from GCP Secret Manager.
+
+    Returns None gracefully if Secret Manager client is unavailable, unauthenticated,
+    or the secret does not exist, allowing seamless fallback to .env or environment variables.
+    """
+    if not secret_id:
+        return None
+    try:
+        import os
+        from google.cloud import secretmanager
+
+        proj = project_id or os.getenv("GCP_PROJECT_ID") or os.getenv("GOOGLE_CLOUD_PROJECT")
+        if not proj:
+            try:
+                import google.auth
+                _, default_proj = google.auth.default()
+                proj = default_proj
+            except Exception:
+                pass
+
+        if not proj:
+            return None
+
+        client = secretmanager.SecretManagerServiceClient()
+        name = f"projects/{proj}/secrets/{secret_id}/versions/latest"
+        response = client.access_secret_version(request={"name": name})
+        val = response.payload.data.decode("UTF-8").strip()
+        return val if val else None
+    except Exception as exc:
+        logger.debug("GCP Secret Manager lookup skipped/failed for secret '%s': %s", secret_id, exc)
+        return None
 
 
 class Settings(BaseSettings):
@@ -42,7 +80,8 @@ class Settings(BaseSettings):
     FIRESTORE_COLLECTION_CONVERSATIONS: str = "portfolio_conversations"
 
     # Lead & Contact Alerts (Server-side notification configuration)
-    NOTIFICATION_EMAIL_TO: Optional[str] = "brandocomando8@gmail.com"
+    NOTIFICATION_EMAIL_TO: Optional[str] = None
+    NOTIFICATION_EMAIL_SECRET_ID: Optional[str] = "notification-email"
     LEAD_NOTIFICATION_WEBHOOK_URL: Optional[str] = None
     FIRESTORE_COLLECTION_CONTACT: str = "portfolio_contact_messages"
     SMTP_HOST: Optional[str] = None
@@ -63,5 +102,17 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+    @model_validator(mode="after")
+    def resolve_secrets(self) -> "Settings":
+        if not self.NOTIFICATION_EMAIL_TO and self.NOTIFICATION_EMAIL_SECRET_ID:
+            secret_val = _fetch_gcp_secret(
+                secret_id=self.NOTIFICATION_EMAIL_SECRET_ID,
+                project_id=self.GCP_PROJECT_ID
+            )
+            if secret_val:
+                self.NOTIFICATION_EMAIL_TO = secret_val
+        return self
+
 
 settings = Settings()
+

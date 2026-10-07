@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "experience.yaml",
-  "raw_hash": "c5fde0d1d9429b65d3b673c15229067da2eb7b4e7428e28ccf8daddaad21f318",
-  "ingested_at": "2026-10-06T21:31:48.926740Z",
+  "raw_hash": "2d58fb58f7cdb464fe75a7ca2b58620a6f362e115f5c6e2e7ded82cd33bc9fc7",
+  "ingested_at": "2026-10-07T16:27:24.730294Z",
   "payload": {
     "milestones": [
       {
@@ -14,7 +14,8 @@
         "impact_metrics": [
           "30+ microservices migrated with zero customer downtime",
           "Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)",
-          "Consolidated multi-account AWS and acquisition workloads into unified, secure architectures"
+          "Consolidated multi-account AWS and acquisition workloads into unified, secure architectures",
+          "Helped teams move from deploying weekly to hourly"
         ],
         "technologies": [
           "Kubernetes",
@@ -23,7 +24,8 @@
           "CKA (Previously Certified)",
           "Terraform",
           "Docker",
-          "Helm"
+          "Helm",
+          "Github Actions"
         ]
       },
       {
@@ -54,10 +56,11 @@
         "category": "platform_engineering",
         "title": "Enterprise Terraform Module Platform & Multi-Cloud Automation",
         "role": "Senior Platform Architect",
-        "summary": "Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails.\n",
+        "summary": "Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails. And enabled self service infrastructure tracked in the same git repo as the teams applications.\n",
         "impact_metrics": [
           "Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms",
           "Automated compliance and drift detection for hundreds of cloud resources",
+          "Enabled Self service infrastructure for development teams",
           "Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
         ],
         "technologies": [
@@ -68,7 +71,9 @@
           "Snowflake",
           "Confluent Cloud",
           "Databricks",
-          "Datadog"
+          "Datadog",
+          "Platform Engineering",
+          "Self Service"
         ]
       },
       {
@@ -76,11 +81,10 @@
         "category": "data_platform",
         "title": "Streaming Platform Modernization: AWS MSK to Confluent Cloud",
         "role": "Staff Data Infrastructure Engineer",
-        "summary": "Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, improving schema registry governance, and streamlining Terraform automation for event-driven microservices. Also operated high-throughput distributed NoSQL data stores including Aerospike and Apache Cassandra.\n",
+        "summary": "Led the strategic migration from self-managed AWS Managed Streaming for Kafka (MSK) to Confluent Cloud, reducing operational maintenance, and streamlining Terraform automation for event-driven microservices. Consolidated Kafka environments to just PreProd and Prod to save costs.\n",
         "impact_metrics": [
           "Eliminated broker patch downtime and storage rebalancing toil",
-          "Enforced Avro/Protobuf schema evolution governance across producers and consumers",
-          "Maintained sub-10ms latency for high-throughput distributed NoSQL data stores (Aerospike, Cassandra)"
+          "Cut cost of kafka spending by consolidating environments"
         ],
         "technologies": [
           "Apache Kafka",
@@ -89,7 +93,8 @@
           "Schema Registry",
           "Aerospike",
           "Apache Cassandra",
-          "Terraform"
+          "Terraform",
+          "FinOps"
         ]
       },
       {
@@ -97,15 +102,13 @@
         "category": "platform_engineering",
         "title": "Enterprise Cloud Security, DevSecOps & Compliance Audit Governance",
         "role": "Lead Platform & Infrastructure Security Engineer",
-        "summary": "Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, AWS Organizations SCPs, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\n",
+        "summary": "Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\n",
         "impact_metrics": [
           "Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards",
-          "Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines",
-          "Hardened multi-account AWS isolation separating production, staging, and development with Service Control Policies (SCPs)"
+          "Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines"
         ],
         "technologies": [
           "AWS IAM",
-          "AWS Organizations & SCPs",
           "Workload Identity / OIDC",
           "SOC 2 Type 2",
           "HIPAA",
@@ -120,10 +123,9 @@
         "category": "platform_engineering",
         "title": "Internal Developer Platform Tooling, Paved Roads & SRE Reliability",
         "role": "Staff Platform & Reliability Engineer",
-        "summary": "Spearheaded internal developer platform initiatives by designing opinionated paved roads and self-service automation in Go and Python. Built developer CLIs, standard service templates, Docker Compose local development stacks, and established SRE reliability standards including SLOs, automated runbooks, and blameless postmortems.\n",
+        "summary": "Spearheaded internal developer platform initiatives by designing opinionated paved roads and self-service automation in Go and Python. Built developer CLIs, standard service templates, Docker Compose local development stacks.\n",
         "impact_metrics": [
           "Reduced new service onboarding and developer provisioning time from days to under 2 hours via paved-road templates and CLIs",
-          "Established service-level objectives (SLOs) and blameless postmortem culture, cutting recurring operational toil by 40%",
           "Streamlined local developer workflows with containerized Docker Compose stacks replacing brittle shared preproduction environments"
         ],
         "technologies": [
@@ -171,6 +173,26 @@
           "Kubernetes Karpenter / Cluster Autoscaler",
           "Terraform",
           "Datadog FinOps"
+        ]
+      },
+      {
+        "id": "exp-customer-service-tooling",
+        "category": "platform_engineering",
+        "title": "Customer Support Automation & Streamlit Internal Tooling",
+        "role": "Senior Platform / DevOps Engineer",
+        "summary": "Engineered an internal Streamlit self-service web application used by customer service teams to diagnose and resolve common customer issues quickly. Enforced strict least-privilege access and role-based access control (RBAC), empowering support representatives to safely remediate issues through audited backend workflows without granting direct access to production databases or underlying systems.\n",
+        "impact_metrics": [
+          "Accelerated customer issue resolution times by streamlining common troubleshooting workflows into an intuitive self-service portal",
+          "Enforced least-privilege security posture by eliminating the need to grant customer service reps direct access to production systems",
+          "Standardized automated resolution workflows for recurring customer support failure modes"
+        ],
+        "technologies": [
+          "Python",
+          "Streamlit",
+          "Internal Developer Tooling",
+          "Least Privilege / RBAC",
+          "REST APIs",
+          "Docker"
         ]
       }
     ]

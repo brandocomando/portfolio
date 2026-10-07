@@ -75,6 +75,19 @@ const MILESTONES: Milestone[] = [
       "Enforced Avro/Protobuf schema evolution governance across producers and consumers"
     ],
     technologies: ["Apache Kafka", "Confluent Cloud", "AWS MSK", "Schema Registry", "Terraform"]
+  },
+  {
+    id: "exp-customer-service-tooling",
+    category: "Platform Engineering & Internal Tooling",
+    title: "Customer Support Automation & Streamlit Internal Tooling",
+    role: "Senior Platform / DevOps Engineer",
+    summary: "Engineered an internal Streamlit self-service application used by customer service teams to troubleshoot and resolve common customer issues quickly. Enforced strict least-privilege RBAC so representatives could safely remediate issues via audited APIs without granting direct production system access.",
+    impact_metrics: [
+      "Accelerated customer issue resolution times by streamlining common troubleshooting workflows into an intuitive self-service UI",
+      "Enforced least-privilege security posture by eliminating the need to grant customer service reps direct access to production systems",
+      "Standardized automated remediation playbooks for recurring customer support failure modes"
+    ],
+    technologies: ["Python", "Streamlit", "Internal Developer Tooling", "Least Privilege / RBAC", "REST APIs", "Docker"]
   }
 ];
 

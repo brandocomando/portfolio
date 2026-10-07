@@ -12,3 +12,9 @@ output "smtp_password_secret_id" {
   description = "The SMTP password secret ID (empty if not enabled)"
   value       = try(google_secret_manager_secret.smtp_password[0].secret_id, "")
 }
+
+output "notification_email_secret_id" {
+  description = "The notification recipient email secret ID (empty if not enabled)"
+  value       = try(google_secret_manager_secret.notification_email[0].secret_id, "")
+}
+

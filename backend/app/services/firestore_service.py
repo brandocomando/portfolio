@@ -146,7 +146,7 @@ class FirestoreLeadService:
                 logger.warning(f"Failed to send webhook contact alert: {e}")
 
         # 3. Forward via SMTP if configured
-        if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
+        if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD and settings.NOTIFICATION_EMAIL_TO:
             try:
                 import smtplib
                 from email.mime.text import MIMEText
@@ -177,7 +177,7 @@ class FirestoreLeadService:
                 logger.warning(f"Failed to send SMTP contact email: {e}")
 
         # 4. Forward via Resend API if configured
-        if settings.RESEND_API_KEY:
+        if settings.RESEND_API_KEY and settings.NOTIFICATION_EMAIL_TO:
             try:
                 resend_payload = {
                     "from": settings.SMTP_FROM or "Portfolio Contact <onboarding@resend.dev>",
@@ -205,7 +205,7 @@ class FirestoreLeadService:
 
         # 5. Log high-visibility notification for server logs
         logger.info(
-            f"📨 CONTACT MESSAGE FORWARDED: from='{email}' to='{settings.NOTIFICATION_EMAIL_TO}': {question[:80]}"
+            f"📨 CONTACT MESSAGE FORWARDED: from='{email}' to='{settings.NOTIFICATION_EMAIL_TO or 'none'}': {question[:80]}"
         )
         return True
 

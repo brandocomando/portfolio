@@ -96,14 +96,30 @@ else
     echo -e "${YELLOW}Secret 'gemini-api-key' already exists.${NC}"
 fi
 
+# 3b. Create Secret Manager placeholder for notification-email if not present
+echo -e "\n${CYAN}Step 3b: Checking notification-email secret in Secret Manager...${NC}"
+if ! gcloud secrets describe notification-email --quiet &>/dev/null; then
+    gcloud secrets create notification-email --replication-policy="automatic" --quiet
+    read -rp "Enter destination notification email for contact alerts (or press Enter to skip): " USER_NOTIF_EMAIL
+    if [ -n "$USER_NOTIF_EMAIL" ]; then
+        echo -n "$USER_NOTIF_EMAIL" | gcloud secrets versions add notification-email --data-file=- --quiet
+        echo -e "${GREEN}✓ Created Secret Manager secret 'notification-email'.${NC}"
+    else
+        echo -e "${YELLOW}Skipped setting notification email value; add later with: echo -n 'user@example.com' | gcloud secrets versions add notification-email --data-file=-${NC}"
+    fi
+else
+    echo -e "${YELLOW}Secret 'notification-email' already exists.${NC}"
+fi
+
 # 4. Generate local terraform.tfvars
 echo -e "\n${CYAN}Step 4: Generating infra/envs/prod/terraform.tfvars...${NC}"
 mkdir -p "${REPO_ROOT}/infra/envs/prod"
 cat <<EOF > "${REPO_ROOT}/infra/envs/prod/terraform.tfvars"
-project_id          = "${GCP_PROJECT_ID}"
-region              = "${REGION}"
-github_repository   = "${GITHUB_REPO}"
-firebase_project_id = "${GCP_PROJECT_ID}"
+project_id                   = "${GCP_PROJECT_ID}"
+region                       = "${REGION}"
+github_repository            = "${GITHUB_REPO}"
+firebase_project_id          = "${GCP_PROJECT_ID}"
+notification_email_secret_id = "notification-email"
 EOF
 echo -e "${GREEN}✓ Created infra/envs/prod/terraform.tfvars${NC}"
 

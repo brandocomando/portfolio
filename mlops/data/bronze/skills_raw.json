@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "skills.yaml",
-  "raw_hash": "8e155c7166db7dee7523cb06ac120880a4a4685254ec7b2e86a5611571247e15",
-  "ingested_at": "2026-10-06T21:31:48.892225Z",
+  "raw_hash": "6687bdbfd8b932373747aa657ddeddd47cb892b15323405b55ac697947d6db1c",
+  "ingested_at": "2026-10-07T16:27:24.699436Z",
   "payload": {
     "skill_categories": [
       {
@@ -10,13 +10,13 @@
         "skills": [
           {
             "name": "Go (Golang)",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Kubernetes controllers and operators (client-go), custom Terraform providers (Plugin SDK v2), Prometheus exporters, concurrent CLI daemons, goroutines/channels."
           },
           {
             "name": "Python",
             "proficiency": "Expert",
-            "context": "FastAPI, Pydantic v2 data validation, PyTorch, local LLM inference tooling, data pipelines, automated browser agents (CDP)."
+            "context": "FastAPI, Streamlit internal tooling, Pydantic v2 data validation, PyTorch, local LLM inference tooling, data pipelines, automated browser agents (CDP)."
           },
           {
             "name": "Bash / POSIX Shell",
@@ -25,12 +25,12 @@
           },
           {
             "name": "TypeScript / JavaScript",
-            "proficiency": "Proficient",
+            "proficiency": "Familiar",
             "context": "React 19, Vite, Node.js tooling, modern frontend applications, state management."
           },
           {
             "name": "SQL",
-            "proficiency": "Proficient",
+            "proficiency": "Familiar",
             "context": "PostgreSQL query tuning, Aurora RDS, Snowflake data warehouse modeling, analytical queries."
           },
           {
@@ -55,7 +55,7 @@
           },
           {
             "name": "Google Cloud Platform (GCP)",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Cloud Run, GKE, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage."
           },
           {
@@ -71,7 +71,7 @@
           {
             "name": "FinOps & Cloud Cost Optimization",
             "proficiency": "Expert",
-            "context": "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling, FOCUS open specification, saved $10K+/month."
+            "context": "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling,"
           }
         ]
       },
@@ -185,22 +185,22 @@
         "skills": [
           {
             "name": "Autonomous Agent Architectures",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation."
           },
           {
             "name": "RAG & Retrieval Systems",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering."
           },
           {
             "name": "MLOps Evaluation & Quality Gates",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets."
           },
           {
             "name": "Local LLM Inference",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings."
           },
           {
@@ -240,7 +240,7 @@
         "skills": [
           {
             "name": "Prometheus & Exporters",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards."
           },
           {
@@ -282,6 +282,11 @@
             "name": "Developer Tooling & CLIs",
             "proficiency": "Expert",
             "context": "Authoring high-performance developer CLIs, SDKs, and automation tooling in Go and Python."
+          },
+          {
+            "name": "Internal Tooling & Self-Service Portals (Streamlit)",
+            "proficiency": "Proficient",
+            "context": "Engineered secure Streamlit portals for customer support teams to resolve issues with least-privilege RBAC, avoiding direct system access."
           },
           {
             "name": "Developer Portals (Backstage / Port)",
@@ -349,17 +354,12 @@
             "context": "Just-in-time worker node provisioning, graceful Spot interruption handling, bin-packing optimization."
           },
           {
-            "name": "FOCUS Spec & Unit Economics",
-            "proficiency": "Expert",
-            "context": "FinOps Open Cost and Usage Specification, showback/chargeback tagging, Datadog FinOps dashboards."
-          },
-          {
             "name": "Scale-to-Zero Architectures",
-            "proficiency": "Expert",
+            "proficiency": "Proficient",
             "context": "Serverless Cloud Run concurrency tuning, multi-tier rate limiting, zero-idle cost GCP infrastructure."
           },
           {
-            "name": "Cloud Cost Rationalization ($10K+/mo)",
+            "name": "Cloud Cost Rationalization",
             "proficiency": "Expert",
             "context": "Compute rightsizing, data retention lifecycle policies, eliminated $10K+/mo in cloud infrastructure costs."
           }

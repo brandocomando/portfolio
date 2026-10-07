@@ -90,7 +90,11 @@ async def chat_stream(
         if not is_followup and not has_bm25 and len(raw_sources) > 0:
             top_dense = retrieval_service.retriever._dense_search(search_query, top_n=1)[0][1]
             if top_dense < 0.135:
-                candidate_synth = synthesize_conversational_response(request.question, request.messages, [])
+                candidate_synth = synthesize_conversational_response(
+                    question=request.question,
+                    raw_sources=[],
+                    conversation_history=[m.model_dump() for m in request.messages],
+                )
                 if "I don't know—maybe you should ask him!" not in candidate_synth:
                     precomputed_answer = candidate_synth
                     raw_sources = []

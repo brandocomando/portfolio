@@ -52,3 +52,28 @@ variable "notification_email_secret_id" {
   default     = ""
 }
 
+# --- Custom Domain, SSL & DNS ---
+variable "custom_domain" {
+  description = "Custom apex domain for the portfolio (e.g. brandonfoster.dev)"
+  type        = string
+  default     = "brandonfoster.dev"
+}
+
+variable "enable_custom_domain" {
+  description = "Whether to register the custom domain with Firebase Hosting"
+  type        = bool
+  default     = true
+}
+
+variable "enable_cloud_dns" {
+  description = "Whether to manage DNS zones in Google Cloud DNS"
+  type        = bool
+  default     = false
+}
+
+variable "client_verification_secret" {
+  description = "Client verification secret shared between frontend and backend"
+  type        = string
+  default     = "portfolio-client-v1"
+}
+

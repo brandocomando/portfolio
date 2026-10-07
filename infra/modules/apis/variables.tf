@@ -15,7 +15,9 @@ variable "gcp_services" {
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
     "sts.googleapis.com",
-    "cloudresourcemanager.googleapis.com"
+    "cloudresourcemanager.googleapis.com",
+    "firebasehosting.googleapis.com",
+    "dns.googleapis.com"
   ]
 }
 

@@ -17,3 +17,23 @@ output "github_actions_sa_email" {
   description = "Service account email for GitHub Actions"
   value       = module.iam_wif.service_account_email
 }
+
+output "custom_domain" {
+  description = "The registered apex custom domain"
+  value       = module.custom_domain.custom_domain
+}
+
+output "www_domain" {
+  description = "The registered www subdomain (redirected to apex)"
+  value       = module.custom_domain.www_domain
+}
+
+output "dns_records_for_registrar" {
+  description = "DNS records to configure at registrar (Cloudflare, Namecheap, Porkbun, etc.)"
+  value       = module.custom_domain.dns_records_for_registrar
+}
+
+output "cloud_dns_nameservers" {
+  description = "Nameservers if Google Cloud DNS is enabled"
+  value       = module.custom_domain.cloud_dns_nameservers
+}

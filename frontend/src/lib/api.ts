@@ -1,6 +1,7 @@
 import { QuotaStatus, ContactSubmission } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
+const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET || 'portfolio-client-v1';
 
 export function getSessionId(): string {
   try {
@@ -18,9 +19,16 @@ export function getSessionId(): string {
   }
 }
 
+export function getBaseHeaders(): Record<string, string> {
+  return {
+    'X-Session-ID': getSessionId(),
+    'X-Portfolio-Client': CLIENT_SECRET
+  };
+}
+
 export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus> {
   const headers: Record<string, string> = {
-    'X-Session-ID': getSessionId()
+    ...getBaseHeaders()
   };
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`;
@@ -70,7 +78,7 @@ export async function streamChat({
 }: StreamChatParams): Promise<void> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Session-ID': getSessionId()
+    ...getBaseHeaders()
   };
   if (authToken) {
     headers['Authorization'] = `Bearer ${authToken}`;
@@ -151,7 +159,7 @@ export async function submitContactForm(
 ): Promise<{ status: string; message: string }> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Session-ID': getSessionId()
+    ...getBaseHeaders()
   };
 
   const response = await fetch(`${API_BASE}/api/v1/leads/contact`, {

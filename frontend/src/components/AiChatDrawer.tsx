@@ -631,6 +631,17 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             <Send className="w-4 h-4" />
           </button>
         </form>
+        <p className="mt-2 text-center text-[11px] text-slate-500 leading-tight">
+          AI can make mistakes. Check with{' '}
+          <button
+            type="button"
+            onClick={() => onOpenContact?.()}
+            className="text-slate-400 hover:text-cyan-400 underline underline-offset-2 transition-colors cursor-pointer"
+          >
+            Brandon
+          </button>{' '}
+          for accurate information.
+        </p>
       </div>
     </div>
   );

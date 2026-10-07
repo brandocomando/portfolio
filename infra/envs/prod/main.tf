@@ -88,3 +88,27 @@ module "custom_domain" {
 
   depends_on = [module.apis]
 }
+
+# 8. Authentication & Firebase Web App Configuration
+module "auth" {
+  source     = "../../modules/auth"
+  project_id = var.project_id
+
+  authorized_domains = [
+    var.custom_domain,
+    "www.${var.custom_domain}"
+  ]
+
+  google_oauth_client_id     = var.google_oauth_client_id
+  google_oauth_client_secret = var.google_oauth_client_secret
+  github_oauth_client_id     = var.github_oauth_client_id
+  github_oauth_client_secret = var.github_oauth_client_secret
+
+  depends_on = [module.apis]
+}
+
+# Import existing Identity Platform configuration into Terraform state
+import {
+  to = module.auth.google_identity_platform_config.auth
+  id = "projects/portfolio-510722/config"
+}

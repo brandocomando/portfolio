@@ -42,3 +42,20 @@ output "firebase_required_dns_updates" {
   description = "Dynamic DNS records computed by Firebase, including secret TXT verification token"
   value       = module.custom_domain.required_dns_updates
 }
+
+output "firebase_web_app_id" {
+  description = "Firebase Web App ID"
+  value       = module.auth.app_id
+}
+
+output "firebase_web_api_key" {
+  description = "Firebase Web Client API Key"
+  value       = module.auth.api_key
+  sensitive   = false
+}
+
+output "firebase_config" {
+  description = "Firebase SDK initialization parameters for the frontend"
+  value       = module.auth.firebase_config
+  sensitive   = false
+}

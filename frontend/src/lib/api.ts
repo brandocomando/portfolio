@@ -34,15 +34,20 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
     headers['Authorization'] = `Bearer ${authToken}`;
   }
 
+  const defaultAuthLimit = Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 30;
+  const defaultAnonLimit = Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 10;
+
   try {
     const res = await fetch(`${API_BASE}/api/v1/leads/quota`, { headers });
     if (!res.ok) {
       return {
         authenticated: !!authToken,
         tier: authToken ? 'authenticated' : 'anonymous',
-        limit: authToken ? 30 : 10,
-        remaining: authToken ? 30 : 10,
-        reset_seconds: 86400
+        limit: authToken ? defaultAuthLimit : defaultAnonLimit,
+        remaining: authToken ? defaultAuthLimit : defaultAnonLimit,
+        reset_seconds: 86400,
+        auth_limit: defaultAuthLimit,
+        anon_limit: defaultAnonLimit
       };
     }
     return await res.json();
@@ -50,9 +55,11 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
     return {
       authenticated: !!authToken,
       tier: authToken ? 'authenticated' : 'anonymous',
-      limit: authToken ? 30 : 10,
-      remaining: authToken ? 30 : 10,
-      reset_seconds: 86400
+      limit: authToken ? defaultAuthLimit : defaultAnonLimit,
+      remaining: authToken ? defaultAuthLimit : defaultAnonLimit,
+      reset_seconds: 86400,
+      auth_limit: defaultAuthLimit,
+      anon_limit: defaultAnonLimit
     };
   }
 }

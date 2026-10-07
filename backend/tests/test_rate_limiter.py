@@ -65,3 +65,42 @@ def test_authenticated_rate_limit_allowance():
         assert status.tier == "authenticated"
 
     assert status.remaining == 15
+
+
+def test_rate_limit_exception_message_contains_dynamic_limit(monkeypatch):
+    from backend.app.core.config import settings
+    monkeypatch.setattr(settings, "AUTH_DAILY_LIMIT", 50)
+    monkeypatch.setattr(settings, "ANON_DAILY_LIMIT", 5)
+
+    limiter = InMemoryRateLimiter()
+    anon_user = UserIdentity(
+        is_authenticated=False,
+        uid="anon:10.0.0.1",
+        client_ip="10.0.0.1"
+    )
+
+    for _ in range(5):
+        limiter.check_limit(anon_user, consume=True)
+
+    with pytest.raises(HTTPException) as exc_info:
+        limiter.check_limit(anon_user, consume=True)
+
+    msg = exc_info.value.detail["message"]
+    assert "50 daily questions" in msg
+    assert "limit of 5 questions" in msg
+
+
+@pytest.mark.asyncio
+async def test_get_user_quota_returns_auth_and_anon_limits():
+    from backend.app.api.v1.leads import get_user_quota
+    from backend.app.core.config import settings
+
+    anon_user = UserIdentity(
+        is_authenticated=False,
+        uid="anon:10.0.0.2",
+        client_ip="10.0.0.2"
+    )
+    result = await get_user_quota(anon_user)
+    assert result["authenticated"] is False
+    assert result["auth_limit"] == settings.AUTH_DAILY_LIMIT
+    assert result["anon_limit"] == settings.ANON_DAILY_LIMIT

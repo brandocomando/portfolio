@@ -144,6 +144,7 @@ export const App: React.FC = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
+        authLimit={quota?.auth_limit}
       />
 
       {/* Direct Contact Modal */}

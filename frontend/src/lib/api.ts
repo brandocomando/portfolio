@@ -6,7 +6,10 @@ export function getSessionId(): string {
   try {
     let sid = localStorage.getItem('portfolio_session_id');
     if (!sid) {
-      sid = 'sid_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      const randomBytes = new Uint8Array(16);
+      crypto.getRandomValues(randomBytes);
+      const randomPart = Array.from(randomBytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      sid = 'sid_' + randomPart + Date.now().toString(36);
       localStorage.setItem('portfolio_session_id', sid);
     }
     return sid;

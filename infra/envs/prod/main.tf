@@ -83,6 +83,7 @@ module "custom_domain" {
   enable_cloud_dns             = var.enable_cloud_dns
   enable_www_subdomain         = true
   redirect_www_to_apex         = true
+  verification_txt_record      = var.verification_txt_record
 
   depends_on = [module.apis]
 }

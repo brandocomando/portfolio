@@ -44,3 +44,9 @@ variable "firebase_hosting_ip_addresses" {
   type        = list(string)
   default     = ["199.36.158.100"]
 }
+
+variable "verification_txt_record" {
+  description = "Optional Firebase TXT ownership verification token (e.g. 'hosting-site-verification=abc...'). When provided with enable_cloud_dns = true, Terraform provisions the TXT record in Cloud DNS."
+  type        = string
+  default     = ""
+}

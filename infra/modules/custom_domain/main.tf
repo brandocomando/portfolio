@@ -58,3 +58,14 @@ resource "google_dns_record_set" "www_cname" {
   ttl          = 300
   rrdatas      = ["${local.clean_domain}."]
 }
+
+# 6. Optional: Apex Domain TXT Ownership Verification Record (Day 1 / 2nd Run)
+resource "google_dns_record_set" "ownership_txt" {
+  count        = var.enable_cloud_dns && var.verification_txt_record != "" ? 1 : 0
+  project      = var.project_id
+  managed_zone = google_dns_managed_zone.primary[0].name
+  name         = "${local.clean_domain}."
+  type         = "TXT"
+  ttl          = 300
+  rrdatas      = [startswith(var.verification_txt_record, "\"") ? var.verification_txt_record : format("\"%s\"", var.verification_txt_record)]
+}

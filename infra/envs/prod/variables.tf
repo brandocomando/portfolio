@@ -77,3 +77,9 @@ variable "client_verification_secret" {
   default     = "portfolio-client-v1"
 }
 
+variable "verification_txt_record" {
+  description = "Optional Firebase TXT ownership verification token to provision in Cloud DNS on the 2nd run (e.g. 'hosting-site-verification=...')"
+  type        = string
+  default     = ""
+}
+

@@ -1,16 +1,16 @@
 {
   "stage": "silver",
-  "processed_at": "2026-10-07T16:47:47.537721Z",
+  "processed_at": "2026-10-07T17:11:08.869975Z",
   "chunk_count": 28,
-  "total_estimated_tokens": 6687,
+  "total_estimated_tokens": 6699,
   "categories": [
-    "ai_infra",
-    "distributed_systems",
-    "data_platform",
     "platform_engineering",
-    "personal",
     "skills",
+    "data_platform",
     "finops",
+    "distributed_systems",
+    "personal",
+    "ai_infra",
     "bio"
   ],
   "artifacts": {

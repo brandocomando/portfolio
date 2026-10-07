@@ -765,7 +765,7 @@ async def test_chat_stream_multi_turn_continuation_yes_tell_me_more_about_the_pr
                 "role": "assistant",
                 "content": (
                     "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption. "
-                    "As Lead Platform Engineer, he architected and led the zero-downtime migration of over 30 mission-critical microservices from legacy AWS ECS to Amazon EKS. "
+                    "As Lead Platform Engineer, he architected and led the zero-downtime migration of mission-critical microservices from legacy AWS ECS to Amazon EKS. "
                     "Are you curious about the migration process, the GitOps workflow, or his observability tooling?"
                 ),
             },

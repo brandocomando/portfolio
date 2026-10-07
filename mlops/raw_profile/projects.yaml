@@ -51,7 +51,7 @@ projects:
     repo: "brandocomando/terraform-provider-neo4j"
     url: "https://github.com/brandocomando/terraform-provider-neo4j"
     category: "platform_engineering"
-    tagline: "Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access."
+    tagline: "Forked and customized Terraform provider in Go for managing Neo4j graph database topologies and role-based access."
     summary: >
       Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources,
       user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.

@@ -4,12 +4,12 @@ milestones:
     title: "Large-Scale Microservices Migration to EKS & GitOps"
     role: "Lead Platform Engineer"
     summary: >
-      Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to
+      Architected and led the migration of mission-critical microservices from legacy AWS ECS to
       Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments,
       and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering
       (previously held Certified Kubernetes Administrator - CKA certification).
     impact_metrics:
-      - "30+ microservices migrated with zero customer downtime"
+      - "Mission-critical microservices migrated with zero customer downtime"
       - "Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)"
       - "Consolidated multi-account AWS and acquisition workloads into unified, secure architectures"
       - "Helped teams move from deploying weekly to hourly"
@@ -60,7 +60,7 @@ milestones:
       - "Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms"
       - "Automated compliance and drift detection for hundreds of cloud resources"
       - "Enabled Self service infrastructure for development teams"
-      - "Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
+      - "Forked and customized Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
     technologies:
       - "Terraform"
       - "OpenTofu"
@@ -146,8 +146,8 @@ milestones:
     role: "Senior Distributed Systems Engineer"
     summary: >
       Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS)
-      service-to-service cryptographic authentication and fine-grained traffic policies across 30+
-      Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.
+      service-to-service cryptographic authentication and fine-grained traffic policies across
+      mission-critical Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.
     impact_metrics:
       - "100% encrypted in-transit mTLS traffic across internal service graph"
       - "Centralized cryptographic identity without modifying application code"

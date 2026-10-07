@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "skills.yaml",
-  "raw_hash": "225aab965177ff5374ef4db74461ee66cffab30b8f0672ce7843e2667885770e",
-  "ingested_at": "2026-10-07T16:47:47.357094Z",
+  "raw_hash": "ad63d996fc62183d2380cd933280cf589147d8c4dd847eb9cffb6020333e32bd",
+  "ingested_at": "2026-10-07T17:11:08.403113Z",
   "payload": {
     "skill_categories": [
       {
@@ -71,7 +71,7 @@
           {
             "name": "FinOps & Cloud Cost Optimization",
             "proficiency": "Expert",
-            "context": "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling,"
+            "context": "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling."
           }
         ]
       },
@@ -136,7 +136,7 @@
           {
             "name": "Terraform / OpenTofu",
             "proficiency": "Expert",
-            "context": "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go (terraform-provider-neo4j)."
+            "context": "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), forked and customized Terraform provider in Go (terraform-provider-neo4j)."
           },
           {
             "name": "Pulumi & AWS CDK",

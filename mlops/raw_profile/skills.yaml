@@ -39,7 +39,7 @@ skill_categories:
         context: "Portable cloud infrastructure deployment concepts, cloud-agnostic Kubernetes topologies."
       - name: "FinOps & Cloud Cost Optimization"
         proficiency: "Expert"
-        context: "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling,"
+        context: "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling."
 
   - name: "Containers & Orchestration"
     skills:
@@ -78,7 +78,7 @@ skill_categories:
     skills:
       - name: "Terraform / OpenTofu"
         proficiency: "Expert"
-        context: "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go (terraform-provider-neo4j)."
+        context: "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), forked and customized Terraform provider in Go (terraform-provider-neo4j)."
       - name: "Pulumi & AWS CDK"
         proficiency: "Familiar"
         context: "Programmatic Infrastructure as Code concepts, TypeScript/Python IaC SDKs, rapid adoption capability."

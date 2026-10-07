@@ -1,12 +1,12 @@
 {
   "stage": "gold",
-  "build_timestamp": "2026-10-07T16:47:47.691674Z",
-  "git_sha": "e853e10d1a17827721cdec227f1b95ffd433592c",
+  "build_timestamp": "2026-10-07T17:11:09.023623Z",
+  "git_sha": "2ecd2b5d718ef1aacfb3783d665386845b64e350",
   "chunk_count": 28,
   "embedding_model": "deterministic-projection-v1",
   "embedding_dim": 384,
-  "vocabulary_size": 1069,
-  "checksum_sha256": "736774592ef0e0318388dca763dd855b7538a2a19a6e6e0997ab19f2e3233474",
+  "vocabulary_size": 1068,
+  "checksum_sha256": "5e11530234754c75d59e5715601a8436bd9d5f2d5dff27544aa617286c990bd8",
   "bundle_file": "/opt/personal/portfolio/mlops/data/gold/gold_index.json",
-  "bundle_size_bytes": 434662
+  "bundle_size_bytes": 434614
 }

@@ -1,10 +1,10 @@
 {
-  "timestamp": "2026-10-07T16:47:47.714411Z",
+  "timestamp": "2026-10-07T19:49:16.492194Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
     "hit_rate_top3": 0.9286,
-    "mrr": 0.8571,
+    "mrr": 0.8214,
     "keyword_recall": 0.9538,
     "guardrail_pass_rate": 1.0
   },
@@ -17,12 +17,12 @@
     {
       "id": "eval-01-eks-migration",
       "type": "retrieval",
-      "question": "How many microservices did Brandon migrate to EKS and what tool was used for GitOps?",
+      "question": "How did Brandon migrate mission-critical microservices to EKS and what tool was used for GitOps?",
       "target_chunk": "chunk-exp-eks-migration",
       "retrieved_ids": [
         "chunk-exp-eks-migration",
         "chunk-bio-overview",
-        "chunk-exp-customer-service-tooling"
+        "chunk-proj-terraform-provider-neo4j"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -36,7 +36,7 @@
       "retrieved_ids": [
         "chunk-bio-overview",
         "chunk-exp-kafka-confluent-migration",
-        "chunk-proj-portfolio-platform"
+        "chunk-skills-finops-and-cloud-cost-optimization"
       ],
       "hit_top3": false,
       "rank": 0,
@@ -62,12 +62,12 @@
       "question": "Has Brandon written a custom Terraform provider?",
       "target_chunk": "chunk-proj-terraform-provider-neo4j",
       "retrieved_ids": [
-        "chunk-proj-terraform-provider-neo4j",
         "chunk-skills-observability,-sre-and-reliability",
+        "chunk-proj-terraform-provider-neo4j",
         "chunk-personal-profile"
       ],
       "hit_top3": true,
-      "rank": 1,
+      "rank": 2,
       "keyword_recall": "4/4"
     },
     {
@@ -91,8 +91,8 @@
       "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
         "chunk-exp-cicd-github-migration",
-        "chunk-skills-ci/cd-and-delivery-engineering",
-        "chunk-skills-languages-and-core-systems"
+        "chunk-skills-languages-and-core-systems",
+        "chunk-skills-ci/cd-and-delivery-engineering"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-bio-overview",
-        "chunk-skills-data-platforms-and-distributed-storage"
+        "chunk-skills-data-platforms-and-distributed-storage",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,

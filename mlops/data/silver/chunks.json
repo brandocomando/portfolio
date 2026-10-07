@@ -64,7 +64,7 @@
     "id": "chunk-exp-eks-migration",
     "title": "Experience: Large-Scale Microservices Migration to EKS & GitOps",
     "category": "distributed_systems",
-    "content": "[CAREER EXPERIENCE] Large-Scale Microservices Migration to EKS & GitOps\nRole: Lead Platform Engineer | Category: distributed_systems\nSummary: Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering (previously held Certified Kubernetes Administrator - CKA certification).\nQuantified Impact & Metrics:\n  \u2022 30+ microservices migrated with zero customer downtime\n  \u2022 Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)\n  \u2022 Consolidated multi-account AWS and acquisition workloads into unified, secure architectures\n  \u2022 Helped teams move from deploying weekly to hourly\nTechnologies Utilized: Kubernetes, AWS EKS, ArgoCD, CKA (Previously Certified), Terraform, Docker, Helm, Github Actions",
+    "content": "[CAREER EXPERIENCE] Large-Scale Microservices Migration to EKS & GitOps\nRole: Lead Platform Engineer | Category: distributed_systems\nSummary: Architected and led the migration of mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering (previously held Certified Kubernetes Administrator - CKA certification).\nQuantified Impact & Metrics:\n  \u2022 Mission-critical microservices migrated with zero customer downtime\n  \u2022 Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)\n  \u2022 Consolidated multi-account AWS and acquisition workloads into unified, secure architectures\n  \u2022 Helped teams move from deploying weekly to hourly\nTechnologies Utilized: Kubernetes, AWS EKS, ArgoCD, CKA (Previously Certified), Terraform, Docker, Helm, Github Actions",
     "tags": [
       "kubernetes",
       "aws eks",
@@ -78,7 +78,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 234,
+    "token_estimate": 237,
     "metadata": {
       "role": "Lead Platform Engineer",
       "milestone_id": "exp-eks-migration"
@@ -113,7 +113,7 @@
     "id": "chunk-exp-terraform-platform",
     "title": "Experience: Enterprise Terraform Module Platform & Multi-Cloud Automation",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise Terraform Module Platform & Multi-Cloud Automation\nRole: Senior Platform Architect | Category: platform_engineering\nSummary: Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails. And enabled self service infrastructure tracked in the same git repo as the teams applications.\nQuantified Impact & Metrics:\n  \u2022 Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms\n  \u2022 Automated compliance and drift detection for hundreds of cloud resources\n  \u2022 Enabled Self service infrastructure for development teams\n  \u2022 Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies\nTechnologies Utilized: Terraform, OpenTofu, Go, AWS, Snowflake, Confluent Cloud, Databricks, Datadog, Platform Engineering, Self Service",
+    "content": "[CAREER EXPERIENCE] Enterprise Terraform Module Platform & Multi-Cloud Automation\nRole: Senior Platform Architect | Category: platform_engineering\nSummary: Authored and maintained a suite of reusable, hardened Terraform modules managing infrastructure across AWS, Snowflake, Datadog, Confluent Cloud, Databricks, and GitHub at scale. Standardized multi-region deployments using automated state management and policy-as-code guardrails. And enabled self service infrastructure tracked in the same git repo as the teams applications.\nQuantified Impact & Metrics:\n  \u2022 Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms\n  \u2022 Automated compliance and drift detection for hundreds of cloud resources\n  \u2022 Enabled Self service infrastructure for development teams\n  \u2022 Forked and customized Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies\nTechnologies Utilized: Terraform, OpenTofu, Go, AWS, Snowflake, Confluent Cloud, Databricks, Datadog, Platform Engineering, Self Service",
     "tags": [
       "terraform",
       "opentofu",
@@ -129,7 +129,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 256,
+    "token_estimate": 257,
     "metadata": {
       "role": "Senior Platform Architect",
       "milestone_id": "exp-terraform-platform"
@@ -213,7 +213,7 @@
     "id": "chunk-exp-security-appmesh-mtls",
     "title": "Experience: Zero-Trust Service Mesh & mTLS with AWS App Mesh",
     "category": "distributed_systems",
-    "content": "[CAREER EXPERIENCE] Zero-Trust Service Mesh & mTLS with AWS App Mesh\nRole: Senior Distributed Systems Engineer | Category: distributed_systems\nSummary: Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across 30+ Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\nQuantified Impact & Metrics:\n  \u2022 100% encrypted in-transit mTLS traffic across internal service graph\n  \u2022 Centralized cryptographic identity without modifying application code\n  \u2022 Enhanced observability via Envoy distributed tracing headers\nTechnologies Utilized: AWS App Mesh, Envoy Proxy, mTLS, Kubernetes, AWS Certificate Manager (ACM)",
+    "content": "[CAREER EXPERIENCE] Zero-Trust Service Mesh & mTLS with AWS App Mesh\nRole: Senior Distributed Systems Engineer | Category: distributed_systems\nSummary: Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across mission-critical Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\nQuantified Impact & Metrics:\n  \u2022 100% encrypted in-transit mTLS traffic across internal service graph\n  \u2022 Centralized cryptographic identity without modifying application code\n  \u2022 Enhanced observability via Envoy distributed tracing headers\nTechnologies Utilized: AWS App Mesh, Envoy Proxy, mTLS, Kubernetes, AWS Certificate Manager (ACM)",
     "tags": [
       "aws app mesh",
       "envoy proxy",
@@ -224,7 +224,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 189,
+    "token_estimate": 192,
     "metadata": {
       "role": "Senior Distributed Systems Engineer",
       "milestone_id": "exp-security-appmesh-mtls"
@@ -324,7 +324,7 @@
     "id": "chunk-proj-terraform-provider-neo4j",
     "title": "Project: Terraform Provider for Neo4j",
     "category": "platform_engineering",
-    "content": "[TECHNICAL PROJECT] Terraform Provider for Neo4j\nRepository: https://github.com/brandocomando/terraform-provider-neo4j (GitHub Stars: 0)\nTagline: Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.\nOverview: Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.\nKey Architectural Highlights:\n  \u2022 Implemented Terraform Plugin SDK v2 / Plugin Framework specifications\n  \u2022 State management with CRUD lifecycle operations and schema validation\n  \u2022 Empowers platform teams to manage graph databases alongside standard cloud infrastructure\nTech Stack: Go, Terraform Plugin SDK, Neo4j, Graph Databases, GitOps",
+    "content": "[TECHNICAL PROJECT] Terraform Provider for Neo4j\nRepository: https://github.com/brandocomando/terraform-provider-neo4j (GitHub Stars: 0)\nTagline: Forked and customized Terraform provider in Go for managing Neo4j graph database topologies and role-based access.\nOverview: Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.\nKey Architectural Highlights:\n  \u2022 Implemented Terraform Plugin SDK v2 / Plugin Framework specifications\n  \u2022 State management with CRUD lifecycle operations and schema validation\n  \u2022 Empowers platform teams to manage graph databases alongside standard cloud infrastructure\nTech Stack: Go, Terraform Plugin SDK, Neo4j, Graph Databases, GitOps",
     "tags": [
       "go",
       "terraform plugin sdk",
@@ -336,7 +336,7 @@
       "terraform provider for neo4j"
     ],
     "source_file": "projects.yaml",
-    "token_estimate": 208,
+    "token_estimate": 210,
     "metadata": {
       "repo": "brandocomando/terraform-provider-neo4j",
       "stars": 0,
@@ -401,7 +401,7 @@
     "id": "chunk-skills-cloud-and-multi-cloud-architecture",
     "title": "Skills: Cloud & Multi-Cloud Architecture",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CLOUD & MULTI-CLOUD ARCHITECTURE]\nSkills and Production Proof-Points:\n  \u2022 Amazon Web Services (AWS) (Expert): Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS, CloudWatch, Cost Explorer.\n  \u2022 Google Cloud Platform (GCP) (Proficient): Cloud Run, GKE, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage.\n  \u2022 Microsoft Azure (Familiar): Cloud-agnostic architecture, AKS, Azure Blob Storage, Azure DevOps, multi-cloud Terraform and Kubernetes patterns.\n  \u2022 Oracle Cloud (OCI) (Familiar): Portable cloud infrastructure deployment concepts, cloud-agnostic Kubernetes topologies.\n  \u2022 FinOps & Cloud Cost Optimization (Expert): Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling,",
+    "content": "[TECHNICAL SKILLS: CLOUD & MULTI-CLOUD ARCHITECTURE]\nSkills and Production Proof-Points:\n  \u2022 Amazon Web Services (AWS) (Expert): Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS, CloudWatch, Cost Explorer.\n  \u2022 Google Cloud Platform (GCP) (Proficient): Cloud Run, GKE, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage.\n  \u2022 Microsoft Azure (Familiar): Cloud-agnostic architecture, AKS, Azure Blob Storage, Azure DevOps, multi-cloud Terraform and Kubernetes patterns.\n  \u2022 Oracle Cloud (OCI) (Familiar): Portable cloud infrastructure deployment concepts, cloud-agnostic Kubernetes topologies.\n  \u2022 FinOps & Cloud Cost Optimization (Expert): Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling.",
     "tags": [
       "amazon web services (aws)",
       "google cloud platform (gcp)",
@@ -463,7 +463,7 @@
     "id": "chunk-skills-infrastructure-as-code-and-automation",
     "title": "Skills: Infrastructure as Code & Automation",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: INFRASTRUCTURE AS CODE & AUTOMATION]\nSkills and Production Proof-Points:\n  \u2022 Terraform / OpenTofu (Expert): Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), custom provider development in Go (terraform-provider-neo4j).\n  \u2022 Pulumi & AWS CDK (Familiar): Programmatic Infrastructure as Code concepts, TypeScript/Python IaC SDKs, rapid adoption capability.\n  \u2022 Ansible & Config Management (Proficient): Host provisioning, Linux system automation, playbooks; emphasizes modern immutable infrastructure (Terraform + Docker + K8s).",
+    "content": "[TECHNICAL SKILLS: INFRASTRUCTURE AS CODE & AUTOMATION]\nSkills and Production Proof-Points:\n  \u2022 Terraform / OpenTofu (Expert): Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), forked and customized Terraform provider in Go (terraform-provider-neo4j).\n  \u2022 Pulumi & AWS CDK (Familiar): Programmatic Infrastructure as Code concepts, TypeScript/Python IaC SDKs, rapid adoption capability.\n  \u2022 Ansible & Config Management (Proficient): Host provisioning, Linux system automation, playbooks; emphasizes modern immutable infrastructure (Terraform + Docker + K8s).",
     "tags": [
       "terraform / opentofu",
       "pulumi & aws cdk",
@@ -472,7 +472,7 @@
       "infrastructure as code & automation"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 149,
+    "token_estimate": 152,
     "metadata": {
       "category_name": "Infrastructure as Code & Automation",
       "skills_count": 3

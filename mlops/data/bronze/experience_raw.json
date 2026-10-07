@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "experience.yaml",
-  "raw_hash": "7bd4a50af6cadf1f76d17f7f3abae71c41e5ae4c539d5f98ba9f184fffb812b8",
-  "ingested_at": "2026-10-07T16:47:47.389408Z",
+  "raw_hash": "5fff6ddb67fb96598a1d6312000f6f66436b784ca3266ed9a0b694a08bafc08b",
+  "ingested_at": "2026-10-07T17:11:08.456580Z",
   "payload": {
     "milestones": [
       {
@@ -10,9 +10,9 @@
         "category": "distributed_systems",
         "title": "Large-Scale Microservices Migration to EKS & GitOps",
         "role": "Lead Platform Engineer",
-        "summary": "Architected and led the migration of 30+ mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering (previously held Certified Kubernetes Administrator - CKA certification).\n",
+        "summary": "Architected and led the migration of mission-critical microservices from legacy AWS ECS to Amazon EKS, establishing ArgoCD for declarative GitOps delivery, automated canary deployments, and dynamic horizontal pod autoscaling (HPA). Leveraged deep Kubernetes systems engineering (previously held Certified Kubernetes Administrator - CKA certification).\n",
         "impact_metrics": [
-          "30+ microservices migrated with zero customer downtime",
+          "Mission-critical microservices migrated with zero customer downtime",
           "Deployment lead time reduced from hours to under 10 minutes via GitOps (ArgoCD)",
           "Consolidated multi-account AWS and acquisition workloads into unified, secure architectures",
           "Helped teams move from deploying weekly to hourly"
@@ -61,7 +61,7 @@
           "Unified infrastructure provisioning across 6 enterprise SaaS/Cloud platforms",
           "Automated compliance and drift detection for hundreds of cloud resources",
           "Enabled Self service infrastructure for development teams",
-          "Developed custom Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
+          "Forked and customized Terraform provider in Go (terraform-provider-neo4j) to manage graph database topologies"
         ],
         "technologies": [
           "Terraform",
@@ -147,7 +147,7 @@
         "category": "distributed_systems",
         "title": "Zero-Trust Service Mesh & mTLS with AWS App Mesh",
         "role": "Senior Distributed Systems Engineer",
-        "summary": "Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across 30+ Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\n",
+        "summary": "Architected and deployed AWS App Mesh (Envoy-based proxy) to enforce mutual TLS (mTLS) service-to-service cryptographic authentication and fine-grained traffic policies across mission-critical Kubernetes microservices. Centralized secret rotation and enhanced zero-trust posture.\n",
         "impact_metrics": [
           "100% encrypted in-transit mTLS traffic across internal service graph",
           "Centralized cryptographic identity without modifying application code",

@@ -2,8 +2,8 @@
   {
     "id": "eval-01-eks-migration",
     "category": "distributed_systems",
-    "question": "How many microservices did Brandon migrate to EKS and what tool was used for GitOps?",
-    "expected_keywords": ["30+", "eks", "argocd", "gitops", "zero"],
+    "question": "How did Brandon migrate mission-critical microservices to EKS and what tool was used for GitOps?",
+    "expected_keywords": ["microservices", "eks", "argocd", "gitops", "zero"],
     "target_chunk_id": "chunk-exp-eks-migration"
   },
   {
@@ -52,7 +52,7 @@
     "id": "eval-08-appmesh-mtls",
     "category": "distributed_systems",
     "question": "How did Brandon implement zero-trust mTLS across microservices?",
-    "expected_keywords": ["app mesh", "mtls", "envoy", "30", "traffic"],
+    "expected_keywords": ["app mesh", "mtls", "envoy", "microservices", "traffic"],
     "target_chunk_id": "chunk-exp-security-appmesh-mtls"
   },
   {

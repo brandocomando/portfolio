@@ -39,8 +39,8 @@ const PROJECTS: Project[] = [
     repo: "brandocomando/terraform-provider-neo4j",
     url: "https://github.com/brandocomando/terraform-provider-neo4j",
     category: "Platform Engineering & IaC",
-    tagline: "Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.",
-    summary: "Developed a native Terraform provider plugin in Go to declare and manage Neo4j graph database instances, role-based access, and cluster configurations declaratively within Terraform GitOps workflows.",
+    tagline: "Forked and customized Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.",
+    summary: "Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.",
     highlights: [
       "Implemented official Terraform Plugin SDK specifications",
       "State management with full CRUD lifecycle operations and schema validation",
@@ -82,15 +82,15 @@ export const ProjectsGallery: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {PROJECTS.map((p) => (
             <div
               key={p.id}
-              className="p-6 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group shadow-sm"
+              className="p-6 sm:p-7 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group shadow-sm"
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-mono text-indigo-400 px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/40">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <span className="inline-flex items-center text-xs font-mono text-indigo-300 font-medium px-2.5 py-1 rounded bg-indigo-950/60 border border-indigo-800/50">
                     {p.category}
                   </span>
                   <a

@@ -278,7 +278,7 @@ def synthesize_conversational_response(
                     "• **Dual-Running Infrastructure & Ingress**: Provisioned parallel EKS clusters alongside production ECS tasks, configuring AWS ALB Ingress Controllers and target groups to mirror routing rules across both environments.\n"
                     "• **Phased Weighted DNS Cutover**: Leveraged Amazon Route 53 weighted record sets to gradually shift live production traffic (1% → 10% → 50% → 100%) between ECS and EKS backends while continuously monitoring real-time error rates, HTTP latency, and saturation.\n"
                     "• **Automated Rollback & Health Validation**: Maintained instant DNS failback mechanisms throughout each wave, validating service telemetry before decommissioning legacy ECS services.\n"
-                    "• **Zero Customer Disruption**: Migrated over 30 mission-critical microservices without a single second of customer-facing downtime.\n\n"
+                    "• **Zero Customer Disruption**: Migrated mission-critical microservices without a single second of customer-facing downtime.\n\n"
                     "Would you like to explore the ArgoCD GitOps delivery pipeline or his custom Kubernetes ingress observability tooling next?"
                 )
             elif matches_topic(q_lower, ["gitops", "workflow", "argocd", "delivery"]):
@@ -311,7 +311,7 @@ def synthesize_conversational_response(
             if generic:
                 return (
                     "Here are the deeper architectural details on his EKS migration, GitOps workflows, and observability tooling:\n\n"
-                    "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning 30+ services from ECS to EKS with zero customer impact.\n"
+                    "• **Zero-Downtime Migration Playbook**: Executed a phased dual-running strategy using DNS weight shifts via Route 53 and ALB ingress controllers, transitioning mission-critical services from ECS to EKS with zero customer impact.\n"
                     "• **ArgoCD Declarative GitOps**: Configured multi-cluster ApplicationSets managing Helm charts and Kustomize overlays, eliminating manual kubectl interventions and reducing deploy lead times from hours to under 10 minutes.\n"
                     "• **Custom Go Ingress Observability**: Authored `prometheus-ingress-status-exporter` to continuously probe ingress availability and export metrics directly to Prometheus and Datadog.\n"
                     "• **Karpenter Dynamic Compute**: Replaced static EC2 node groups with Karpenter autoscaling and Spot instance fleets, cutting thousands in idle compute costs.\n\n"
@@ -332,7 +332,7 @@ def synthesize_conversational_response(
             return (
                 "Here are the deeper architectural details on his Kafka & Confluent Cloud platform work:\n\n"
                 "• **Zero-Downtime MSK Cutover**: Implemented MirrorMaker2 replication between AWS MSK and Confluent Cloud, enabling seamless consumer offset translation and zero message drop during cluster migration.\n"
-                "• **Schema Registry Governance**: Enforced Avro and Protobuf schema compatibility checks directly in CI, preventing breaking schema mutations across event streams.\n"
+                "• **Environment Cost Rationalization**: Consolidated Kafka environments down to PreProd and Prod, cutting streaming spend and eliminating broker maintenance toil.\n"
                 "• **Terraform GitOps for Kafka**: Automated topic creation, retention configurations, and ACL policies declaratively through Terraform pipelines.\n\n"
                 "Would you like to hear more about his stream processing patterns or event throughput?"
             )
@@ -340,7 +340,7 @@ def synthesize_conversational_response(
             return (
                 "Here are key patterns in Brandon's enterprise Terraform module architecture:\n\n"
                 "• **Modular Golden Templates**: Standardized multi-tier modules for VPCs, EKS clusters, and RDS databases shared across 20+ engineering teams with semantic versioning.\n"
-                "• **Custom Go Provider Authoring**: Authored `terraform-provider-neo4j` using the HashiCorp Terraform Plugin SDK to declaratively manage graph databases alongside standard cloud resources.\n"
+                "• **Go Provider Customization**: Forked and customized `terraform-provider-neo4j` using the HashiCorp Terraform Plugin SDK to declaratively manage graph database topologies alongside standard cloud resources.\n"
                 "• **Keyless OIDC Cloud Auth**: Integrated Workload Identity Federation in GitHub Actions to eliminate all long-lived AWS IAM access keys and GCP service account JSON keys.\n\n"
                 "Would you like to know more about his CI/CD validation gates or drift detection?"
             )
@@ -477,7 +477,7 @@ def synthesize_conversational_response(
             "Python, or Go SDKs, construct trees, and state management) and can ramp up on **Pulumi** or **AWS CDK** rapidly.\n\n"
             "His primary production expertise is in declarative **Terraform / OpenTofu**, where he engineered a centralized enterprise "
             "module platform used by over 20 engineering squads across AWS, GCP, Datadog, Snowflake, and Confluent Cloud.\n\n"
-            "Furthermore, he has authored native custom Terraform providers in Go (`terraform-provider-neo4j`) using the Terraform Plugin SDK, "
+            "Furthermore, he has forked and customized native Terraform providers in Go (`terraform-provider-neo4j`) using the Terraform Plugin SDK, "
             "giving him deep low-level mastery of cloud provider APIs, state reconciliation loops, and CRUD lifecycles.\n\n"
             "Are you evaluating a migration between Terraform and Pulumi/CDK?"
         )
@@ -525,7 +525,7 @@ def synthesize_conversational_response(
             "distributed NoSQL databases for high-throughput, low-latency (sub-10ms) key-value and wide-column workloads.\n\n"
             "Alongside his work modernizing event streaming on Confluent Cloud / Apache Kafka, he operated these distributed NoSQL "
             "stores to handle high-velocity write throughput and low-latency reads. He has also engineered systems with PostgreSQL, "
-            "AWS Aurora, Redis (ElastiCache), DynamoDB, and graph databases (authoring `terraform-provider-neo4j` in Go).\n\n"
+            "AWS Aurora, Redis (ElastiCache), DynamoDB, and graph databases (forking and customizing `terraform-provider-neo4j` in Go).\n\n"
             "Would you like to hear more about his distributed data store experience or event-driven data architectures?"
         )
 
@@ -600,7 +600,7 @@ def synthesize_conversational_response(
             "He **previously held the CKA (Certified Kubernetes Administrator)** certification and let it lapse in favor of continuous, "
             "deep hands-on production Kubernetes engineering.\n\n"
             "In production, his Kubernetes expertise goes well beyond standard administration:\n"
-            "• **Zero-Downtime Migration**: Architected and led the migration of 30+ mission-critical microservices from legacy ECS to Amazon EKS.\n"
+            "• **Zero-Downtime Migration**: Architected and led the migration of mission-critical microservices from legacy ECS to Amazon EKS.\n"
             "• **Custom Operators in Go**: Authored custom Kubernetes controllers using `client-go` (`prometheus-ingress-status-exporter`) to monitor Ingress health and export latency metrics.\n"
             "• **Production Ecosystem**: Expert with ArgoCD GitOps, Helm chart authoring, Karpenter dynamic Spot autoscaling, AWS App Mesh mTLS, and CRDs.\n\n"
             "Are you looking for hands-on Kubernetes architecture or cluster administration expertise?"
@@ -765,7 +765,7 @@ def synthesize_conversational_response(
         return (
             f"{confirm}"
             "Brandon has extensive hands-on experience with Kubernetes, especially leading enterprise migrations and GitOps adoption.\n\n"
-            "As Lead Platform Engineer, he architected and led the zero-downtime migration of over 30 mission-critical microservices "
+            "As Lead Platform Engineer, he architected and led the zero-downtime migration of mission-critical microservices "
             "from legacy AWS ECS to Amazon EKS. To streamline delivery, he introduced ArgoCD for declarative GitOps, which slashed "
             "deployment lead times from hours down to under 10 minutes.\n\n"
             "On the networking and security side, he rolled out AWS App Mesh with Envoy proxies across clusters to enforce zero-trust "
@@ -782,7 +782,7 @@ def synthesize_conversational_response(
             f"{confirm}"
             "Terraform is one of Brandon's strongest core skills. He designed and maintained a centralized Terraform module platform "
             "used by over 20 engineering squads across AWS, GCP, Datadog, Snowflake, and Confluent Cloud.\n\n"
-            "Beyond authoring standard reusable modules, he's built custom native Terraform providers in Go (like `terraform-provider-neo4j`) "
+            "Beyond authoring standard reusable modules, he has forked and customized native Terraform providers in Go (like `terraform-provider-neo4j`) "
             "using the Terraform Plugin SDK. In CI/CD, he eliminated static cloud credentials entirely by configuring Workload Identity Federation "
             "(OIDC) in GitHub Actions so that workflows authenticate dynamically.\n\n"
             "Even this portfolio platform is 100% Terraform-managed, orchestrating Cloud Run, Firebase Hosting, and Artifact Registry with zero static keys.\n\n"
@@ -795,11 +795,11 @@ def synthesize_conversational_response(
         return (
             f"{confirm}"
             "Brandon has deep enterprise experience with Apache Kafka and Confluent Cloud. As a Staff Data Infrastructure Engineer, "
-            "he led the strategic migration of 40+ microservices from self-hosted AWS MSK to Confluent Cloud—achieving zero customer downtime "
+            "he led the strategic migration from self-hosted AWS MSK to Confluent Cloud—achieving zero customer downtime "
             "and zero message loss throughout the entire cutover.\n\n"
-            "Along with the broker cutover, he instituted enterprise Schema Registry governance using Avro and Protobuf contracts "
-            "to prevent breaking changes across event schemas, and fully automated Kafka topic provisioning and ACLs with Terraform GitOps pipelines.\n\n"
-            "Are you interested in his migration playbook, schema governance, or stream processing architectures?"
+            "Along with the broker cutover, he consolidated Kafka environments down to PreProd and Prod to significantly reduce "
+            "infrastructure spend, and fully automated Kafka topic provisioning and ACLs with Terraform GitOps pipelines.\n\n"
+            "Are you interested in his migration playbook, environment consolidation, or stream processing architectures?"
         )
 
     # FinOps & Cloud Cost Optimization
@@ -844,7 +844,7 @@ def synthesize_conversational_response(
             "Brandon uses Go (Golang) extensively for systems engineering, Kubernetes operators, and developer tooling.\n\n"
             "Key projects include:\n"
             "• **Prometheus Ingress Status Exporter**: A custom Go controller using Kubernetes `client-go` that dynamically discovers Ingress endpoints and exports latency and availability metrics to Prometheus.\n"
-            "• **Terraform Provider for Neo4j**: A native Go plugin using the Terraform Plugin SDK to manage Neo4j graph database topologies declaratively.\n"
+            "• **Terraform Provider for Neo4j**: Forked and customized native Go plugin using the Terraform Plugin SDK to manage Neo4j graph database topologies declaratively.\n"
             "• Concurrent CLI daemons and system automation utilizing Go routines and channels for high concurrency.\n\n"
             "Would you like to hear more about how he structured his Kubernetes controllers or custom providers?"
         )

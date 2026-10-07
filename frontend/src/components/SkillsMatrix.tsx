@@ -6,98 +6,118 @@ const SKILL_GROUPS: SkillCategory[] = [
   {
     name: "Languages & Core Systems",
     skills: [
-      { name: "Go (Golang)", proficiency: "Expert", context: "Kubernetes controllers (client-go), Terraform providers (Plugin SDK), Prometheus exporters, CLI daemons." },
-      { name: "Python", proficiency: "Expert", context: "FastAPI, PyTorch, Pydantic, data pipelines, automated browser agents (CDP)." },
-      { name: "Bash / POSIX Shell", proficiency: "Expert", context: "Production Linux systems, CI/CD runner environments, POSIX automation." },
-      { name: "TypeScript / React", proficiency: "Proficient", context: "Vite, React 19, modern component architectures, state management." },
-      { name: "SQL", proficiency: "Proficient", context: "PostgreSQL query tuning, Aurora RDS, Snowflake modeling." },
-      { name: "Lua", proficiency: "Proficient", context: "WezTerm plugins, Neovim configuration, terminal event hooks." }
+      { name: "Go (Golang)", proficiency: "Proficient", context: "Kubernetes controllers and operators (client-go), custom Terraform providers (Plugin SDK v2), Prometheus exporters, concurrent CLI daemons, goroutines/channels." },
+      { name: "Python", proficiency: "Expert", context: "FastAPI, Streamlit internal tooling, Pydantic v2 data validation, PyTorch, local LLM inference tooling, data pipelines, automated browser agents (CDP)." },
+      { name: "Bash / POSIX Shell", proficiency: "Expert", context: "Production Linux systems engineering, CI/CD runner automation, terminal dev environments, POSIX scripting." },
+      { name: "TypeScript / JavaScript", proficiency: "Familiar", context: "React 19, Vite, Node.js tooling, modern frontend applications, state management." },
+      { name: "SQL", proficiency: "Familiar", context: "PostgreSQL query tuning, Aurora RDS, Snowflake data warehouse modeling, analytical queries." },
+      { name: "Lua", proficiency: "Proficient", context: "WezTerm plugins, Neovim configuration, event-driven terminal hooks." },
+      { name: "Rust & Java", proficiency: "Familiar", context: "Systems programming concepts, reading and debugging JVM/Rust codebases, concurrency models." }
     ]
   },
   {
     name: "Cloud & Multi-Cloud Architecture",
     skills: [
-      { name: "Amazon Web Services (AWS)", proficiency: "Expert", context: "Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS." },
-      { name: "Google Cloud Platform (GCP)", proficiency: "Expert", context: "Cloud Run, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage." },
-      { name: "Microsoft Azure", proficiency: "Familiar", context: "Cloud-agnostic architecture, AKS, Azure Blob, Azure DevOps, multi-cloud Terraform patterns." },
-      { name: "Multi-Cloud Governance & IAM", proficiency: "Expert", context: "Unified IAM policies, cross-cloud state orchestration, egress cost mitigation, multi-account isolation." }
+      { name: "Amazon Web Services (AWS)", proficiency: "Expert", context: "Multi-account AWS Organizations, EKS, ECS Fargate, VPC, Transit Gateway, ALB, RDS Aurora, S3, IAM, SQS, CloudWatch, Cost Explorer." },
+      { name: "Google Cloud Platform (GCP)", proficiency: "Proficient", context: "Cloud Run, GKE, Artifact Registry, Firebase Hosting, Workload Identity Federation (WIF), IAM, Cloud Storage." },
+      { name: "Microsoft Azure", proficiency: "Familiar", context: "Cloud-agnostic architecture, AKS, Azure Blob Storage, Azure DevOps, multi-cloud Terraform and Kubernetes patterns." },
+      { name: "Oracle Cloud (OCI)", proficiency: "Familiar", context: "Portable cloud infrastructure deployment concepts, cloud-agnostic Kubernetes topologies." },
+      { name: "FinOps & Cloud Cost Optimization", proficiency: "Expert", context: "Architectural rightsizing, serverless scale-to-zero, Karpenter Spot autoscaling." }
     ]
   },
   {
     name: "Containers & Orchestration",
     skills: [
-      { name: "Kubernetes (K8s) & EKS", proficiency: "Expert", context: "EKS/GKE cluster administration, controllers/operators (client-go), ingress, HPA, Karpenter, CRDs (previously CKA certified)." },
-      { name: "ArgoCD / GitOps", proficiency: "Expert", context: "Declarative continuous delivery, multi-cluster application sets, automated sync, rollbacks, ArgoCD Image Updater." },
-      { name: "Docker & Container Runtimes", proficiency: "Expert", context: "Multi-stage distroless/slim builds, rootless containers, OCI optimization, Docker Compose local dev." },
-      { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, GitOps releases." },
-      { name: "Cluster Autoscaling (Karpenter/HPA)", proficiency: "Expert", context: "Dynamic node provisioning, horizontal pod autoscaling, disruption budgets, graceful termination." }
+      { name: "Kubernetes (K8s) & EKS", proficiency: "Expert", context: "Production EKS/GKE cluster administration, controllers/operators (client-go), ingress, HPA, Karpenter, CRDs, multi-tenant isolation; previously held CKA certification." },
+      { name: "ArgoCD / GitOps", proficiency: "Expert", context: "Declarative continuous delivery, multi-cluster application sets, automated sync and rollback pipelines, ArgoCD Image Updater." },
+      { name: "FluxCD", proficiency: "Familiar", context: "GitOps controller reconciliation loop, repository synchronization, Kustomize controller patterns." },
+      { name: "Docker & Container Runtimes", proficiency: "Expert", context: "Multi-stage distroless/slim builds, rootless containers, OCI image optimization, Docker Compose local development environments." },
+      { name: "Helm", proficiency: "Expert", context: "Parameterized chart authoring, dependency management, automated releases via GitOps." },
+      { name: "Service Mesh & Envoy", proficiency: "Expert", context: "AWS App Mesh, Envoy Proxy, Envoy Gateway ingress, mutual TLS (mTLS) enforcement, circuit breakers, distributed tracing." }
     ]
   },
   {
     name: "CI/CD & Delivery Engineering",
     skills: [
-      { name: "GitHub Actions", proficiency: "Expert", context: "Enterprise pipeline authoring from scratch, reusable workflows, Linux runners, keyless OIDC/WIF." },
-      { name: "Jenkins & Legacy Migration", proficiency: "Proficient", context: "Jenkins build environments, runner scaling, migrated 100+ repos from Bitbucket & Jenkins to GitHub Actions (99.8% reliability)." },
-      { name: "GitLab CI & Alternative Runners", proficiency: "Proficient", context: "Declarative pipeline-as-code, runner autoscaling, containerized testing stages." }
+      { name: "CI/CD & Pipeline Automation", proficiency: "Expert", context: "Enterprise CI/CD pipeline authoring from scratch, reusable GitHub Actions workflows, Bitbucket and Jenkins migrations (100+ repos, 99.8% reliability), keyless OIDC/WIF security, automated testing and security gates." },
+      { name: "Jenkins & Traditional CI/CD", proficiency: "Proficient", context: "Jenkins build environments, runner scaling on Linux/Docker, multi-stage pipelines, migration to modern GitOps." },
+      { name: "GitLab CI & Alternative Runners", proficiency: "Proficient", context: "Declarative pipeline-as-code, runner autoscaling, containerized testing stages, artifact management." }
     ]
   },
   {
     name: "Infrastructure as Code & Automation",
     skills: [
-      { name: "Terraform / OpenTofu", proficiency: "Expert", context: "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake), custom Go providers." },
-      { name: "Pulumi & AWS CDK", proficiency: "Familiar", context: "Programmatic IaC concepts, TypeScript/Python IaC SDKs, rapid adoption capability." },
-      { name: "Ansible & Config Management", proficiency: "Proficient", context: "Host provisioning and system automation; emphasizes modern immutable infrastructure (Terraform + Docker + K8s)." }
+      { name: "Terraform / OpenTofu", proficiency: "Expert", context: "Enterprise module authoring, multi-cloud state orchestration (AWS, GCP, Datadog, Snowflake, Confluent), forked and customized Terraform provider in Go (terraform-provider-neo4j)." },
+      { name: "Pulumi & AWS CDK", proficiency: "Familiar", context: "Programmatic Infrastructure as Code concepts, TypeScript/Python IaC SDKs, rapid adoption capability." },
+      { name: "Ansible & Config Management", proficiency: "Proficient", context: "Host provisioning, Linux system automation, playbooks; emphasizes modern immutable infrastructure (Terraform + Docker + K8s)." }
     ]
   },
   {
     name: "Data Platforms & Distributed Storage",
     skills: [
-      { name: "Apache Kafka & Confluent", proficiency: "Expert", context: "Enterprise event streaming, schema registry governance (Avro/Protobuf), broker migration from MSK." },
+      { name: "Apache Kafka & Confluent Cloud", proficiency: "Expert", context: "Enterprise event streaming, schema registry governance (Avro/Protobuf), topic management with Terraform, broker migration from MSK." },
       { name: "Snowflake & Databricks", proficiency: "Proficient", context: "Data lakehouse infrastructure, Spark pipelines, role-based access control, Terraform automation." },
-      { name: "NoSQL (Aerospike & Cassandra)", proficiency: "Proficient", context: "High-throughput distributed NoSQL data stores with Aerospike and Apache Cassandra; Redis caching." },
-      { name: "PostgreSQL & AWS Aurora", proficiency: "Proficient", context: "Relational schema design, query tuning, Aurora cluster provisioning, replication, failover." }
-    ]
-  },
-  {
-    name: "Cloud Security, DevSecOps & Compliance",
-    skills: [
-      { name: "Zero-Trust & Identity (WIF / OIDC)", proficiency: "Expert", context: "Keyless cloud authentication, least-privilege IAM policies, AWS Organizations SCPs, mTLS encryption." },
-      { name: "Software Supply Chain Security", proficiency: "Expert", context: "Container vulnerability scanning (Trivy, Snyk), Software Bill of Materials (SBOM), image provenance." },
-      { name: "Compliance (SOC 2, HIPAA, ISO 27001)", proficiency: "Proficient", context: "Engineered automated controls and supplied technical audit evidence to meet SOC 2 Type 2, HIPAA, and ISO 27001." }
-    ]
-  },
-  {
-    name: "Observability, SRE & Reliability",
-    skills: [
-      { name: "Prometheus & Exporters", proficiency: "Expert", context: "Custom Go exporters, synthetic ingress probing, PromQL alerting rules, metric aggregations." },
-      { name: "Datadog", proficiency: "Expert", context: "APM tracing, log management, synthetics, Terraform Datadog automation." },
-      { name: "Grafana", proficiency: "Expert", context: "Custom dashboards, dashboard-as-code provisioning, LogQL/PromQL visualizations, and multi-datasource alerting." },
-      { name: "OpenTelemetry (OTel)", proficiency: "Expert", context: "Distributed trace context propagation (W3C traceparent), OTel collector pipelines, and span creation for microservices." },
-      { name: "SRE & Incident Management", proficiency: "Expert", context: "SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership." }
+      { name: "PostgreSQL & AWS Aurora", proficiency: "Proficient", context: "Relational schema design, query optimization, Aurora cluster provisioning, replication, and failover." },
+      { name: "NoSQL & Distributed Caching", proficiency: "Proficient", context: "High-throughput distributed NoSQL data stores with Aerospike and Apache Cassandra; ElastiCache Redis caching and session management." },
+      { name: "Workflow Orchestration (Temporal & Airflow)", proficiency: "Familiar", context: "Stateful workflow orchestrator architectures (Temporal activities/workflows) and DAG pipelines (Airflow); deep hands-on background in event-driven systems (Kafka, SQS, Step Functions)." }
     ]
   },
   {
     name: "AI Infrastructure & MLOps",
     skills: [
-      { name: "Autonomous Agent Fleets", proficiency: "Expert", context: "Local-first LLMs, multi-agent coordination (My Agentic Team), CDP web automation." },
-      { name: "RAG & Retrieval Systems", proficiency: "Expert", context: "Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking." },
-      { name: "MLOps Evaluation Gates", proficiency: "Expert", context: "Continuous offline evaluation in CI/CD, LLM-as-a-judge, golden test datasets." },
-      { name: "Local LLM Inference", proficiency: "Expert", context: "Ollama, quantization (GGUF), Laya sub-50ms decision engine." }
+      { name: "Autonomous Agent Architectures", proficiency: "Proficient", context: "Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation." },
+      { name: "RAG & Retrieval Systems", proficiency: "Proficient", context: "Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering." },
+      { name: "MLOps Evaluation & Quality Gates", proficiency: "Proficient", context: "Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets." },
+      { name: "Local LLM Inference", proficiency: "Proficient", context: "Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings." },
+      { name: "Distributed ML & GPU Compute", proficiency: "Familiar", context: "Understanding of GPU cluster orchestration (CUDA), model training/serving pipelines (Kubeflow/Ray); primary hands-on work in Databricks and FastAPI inference services." },
+      { name: "AWS SageMaker & Managed ML", proficiency: "Proficient", context: "Understanding of SageMaker model training, endpoints, and registries; primarily deploys containerized inference microservices (FastAPI/Docker on EKS and Cloud Run) and provisions ML infrastructure via Terraform and IAM." }
     ]
   },
   {
-    name: "Platform Engineering & DevEx",
+    name: "Cloud Security, DevSecOps & Compliance",
     skills: [
-      { name: "Internal Developer Platforms & Paved Roads", proficiency: "Expert", context: "Opinionated self-service infrastructure ('easy path is safe path'), service templates, PR preview environments." },
+      { name: "Zero-Trust & Identity (WIF / OIDC / IAM)", proficiency: "Expert", context: "Keyless cloud authentication, least-privilege IAM policies, mTLS cryptographic encryption." },
+      { name: "Runtime Security & Threat Detection (Falco)", proficiency: "Proficient", context: "Implemented Falco DaemonSets on Kubernetes for eBPF/syscall runtime anomaly detection, privilege escalation alerting, and container behavioral monitoring." },
+      { name: "Software Supply Chain Security", proficiency: "Expert", context: "Container vulnerability scanning (Trivy, Snyk), Software Bill of Materials (SBOM), image provenance, admission control." },
+      { name: "Compliance Standards (SOC 2, HIPAA, ISO 27001)", proficiency: "Proficient", context: "Engineering automated controls, audit evidence collection, risk register maintenance, and audit readiness for SOC 2 Type 2, HIPAA, and ISO 27001." },
+      { name: "Secrets & Key Management", proficiency: "Expert", context: "Automated secret rotation, AWS Secrets Manager, HashiCorp Vault, KMS envelope encryption." }
+    ]
+  },
+  {
+    name: "Observability, SRE & Reliability",
+    skills: [
+      { name: "Prometheus & Exporters", proficiency: "Proficient", context: "Custom Go Prometheus exporters, synthetic ingress probing, PromQL alerting rules, Grafana dashboards." },
+      { name: "Datadog", proficiency: "Expert", context: "APM tracing, log management, synthetic monitoring, Terraform Datadog provider automation." },
+      { name: "Grafana", proficiency: "Expert", context: "Custom operational dashboards, dashboard-as-code provisioning, LogQL/PromQL visualizations, alerting rules, and multi-datasource integration." },
+      { name: "OpenTelemetry (OTel)", proficiency: "Expert", context: "Distributed trace context propagation (W3C traceparent), OTel collector pipelines, span creation for microservices and AI retrieval latency." },
+      { name: "SRE Practices & Incident Management", proficiency: "Expert", context: "SLOs/SLIs, error budgets, blameless postmortems, automated runbooks, on-call rotation leadership." },
+      { name: "High Availability & Disaster Recovery (HA/DR)", proficiency: "Expert", context: "Multi-region failover, circuit breakers, graceful degradation, chaos engineering principles." }
+    ]
+  },
+  {
+    name: "Platform Engineering & Developer Experience",
+    skills: [
+      { name: "Internal Developer Platforms & Paved Roads", proficiency: "Expert", context: "Designing opinionated self-service infrastructure ('the easy path is the safe path'), service templates, PR preview environments." },
       { name: "Developer Tooling & CLIs", proficiency: "Expert", context: "Authoring high-performance developer CLIs, SDKs, and automation tooling in Go and Python." },
-      { name: "Developer Portals (Backstage / Port)", proficiency: "Familiar", context: "Architectural understanding of developer portals and service catalogs; eager to lead a full IDP rollout." }
+      { name: "Internal Tooling & Self-Service Portals (Streamlit)", proficiency: "Proficient", context: "Engineered secure Streamlit portals for customer support teams to resolve issues with least-privilege RBAC, avoiding direct system access." },
+      { name: "Developer Portals (Backstage / Port)", proficiency: "Familiar", context: "Architectural understanding of developer portals, service catalogs, and software templates; actively looking forward to leading a full IDP rollout." }
+    ]
+  },
+  {
+    name: "Technical Leadership & Soft Skills",
+    skills: [
+      { name: "Staff / Principal Technical Leadership", proficiency: "Expert", context: "Driving technical strategy, building consensus across engineering boundaries without management authority, raising the technical bar." },
+      { name: "Architecture Reviews & RFCs", proficiency: "Expert", context: "Authoring RFCs (Request for Comments) and ADRs (Architectural Decision Records), leading design reviews for mission-critical systems." },
+      { name: "Mentorship & Engineering Culture", proficiency: "Expert", context: "Mentoring mid-level and senior engineers, fostering servant leadership, blameless postmortem culture, allyship." },
+      { name: "Cross-Functional Communication", proficiency: "Expert", context: "Translating deep infrastructure trade-offs into business value for Product, Security, Compliance, and executive stakeholders." },
+      { name: "Adoption-First Engineering", proficiency: "Expert", context: "Treating platform adoption as a first-class engineering discipline with feedback loops, docs, and measurable developer productivity outcomes." }
     ]
   },
   {
     name: "Networking, Service Mesh & Traffic",
     skills: [
       { name: "AWS App Mesh & Envoy Proxy", proficiency: "Expert", context: "Mutual TLS (mTLS) enforcement, service graph cryptographic identity, circuit breakers, Envoy access logging." },
-      { name: "Kubernetes Ingress & Gateway API", proficiency: "Expert", context: "Declarative ingress routing, ALB/NLB controllers, automated TLS cert management with cert-manager." },
+      { name: "Kubernetes Ingress & Gateway API", proficiency: "Expert", context: "Declarative ingress routing, ALB/NLB controllers, automated TLS cert management with cert-manager, external-dns." },
       { name: "Cloud Network Topologies (VPC / TGW)", proficiency: "Expert", context: "Multi-account VPC peering, AWS Transit Gateway, PrivateLink endpoints, and Route 53 private zones." }
     ]
   },
@@ -105,9 +125,8 @@ const SKILL_GROUPS: SkillCategory[] = [
     name: "FinOps & Cloud Cost Optimization",
     skills: [
       { name: "Karpenter & Dynamic Spot Scaling", proficiency: "Expert", context: "Just-in-time worker node provisioning, graceful Spot interruption handling, bin-packing optimization." },
-      { name: "FOCUS Spec & Unit Economics", proficiency: "Expert", context: "FinOps Open Cost and Usage Specification, showback/chargeback tagging, Datadog FinOps dashboards." },
-      { name: "Scale-to-Zero Architectures", proficiency: "Expert", context: "Serverless Cloud Run concurrency tuning, multi-tier rate limiting, zero-idle cost GCP infrastructure." },
-      { name: "Cloud Cost Rationalization ($10K+/mo)", proficiency: "Expert", context: "Compute rightsizing, data retention lifecycle policies, eliminated $10K+/mo in cloud infrastructure costs." }
+      { name: "Scale-to-Zero Architectures", proficiency: "Proficient", context: "Serverless Cloud Run concurrency tuning, multi-tier rate limiting, zero-idle cost GCP infrastructure." },
+      { name: "Cloud Cost Rationalization", proficiency: "Expert", context: "Compute rightsizing, data retention lifecycle policies, eliminated $10K+/mo in cloud infrastructure costs." }
     ]
   }
 ];

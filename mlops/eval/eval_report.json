@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-07T16:27:25.043619Z",
+  "timestamp": "2026-10-07T16:47:47.714411Z",
   "passed": true,
   "metrics": {
     "total_tests": 15,
@@ -22,7 +22,7 @@
       "retrieved_ids": [
         "chunk-exp-eks-migration",
         "chunk-bio-overview",
-        "chunk-exp-kafka-confluent-migration"
+        "chunk-exp-customer-service-tooling"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -36,7 +36,7 @@
       "retrieved_ids": [
         "chunk-bio-overview",
         "chunk-exp-kafka-confluent-migration",
-        "chunk-skills-finops-and-cloud-cost-optimization"
+        "chunk-proj-portfolio-platform"
       ],
       "hit_top3": false,
       "rank": 0,
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-skills-data-platforms-and-distributed-storage",
-        "chunk-bio-overview"
+        "chunk-bio-overview",
+        "chunk-skills-data-platforms-and-distributed-storage"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -210,8 +210,8 @@
       "target_chunk": "chunk-personal-profile",
       "retrieved_ids": [
         "chunk-personal-profile",
-        "chunk-skills-ai-infrastructure-and-mlops",
-        "chunk-bio-overview"
+        "chunk-bio-overview",
+        "chunk-skills-ai-infrastructure-and-mlops"
       ],
       "hit_top3": true,
       "rank": 1,

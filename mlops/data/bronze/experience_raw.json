@@ -1,8 +1,8 @@
 {
   "source_type": "local_yaml",
   "file_name": "experience.yaml",
-  "raw_hash": "2d58fb58f7cdb464fe75a7ca2b58620a6f362e115f5c6e2e7ded82cd33bc9fc7",
-  "ingested_at": "2026-10-07T16:27:24.730294Z",
+  "raw_hash": "7bd4a50af6cadf1f76d17f7f3abae71c41e5ae4c539d5f98ba9f184fffb812b8",
+  "ingested_at": "2026-10-07T16:47:47.389408Z",
   "payload": {
     "milestones": [
       {
@@ -102,12 +102,15 @@
         "category": "platform_engineering",
         "title": "Enterprise Cloud Security, DevSecOps & Compliance Audit Governance",
         "role": "Lead Platform & Infrastructure Security Engineer",
-        "summary": "Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\n",
+        "summary": "Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, deployed Falco for Kubernetes runtime threat detection and syscall monitoring, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\n",
         "impact_metrics": [
           "Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards",
+          "Deployed Falco runtime security across Kubernetes clusters to detect container anomalies, privilege escalations, and unexpected syscall behavior",
           "Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines"
         ],
         "technologies": [
+          "Falco",
+          "Runtime Security",
           "AWS IAM",
           "Workload Identity / OIDC",
           "SOC 2 Type 2",

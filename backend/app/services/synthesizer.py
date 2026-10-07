@@ -553,14 +553,37 @@ def synthesize_conversational_response(
             "Are you evaluating him for data platform engineering or MLOps infrastructure?"
         )
 
+    # AWS SageMaker & Managed ML Platforms
+    if re.search(r"\bsagemaker\b", q_lower):
+        return (
+            "Brandon understands the architecture and operational lifecycle of **AWS SageMaker**—including notebook instances, "
+            "training jobs, model registries, and multi-model real-time endpoints.\n\n"
+            "In production, his AI and ML platform engineering has primarily centered on:\n"
+            "• **Containerized Inference Microservices**: Packaging model runtimes into lightweight Docker containers deployed onto Amazon EKS and serverless Google Cloud Run with FastAPI.\n"
+            "• **Local LLM Inference Runtimes**: Orchestrating local model execution with Ollama, GGUF quantization, and the sub-50ms Laya decision engine for autonomous agent workflows (*My Agentic Team*).\n"
+            "• **Infrastructure as Code & Governance**: Provisioning and securing cloud ML resources and IAM least-privilege execution roles declaratively via Terraform.\n\n"
+            "Because of his deep background across AWS, Docker, Kubernetes, and MLOps evaluation pipelines, he can configure, secure, and operationalize SageMaker workloads seamlessly. Are you evaluating him for an AWS ML platform or MLOps engineering role?"
+        )
+
+    # Runtime Security & Falco (eBPF / Syscall Threat Detection)
+    if re.search(r"\bfalco\b|\bruntime\s+security\b|\bruntime\s+threat\b|\bebpf\s+security\b", q_lower):
+        return (
+            "Yes! Brandon has hands-on production experience implementing **Falco** for Kubernetes runtime security and threat detection:\n\n"
+            "• **Kubernetes DaemonSet Deployment**: Deployed and maintained Falco DaemonSets across Kubernetes clusters to monitor Linux kernel syscalls and container execution in real time.\n"
+            "• **Anomaly Detection & Threat Alerting**: Configured rule sets to detect privilege escalations, unauthorized shell spawns inside production containers, unexpected outbound network connections, and sensitive file mutations (`/etc/passwd`, `/etc/shadow`).\n"
+            "• **Defense-in-Depth DevSecOps**: Paired runtime monitoring with automated CI/CD container image scanning (Trivy/Snyk), admission controllers, least-privilege IAM/WIF, and end-to-end mTLS via AWS App Mesh.\n\n"
+            "Would you like to hear more about his DevSecOps compliance automation or zero-trust networking architecture?"
+        )
+
     # Compliance Standards: SOC 2, HIPAA, ISO 27001 & DevSecOps
     if re.search(r"\bsoc\s*2\b|\bsoc2\b|\bhipaa\b|\biso\s*27001\b|\biso27001\b|\bcompliance\b|\baudit\b|\bsecurity\s+standards?\b", q_lower):
         return (
             "Yes! Brandon has direct experience designing cloud security architectures and supplying technical evidence to satisfy "
             "**SOC 2 Type 2**, **HIPAA**, and **ISO 27001** compliance audits.\n\n"
             "Key technical controls and compliance practices he has implemented include:\n"
-            "• **Least-Privilege & Identity Governance**: Enforced strict IAM role boundaries, AWS Organizations Service Control Policies (SCPs), "
-            "and eliminated static long-lived credentials by adopting Workload Identity Federation (WIF) and keyless OIDC across all CI/CD runners.\n"
+            "• **Least-Privilege & Identity Governance**: Enforced strict IAM role boundaries and eliminated static long-lived credentials "
+            "by adopting Workload Identity Federation (WIF) and keyless OIDC across all CI/CD runners.\n"
+            "• **Runtime Threat Detection**: Implemented Falco DaemonSets on Kubernetes for real-time syscall monitoring, container anomaly alerts, and privilege escalation detection.\n"
             "• **Zero-Trust Network Encryption**: Enforced end-to-end mutual TLS (mTLS) with automated ACM certificate rotation across Kubernetes "
             "microservices via AWS App Mesh and Envoy proxy.\n"
             "• **Supply Chain & Vulnerability Gates**: Automated container scanning (Trivy, Snyk), Software Bill of Materials (SBOM), and static "

@@ -163,8 +163,10 @@
     "id": "chunk-exp-security-compliance-audit",
     "title": "Experience: Enterprise Cloud Security, DevSecOps & Compliance Audit Governance",
     "category": "platform_engineering",
-    "content": "[CAREER EXPERIENCE] Enterprise Cloud Security, DevSecOps & Compliance Audit Governance\nRole: Lead Platform & Infrastructure Security Engineer | Category: platform_engineering\nSummary: Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\nQuantified Impact & Metrics:\n  \u2022 Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards\n  \u2022 Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines\nTechnologies Utilized: AWS IAM, Workload Identity / OIDC, SOC 2 Type 2, HIPAA, ISO 27001, Security Scanning (Trivy/Snyk), AWS Config & Security Hub, Kubernetes RBAC",
+    "content": "[CAREER EXPERIENCE] Enterprise Cloud Security, DevSecOps & Compliance Audit Governance\nRole: Lead Platform & Infrastructure Security Engineer | Category: platform_engineering\nSummary: Designed and enforced defense-in-depth security architectures across AWS and Kubernetes environments. Implemented least-privilege IAM policies, automated container vulnerability scanning (Trivy/Snyk) in CI/CD, deployed Falco for Kubernetes runtime threat detection and syscall monitoring, and provided technical evidence and controls to successfully satisfy SOC 2 Type 2, HIPAA, and ISO 27001 compliance audits.\nQuantified Impact & Metrics:\n  \u2022 Supplied technical audit evidence and automated controls satisfying SOC 2 Type 2, HIPAA, and ISO 27001 compliance standards\n  \u2022 Deployed Falco runtime security across Kubernetes clusters to detect container anomalies, privilege escalations, and unexpected syscall behavior\n  \u2022 Eliminated static cloud credentials by enforcing Workload Identity Federation (WIF) and keyless OIDC across all CI/CD pipelines\nTechnologies Utilized: Falco, Runtime Security, AWS IAM, Workload Identity / OIDC, SOC 2 Type 2, HIPAA, ISO 27001, Security Scanning (Trivy/Snyk), AWS Config & Security Hub, Kubernetes RBAC",
     "tags": [
+      "falco",
+      "runtime security",
       "aws iam",
       "workload identity / oidc",
       "soc 2 type 2",
@@ -177,7 +179,7 @@
       "experience"
     ],
     "source_file": "experience.yaml",
-    "token_estimate": 242,
+    "token_estimate": 305,
     "metadata": {
       "role": "Lead Platform & Infrastructure Security Engineer",
       "milestone_id": "exp-security-compliance-audit"
@@ -501,30 +503,32 @@
     "id": "chunk-skills-ai-infrastructure-and-mlops",
     "title": "Skills: AI Infrastructure & MLOps",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Proficient): Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Proficient): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Proficient): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Proficient): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.\n  \u2022 Distributed ML & GPU Compute (Familiar): Understanding of GPU cluster orchestration (CUDA), model training/serving pipelines (Kubeflow/Ray); primary hands-on work in Databricks and FastAPI inference services.",
+    "content": "[TECHNICAL SKILLS: AI INFRASTRUCTURE & MLOPS]\nSkills and Production Proof-Points:\n  \u2022 Autonomous Agent Architectures (Proficient): Local-first LLMs, multi-agent coordination (My Agentic Team), Chrome DevTools Protocol (CDP) web automation.\n  \u2022 RAG & Retrieval Systems (Proficient): Hybrid search (BM25 sparse + dense embeddings), Reciprocal Rank Fusion (RRF), semantic chunking, prompt engineering.\n  \u2022 MLOps Evaluation & Quality Gates (Proficient): Continuous offline evaluation in CI/CD, LLM-as-a-judge (faithfulness, relevancy, context recall), golden test datasets.\n  \u2022 Local LLM Inference (Proficient): Ollama, quantization (GGUF), Laya sub-50ms decision engine, local embeddings.\n  \u2022 Distributed ML & GPU Compute (Familiar): Understanding of GPU cluster orchestration (CUDA), model training/serving pipelines (Kubeflow/Ray); primary hands-on work in Databricks and FastAPI inference services.\n  \u2022 AWS SageMaker & Managed ML (Proficient): Understanding of SageMaker model training, endpoints, and registries; primarily deploys containerized inference microservices (FastAPI/Docker on EKS and Cloud Run) and provisions ML infrastructure via Terraform and IAM.",
     "tags": [
       "autonomous agent architectures",
       "rag & retrieval systems",
       "mlops evaluation & quality gates",
       "local llm inference",
       "distributed ml & gpu compute",
+      "aws sagemaker & managed ml",
       "skills",
       "ai infrastructure & mlops"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 224,
+    "token_estimate": 290,
     "metadata": {
       "category_name": "AI Infrastructure & MLOps",
-      "skills_count": 5
+      "skills_count": 6
     }
   },
   {
     "id": "chunk-skills-cloud-security,-devsecops-and-compliance",
     "title": "Skills: Cloud Security, DevSecOps & Compliance",
     "category": "skills",
-    "content": "[TECHNICAL SKILLS: CLOUD SECURITY, DEVSECOPS & COMPLIANCE]\nSkills and Production Proof-Points:\n  \u2022 Zero-Trust & Identity (WIF / OIDC / IAM) (Expert): Keyless cloud authentication, least-privilege IAM policies, AWS Organizations SCPs, mTLS cryptographic encryption.\n  \u2022 Software Supply Chain Security (Expert): Container vulnerability scanning (Trivy, Snyk), Software Bill of Materials (SBOM), image provenance, admission control.\n  \u2022 Compliance Standards (SOC 2, HIPAA, ISO 27001) (Proficient): Engineering automated controls, audit evidence collection, risk register maintenance, and audit readiness for SOC 2 Type 2, HIPAA, and ISO 27001.\n  \u2022 Secrets & Key Management (Expert): Automated secret rotation, AWS Secrets Manager, HashiCorp Vault, KMS envelope encryption.",
+    "content": "[TECHNICAL SKILLS: CLOUD SECURITY, DEVSECOPS & COMPLIANCE]\nSkills and Production Proof-Points:\n  \u2022 Zero-Trust & Identity (WIF / OIDC / IAM) (Expert): Keyless cloud authentication, least-privilege IAM policies, mTLS cryptographic encryption.\n  \u2022 Runtime Security & Threat Detection (Falco) (Proficient): Implemented Falco DaemonSets on Kubernetes for eBPF/syscall runtime anomaly detection, privilege escalation alerting, and container behavioral monitoring.\n  \u2022 Software Supply Chain Security (Expert): Container vulnerability scanning (Trivy, Snyk), Software Bill of Materials (SBOM), image provenance, admission control.\n  \u2022 Compliance Standards (SOC 2, HIPAA, ISO 27001) (Proficient): Engineering automated controls, audit evidence collection, risk register maintenance, and audit readiness for SOC 2 Type 2, HIPAA, and ISO 27001.\n  \u2022 Secrets & Key Management (Expert): Automated secret rotation, AWS Secrets Manager, HashiCorp Vault, KMS envelope encryption.",
     "tags": [
       "zero-trust & identity (wif / oidc / iam)",
+      "runtime security & threat detection (falco)",
       "software supply chain security",
       "compliance standards (soc 2, hipaa, iso 27001)",
       "secrets & key management",
@@ -532,10 +536,10 @@
       "cloud security, devsecops & compliance"
     ],
     "source_file": "skills.yaml",
-    "token_estimate": 192,
+    "token_estimate": 240,
     "metadata": {
       "category_name": "Cloud Security, DevSecOps & Compliance",
-      "skills_count": 4
+      "skills_count": 5
     }
   },
   {

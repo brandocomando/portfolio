@@ -7,9 +7,10 @@ interface AuthModalProps {
   onClose: () => void;
   onAuthSuccess: (token: string, user: any) => void;
   authLimit?: number;
+  onOpenLegal?: (doc: 'privacy' | 'terms') => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, authLimit }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, authLimit, onOpenLegal }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -139,7 +140,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           )}
         </div>
 
-        <div className="mt-5 pt-4 border-t border-slate-800 text-center">
+        <div className="mt-3.5 text-center text-[10px] text-slate-500">
+          <span>By signing in, you agree to our </span>
+          <button
+            type="button"
+            onClick={() => onOpenLegal?.('terms')}
+            className="text-cyan-400 hover:underline cursor-pointer"
+          >
+            Terms
+          </button>
+          <span> and </span>
+          <button
+            type="button"
+            onClick={() => onOpenLegal?.('privacy')}
+            className="text-cyan-400 hover:underline cursor-pointer"
+          >
+            Privacy Policy
+          </button>
+          <span>.</span>
+        </div>
+
+        <div className="mt-4 pt-3.5 border-t border-slate-800 text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 font-mono">
             <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
             <span>Authenticated via Firebase Auth (Google Cloud)</span>

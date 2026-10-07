@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { AiChatDrawer } from './components/AiChatDrawer';
 import { AuthModal } from './components/AuthModal';
 import { ContactModal } from './components/ContactModal';
+import { LegalModal, LegalDocType } from './components/LegalModal';
 import { QuotaStatus } from './types';
 import { fetchQuota } from './lib/api';
 import { auth, logout } from './lib/firebase';
@@ -19,6 +20,8 @@ export const App: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalDoc, setLegalDoc] = useState<LegalDocType>('privacy');
   const [contactInitialQuestion, setContactInitialQuestion] = useState<string | undefined>();
   const [initialPrompt, setInitialPrompt] = useState<string | undefined>();
   const [quota, setQuota] = useState<QuotaStatus | null>(null);
@@ -50,14 +53,27 @@ export const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const checkHash = () => {
-      if (window.location.hash === '#contact') {
+    const checkRouting = () => {
+      const hash = window.location.hash;
+      const path = window.location.pathname;
+
+      if (hash === '#contact') {
         setIsContactModalOpen(true);
+      } else if (hash === '#privacy' || path === '/privacy') {
+        setLegalDoc('privacy');
+        setIsLegalModalOpen(true);
+      } else if (hash === '#terms' || path === '/terms') {
+        setLegalDoc('terms');
+        setIsLegalModalOpen(true);
       }
     };
-    window.addEventListener('hashchange', checkHash);
-    checkHash();
-    return () => window.removeEventListener('hashchange', checkHash);
+    window.addEventListener('hashchange', checkRouting);
+    window.addEventListener('popstate', checkRouting);
+    checkRouting();
+    return () => {
+      window.removeEventListener('hashchange', checkRouting);
+      window.removeEventListener('popstate', checkRouting);
+    };
   }, []);
 
   const handleOpenChat = (prompt?: string) => {
@@ -68,6 +84,11 @@ export const App: React.FC = () => {
   const handleOpenContact = (question?: string) => {
     setContactInitialQuestion(question);
     setIsContactModalOpen(true);
+  };
+
+  const handleOpenLegal = (doc: LegalDocType = 'privacy') => {
+    setLegalDoc(doc);
+    setIsLegalModalOpen(true);
   };
 
   const handleAuthSuccess = (token: string, _user: any) => {
@@ -102,7 +123,10 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <Footer onOpenContact={() => handleOpenContact()} />
+      <Footer
+        onOpenContact={() => handleOpenContact()}
+        onOpenLegal={handleOpenLegal}
+      />
 
       {/* Floating Action Button (AI Assistant) */}
       {!isChatOpen && (
@@ -145,6 +169,7 @@ export const App: React.FC = () => {
         onClose={() => setIsAuthModalOpen(false)}
         onAuthSuccess={handleAuthSuccess}
         authLimit={quota?.auth_limit}
+        onOpenLegal={handleOpenLegal}
       />
 
       {/* Direct Contact Modal */}
@@ -158,6 +183,23 @@ export const App: React.FC = () => {
           }
         }}
         initialQuestion={contactInitialQuestion}
+      />
+
+      {/* Legal Modal (Privacy Policy & Terms of Service) */}
+      <LegalModal
+        isOpen={isLegalModalOpen}
+        onClose={() => {
+          setIsLegalModalOpen(false);
+          if (
+            window.location.hash === '#privacy' ||
+            window.location.hash === '#terms' ||
+            window.location.pathname === '/privacy' ||
+            window.location.pathname === '/terms'
+          ) {
+            history.replaceState(null, '', '/' + window.location.search);
+          }
+        }}
+        initialDoc={legalDoc}
       />
     </div>
   );

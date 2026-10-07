@@ -83,3 +83,9 @@ variable "verification_txt_record" {
   default     = ""
 }
 
+variable "auto_verify_dns" {
+  description = "Whether to automatically pipe the TXT verification record from Firebase into Cloud DNS in one go via depends_on"
+  type        = bool
+  default     = true
+}
+

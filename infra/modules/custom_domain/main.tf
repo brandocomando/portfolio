@@ -1,6 +1,20 @@
 locals {
   site_id      = var.firebase_site_id != "" ? var.firebase_site_id : var.project_id
   clean_domain = lower(trimspace(var.custom_domain))
+
+  # Dynamically extract TXT verification record from Firebase required_dns_updates
+  dynamic_txt_records = flatten([
+    for u in try(google_firebase_hosting_custom_domain.apex[0].required_dns_updates, []) : [
+      for d in u.desired : [
+        for r in d.records : format("\"%s\"", replace(r.rdata, "\"", "")) if r.type == "TXT"
+      ]
+    ]
+  ])
+
+  # Selected TXT records: manual override if set, otherwise dynamically extracted
+  resolved_txt_records = var.verification_txt_record != "" ? [
+    startswith(var.verification_txt_record, "\"") ? var.verification_txt_record : format("\"%s\"", var.verification_txt_record)
+  ] : local.dynamic_txt_records
 }
 
 # 1. Firebase Hosting Custom Domain: Apex Domain (Triggers Google-managed SSL provisioning)
@@ -59,13 +73,15 @@ resource "google_dns_record_set" "www_cname" {
   rrdatas      = ["${local.clean_domain}."]
 }
 
-# 6. Optional: Apex Domain TXT Ownership Verification Record (Day 1 / 2nd Run)
+# 6. Apex Domain TXT Ownership Verification Record (Automatic via depends_on or manual override)
 resource "google_dns_record_set" "ownership_txt" {
-  count        = var.enable_cloud_dns && var.verification_txt_record != "" ? 1 : 0
+  count        = var.enable_cloud_dns && (var.auto_verify_dns || var.verification_txt_record != "") ? 1 : 0
   project      = var.project_id
   managed_zone = google_dns_managed_zone.primary[0].name
   name         = "${local.clean_domain}."
   type         = "TXT"
   ttl          = 300
-  rrdatas      = [startswith(var.verification_txt_record, "\"") ? var.verification_txt_record : format("\"%s\"", var.verification_txt_record)]
+  rrdatas      = length(local.resolved_txt_records) > 0 ? local.resolved_txt_records : ["\"hosting-verification=pending\""]
+
+  depends_on = [google_firebase_hosting_custom_domain.apex]
 }

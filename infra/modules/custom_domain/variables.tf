@@ -46,7 +46,13 @@ variable "firebase_hosting_ip_addresses" {
 }
 
 variable "verification_txt_record" {
-  description = "Optional Firebase TXT ownership verification token (e.g. 'hosting-site-verification=abc...'). When provided with enable_cloud_dns = true, Terraform provisions the TXT record in Cloud DNS."
+  description = "Optional manual Firebase TXT ownership verification token override (e.g. 'hosting-site-verification=abc...')"
   type        = string
   default     = ""
+}
+
+variable "auto_verify_dns" {
+  description = "Whether to automatically pipe the TXT verification record from Firebase into Cloud DNS in one go using depends_on"
+  type        = bool
+  default     = true
 }

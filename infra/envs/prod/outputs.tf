@@ -17,3 +17,20 @@ output "github_actions_sa_email" {
   description = "Service account email for GitHub Actions"
   value       = module.iam_wif.service_account_email
 }
+
+output "firebase_web_app_id" {
+  description = "Firebase Web App ID"
+  value       = module.auth.app_id
+}
+
+output "firebase_web_api_key" {
+  description = "Firebase Web Client API Key"
+  value       = module.auth.api_key
+  sensitive   = false
+}
+
+output "firebase_config" {
+  description = "Firebase SDK initialization parameters for the frontend"
+  value       = module.auth.firebase_config
+  sensitive   = false
+}

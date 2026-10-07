@@ -52,3 +52,36 @@ variable "notification_email_secret_id" {
   default     = ""
 }
 
+# --- Auth & Domain Configuration ---
+variable "custom_domain" {
+  description = "Custom domain for the portfolio (e.g. brandonfoster.dev)"
+  type        = string
+  default     = ""
+}
+
+variable "google_oauth_client_id" {
+  description = "Google OAuth 2.0 Web Client ID (optional)"
+  type        = string
+  default     = ""
+}
+
+variable "google_oauth_client_secret" {
+  description = "Google OAuth 2.0 Web Client Secret (optional, sensitive)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
+variable "github_oauth_client_id" {
+  description = "GitHub OAuth App Client ID (optional)"
+  type        = string
+  default     = ""
+}
+
+variable "github_oauth_client_secret" {
+  description = "GitHub OAuth App Client Secret (optional, sensitive)"
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+

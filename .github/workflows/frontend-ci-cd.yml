@@ -39,6 +39,14 @@ jobs:
         run: |
           cd frontend
           npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY || 'AIzaSyB7t6zRal6bW4jzOOZpTjq4lZc-lkoGFp0' }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN || 'portfolio-510722.firebaseapp.com' }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID || 'portfolio-510722' }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET || 'portfolio-510722.firebasestorage.app' }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID || '339039725614' }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID || '1:339039725614:web:cf9958d6fe4be5d12017bf' }}
+          VITE_AUTH_DAILY_LIMIT: ${{ vars.AUTH_DAILY_LIMIT || '30' }}
 
       - name: Deploy to Firebase Hosting (Production)
         if: github.ref == 'refs/heads/main' && env.FIREBASE_KEY != ''

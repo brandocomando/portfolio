@@ -66,6 +66,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const [isMinimized, setIsMinimized] = useState(false);
 
+  const targetAuthLimit = quota?.auth_limit || Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 30;
+  const targetAnonLimit = quota?.anon_limit || quota?.limit || Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 10;
+
   // Adjustable Drawer Width
   const DEFAULT_DRAWER_WIDTH = 420;
   const MIN_DRAWER_WIDTH = 340;
@@ -321,7 +324,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                     ...msg,
                     content:
                       err?.message ||
-                      "⚠️ **Daily Query Limit Reached.** You've used all 10 questions available to anonymous visitors. Sign in with Google or GitHub to unlock 30 daily questions and connect directly with Brandon!"
+                      `⚠️ **Daily Query Limit Reached.** You've used all ${targetAnonLimit} questions available to anonymous visitors. Sign in with Google or GitHub to unlock ${targetAuthLimit} daily questions and connect directly with Brandon!`
                   }
                 : msg
             )
@@ -492,7 +495,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             onClick={onOpenAuth}
             className="text-white bg-cyan-600 hover:bg-cyan-500 px-2 py-0.5 rounded text-[11px] font-semibold transition-colors"
           >
-            Unlock 30
+            Unlock {targetAuthLimit}
           </button>
         </div>
       )}

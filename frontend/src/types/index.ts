@@ -52,6 +52,8 @@ export interface QuotaStatus {
   limit: number;
   remaining: number;
   reset_seconds: number;
+  auth_limit?: number;
+  anon_limit?: number;
   user_email?: string;
   user_name?: string;
 }

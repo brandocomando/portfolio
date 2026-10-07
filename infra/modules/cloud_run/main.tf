@@ -73,6 +73,74 @@ resource "google_cloud_run_v2_service" "backend" {
         }
       }
 
+      dynamic "env" {
+        for_each = var.smtp_host != "" ? [var.smtp_host] : []
+        content {
+          name  = "SMTP_HOST"
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.smtp_user != "" ? [var.smtp_user] : []
+        content {
+          name  = "SMTP_USER"
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.smtp_password_secret_id != "" ? [var.smtp_password_secret_id] : []
+        content {
+          name = "SMTP_PASSWORD"
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.resend_api_key_secret_id != "" ? [var.resend_api_key_secret_id] : []
+        content {
+          name = "RESEND_API_KEY"
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.lead_webhook_secret_id != "" ? [var.lead_webhook_secret_id] : []
+        content {
+          name = "LEAD_NOTIFICATION_WEBHOOK_URL"
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.notification_email_secret_id != "" ? [var.notification_email_secret_id] : []
+        content {
+          name = "NOTIFICATION_EMAIL_TO"
+          value_source {
+            secret_key_ref {
+              secret  = env.value
+              version = "latest"
+            }
+          }
+        }
+      }
+
       startup_probe {
         http_get {
           path = "/healthz"

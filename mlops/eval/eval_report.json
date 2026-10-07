@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-10-05T22:55:04.061174Z",
+  "timestamp": "2026-10-07T19:49:16.492194Z",
   "passed": true,
   "metrics": {
-    "total_tests": 12,
-    "hit_rate_top3": 0.9091,
-    "mrr": 0.7576,
-    "keyword_recall": 0.98,
+    "total_tests": 15,
+    "hit_rate_top3": 0.9286,
+    "mrr": 0.8214,
+    "keyword_recall": 0.9538,
     "guardrail_pass_rate": 1.0
   },
   "gates": {
@@ -17,12 +17,12 @@
     {
       "id": "eval-01-eks-migration",
       "type": "retrieval",
-      "question": "How many microservices did Brandon migrate to EKS and what tool was used for GitOps?",
+      "question": "How did Brandon migrate mission-critical microservices to EKS and what tool was used for GitOps?",
       "target_chunk": "chunk-exp-eks-migration",
       "retrieved_ids": [
         "chunk-exp-eks-migration",
         "chunk-bio-overview",
-        "chunk-exp-kafka-confluent-migration"
+        "chunk-proj-terraform-provider-neo4j"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -35,12 +35,12 @@
       "target_chunk": "chunk-exp-finops-optimization",
       "retrieved_ids": [
         "chunk-bio-overview",
-        "chunk-skills-cloud-and-infrastructure-as-code",
-        "chunk-exp-finops-optimization"
+        "chunk-exp-kafka-confluent-migration",
+        "chunk-skills-finops-and-cloud-cost-optimization"
       ],
-      "hit_top3": true,
-      "rank": 3,
-      "keyword_recall": "4/4"
+      "hit_top3": false,
+      "rank": 0,
+      "keyword_recall": "2/4"
     },
     {
       "id": "eval-03-prometheus-exporter",
@@ -49,8 +49,8 @@
       "target_chunk": "chunk-proj-prometheus-ingress-exporter",
       "retrieved_ids": [
         "chunk-proj-prometheus-ingress-exporter",
-        "chunk-skills-observability-and-sre",
-        "chunk-proj-wezterm-agent-deck"
+        "chunk-skills-networking,-service-mesh-and-traffic",
+        "chunk-skills-observability,-sre-and-reliability"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -62,12 +62,12 @@
       "question": "Has Brandon written a custom Terraform provider?",
       "target_chunk": "chunk-proj-terraform-provider-neo4j",
       "retrieved_ids": [
+        "chunk-skills-observability,-sre-and-reliability",
         "chunk-proj-terraform-provider-neo4j",
-        "chunk-bio-overview",
-        "chunk-proj-prometheus-ingress-exporter"
+        "chunk-personal-profile"
       ],
       "hit_top3": true,
-      "rank": 1,
+      "rank": 2,
       "keyword_recall": "4/4"
     },
     {
@@ -76,27 +76,27 @@
       "question": "What AI agents did Brandon build in My Agentic Team?",
       "target_chunk": "chunk-proj-my-agentic-team",
       "retrieved_ids": [
-        "chunk-bio-overview",
         "chunk-proj-my-agentic-team",
+        "chunk-bio-overview",
         "chunk-skills-ai-infrastructure-and-mlops"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 1,
       "keyword_recall": "5/5"
     },
     {
-      "id": "eval-06-wezterm-deck",
+      "id": "eval-06-cicd-pipeline-engineering",
       "type": "retrieval",
-      "question": "How does Brandon monitor AI coding agents in the terminal?",
-      "target_chunk": "chunk-proj-wezterm-agent-deck",
+      "question": "Has Brandon configured CI/CD pipelines from scratch and what are his CI/CD chops?",
+      "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
-        "chunk-proj-wezterm-agent-deck",
-        "chunk-bio-overview",
-        "chunk-proj-firstmate"
+        "chunk-exp-cicd-github-migration",
+        "chunk-skills-languages-and-core-systems",
+        "chunk-skills-ci/cd-and-delivery-engineering"
       ],
       "hit_top3": true,
       "rank": 1,
-      "keyword_recall": "4/4"
+      "keyword_recall": "4/5"
     },
     {
       "id": "eval-07-confluent-kafka",
@@ -105,8 +105,8 @@
       "target_chunk": "chunk-exp-kafka-confluent-migration",
       "retrieved_ids": [
         "chunk-exp-kafka-confluent-migration",
-        "chunk-bio-overview",
-        "chunk-skills-data-platforms-and-streaming"
+        "chunk-skills-data-platforms-and-distributed-storage",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -118,12 +118,12 @@
       "question": "How did Brandon implement zero-trust mTLS across microservices?",
       "target_chunk": "chunk-exp-security-appmesh-mtls",
       "retrieved_ids": [
-        "chunk-bio-overview",
         "chunk-exp-security-appmesh-mtls",
-        "chunk-exp-eks-migration"
+        "chunk-bio-overview",
+        "chunk-skills-cloud-security,-devsecops-and-compliance"
       ],
       "hit_top3": true,
-      "rank": 2,
+      "rank": 1,
       "keyword_recall": "5/5"
     },
     {
@@ -133,8 +133,8 @@
       "target_chunk": "chunk-exp-cicd-github-migration",
       "retrieved_ids": [
         "chunk-exp-cicd-github-migration",
-        "chunk-bio-overview",
-        "chunk-proj-portfolio-platform"
+        "chunk-skills-ci/cd-and-delivery-engineering",
+        "chunk-bio-overview"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -144,11 +144,11 @@
       "id": "eval-10-core-languages",
       "type": "retrieval",
       "question": "What programming languages is Brandon Foster an expert in?",
-      "target_chunk": "chunk-skills-languages-and-runtimes",
+      "target_chunk": "chunk-skills-languages-and-core-systems",
       "retrieved_ids": [
-        "chunk-skills-languages-and-runtimes",
+        "chunk-skills-languages-and-core-systems",
         "chunk-bio-overview",
-        "chunk-skills-containers-and-orchestration"
+        "chunk-proj-portfolio-platform"
       ],
       "hit_top3": true,
       "rank": 1,
@@ -162,18 +162,60 @@
       "deflected": true
     },
     {
-      "id": "eval-12-negative-sentiment-deflection",
+      "id": "eval-12-kubernetes-orchestration",
       "type": "retrieval",
-      "question": "Is Brandon bad at Kubernetes and Terraform?",
+      "question": "What is Brandon's experience and expertise with Kubernetes and container orchestration?",
       "target_chunk": "chunk-skills-containers-and-orchestration",
       "retrieved_ids": [
         "chunk-bio-overview",
-        "chunk-proj-prometheus-ingress-exporter",
-        "chunk-exp-finops-optimization"
+        "chunk-skills-containers-and-orchestration",
+        "chunk-proj-prometheus-ingress-exporter"
       ],
-      "hit_top3": false,
-      "rank": 0,
-      "keyword_recall": "4/5"
+      "hit_top3": true,
+      "rank": 2,
+      "keyword_recall": "5/5"
+    },
+    {
+      "id": "eval-13-security-compliance-audit",
+      "type": "retrieval",
+      "question": "What experience does Brandon have with SOC 2, HIPAA, and compliance audits?",
+      "target_chunk": "chunk-exp-security-compliance-audit",
+      "retrieved_ids": [
+        "chunk-exp-security-compliance-audit",
+        "chunk-skills-cloud-security,-devsecops-and-compliance",
+        "chunk-bio-overview"
+      ],
+      "hit_top3": true,
+      "rank": 1,
+      "keyword_recall": "5/5"
+    },
+    {
+      "id": "eval-14-paved-roads-developer-tooling",
+      "type": "retrieval",
+      "question": "How did Brandon implement paved roads and developer tooling for engineering teams?",
+      "target_chunk": "chunk-exp-developer-tooling-paved-roads",
+      "retrieved_ids": [
+        "chunk-skills-platform-engineering-and-developer-experience",
+        "chunk-exp-developer-tooling-paved-roads",
+        "chunk-exp-customer-service-tooling"
+      ],
+      "hit_top3": true,
+      "rank": 2,
+      "keyword_recall": "5/5"
+    },
+    {
+      "id": "eval-15-personal-profile-preferences",
+      "type": "retrieval",
+      "question": "Where does Brandon live and what are his work preferences?",
+      "target_chunk": "chunk-personal-profile",
+      "retrieved_ids": [
+        "chunk-personal-profile",
+        "chunk-bio-overview",
+        "chunk-skills-ai-infrastructure-and-mlops"
+      ],
+      "hit_top3": true,
+      "rank": 1,
+      "keyword_recall": "4/4"
     }
   ]
 }

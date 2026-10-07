@@ -39,43 +39,14 @@ const PROJECTS: Project[] = [
     repo: "brandocomando/terraform-provider-neo4j",
     url: "https://github.com/brandocomando/terraform-provider-neo4j",
     category: "Platform Engineering & IaC",
-    tagline: "Custom Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.",
-    summary: "Developed a native Terraform provider plugin in Go to declare and manage Neo4j graph database instances, role-based access, and cluster configurations declaratively within Terraform GitOps workflows.",
+    tagline: "Forked and customized Terraform provider written in Go for managing Neo4j graph database topologies and role-based access.",
+    summary: "Forked and customized a native Terraform provider plugin in Go to declare and manage Neo4j graph database resources, user permissions, database instances, and cluster configurations declaratively within Terraform GitOps workflows.",
     highlights: [
       "Implemented official Terraform Plugin SDK specifications",
       "State management with full CRUD lifecycle operations and schema validation",
       "Bridges graph database provisioning into standard IaC pipelines"
     ],
     technologies: ["Go", "Terraform Plugin SDK", "Neo4j", "Graph Databases", "GitOps"]
-  },
-  {
-    id: "proj-wezterm-agent-deck",
-    name: "WezTerm Agent Deck",
-    repo: "brandocomando/wezterm-agent-deck",
-    url: "https://github.com/brandocomando/wezterm-agent-deck",
-    category: "AI Developer Tooling",
-    tagline: "Real-time status monitoring and tab indicators for AI coding agents inside WezTerm.",
-    summary: "Lua plugin for the WezTerm terminal emulator that monitors active AI coding agents (Claude Code, OpenCode, Codex, Aider). Displays tab badges for agent states and triggers desktop notifications.",
-    highlights: [
-      "Lightweight event hooks in Lua with zero CPU polling overhead",
-      "Desktop notifications and audio cues via terminal-notifier",
-      "Streamlines human-in-the-loop multi-agent engineering workflows"
-    ],
-    technologies: ["Lua", "WezTerm", "AI Agent Tooling", "Shell"]
-  },
-  {
-    id: "proj-firstmate",
-    name: "FirstMate CLI",
-    repo: "brandocomando/firstmate",
-    url: "https://github.com/brandocomando/firstmate",
-    category: "AI Agent Orchestration",
-    tagline: "Talk to one agent. Ship with a crew. Multi-agent terminal orchestration.",
-    summary: "Terminal CLI for multi-agent coordination, allowing developers to interact with a lead coordinator agent that delegates tasks to specialized sub-agents with decoupled execution contexts.",
-    highlights: [
-      "Clean terminal ergonomics for agent crew coordination",
-      "Decoupled agent execution contexts"
-    ],
-    technologies: ["Shell", "Bash", "Agentic Workflows", "Terminal UI"]
   },
   {
     id: "proj-portfolio-platform",
@@ -107,19 +78,19 @@ export const ProjectsGallery: React.FC = () => {
             Engineering Projects & Open Source
           </h2>
           <p className="mt-3 text-slate-400 text-sm sm:text-base">
-            Autonomous agent fleets, custom Kubernetes controllers, Go Terraform providers, and terminal developer tools.
+            Autonomous agent fleets, custom Kubernetes controllers, Go Terraform providers, and scale-to-zero cloud platforms.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {PROJECTS.map((p) => (
             <div
               key={p.id}
-              className="p-6 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group shadow-sm"
+              className="p-6 sm:p-7 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between group shadow-sm"
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-mono text-indigo-400 px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/40">
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <span className="inline-flex items-center text-xs font-mono text-indigo-300 font-medium px-2.5 py-1 rounded bg-indigo-950/60 border border-indigo-800/50">
                     {p.category}
                   </span>
                   <a

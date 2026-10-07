@@ -23,12 +23,16 @@ Where:
 * $r_m(d)$ is the rank of document $d$ in system $m$ (1-indexed)
 * $k = 60$ (standard smoothing constant to prevent top-ranked outliers from dominating)
 
+4. **Relevance Gating (Dual-Purpose Scoring):** In addition to candidate reranking, raw retrieval metrics are dual-purposed as a **System-1 Relevance Classifier** (`backend/app/api/v1/chat.py`). If a query yields zero BM25 lexical matches (`has_bm25 == False`) and a top dense similarity score below $0.135$, the query is classified as ungrounded/off-topic and deflected in memory—eliminating unnecessary downstream LLM invocations.
+
 ## Consequences & Trade-offs
 
 ### Positive
 * **Best of Both Worlds:** Captures high-level conceptual questions (e.g. *"What is Brandon's philosophy on platform engineering?"*) while guaranteeing exact keyword hits for specific tooling (e.g. *"Has Brandon built a Terraform provider in Go?"*).
 * **Robust to Out-of-Vocabulary Terms:** BM25 guarantees that rare identifiers (`wezterm-agent-deck`, `app-mesh-controller`) are indexed and retrieved with 100% precision.
+* **FinOps Protection via Relevance Gating:** Reusing the dense and sparse scores as a zero-cost gate deflects arbitrary trivia and off-topic queries without needing a dedicated intent-classification LLM call.
 
 ### Negative / Mitigations
 * **Double Index Storage:** We maintain both dense embeddings and an inverted index dictionary.
   * *Mitigation:* Given the portfolio corpus size (~50–200 chunks), the combined index size is <5MB, fitting comfortably in-memory in the Cloud Run instance.
+

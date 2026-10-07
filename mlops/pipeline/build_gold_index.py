@@ -37,12 +37,24 @@ STOPWORDS = {
     "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's",
     "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom",
     "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll",
-    "you're", "you've", "your", "yours", "yourself", "yourselves"
+    "you're", "you've", "your", "yours", "yourself", "yourselves",
+    "yes", "yeah", "yea", "yep", "yup", "tell", "tells", "please", "thanks", "thank"
 }
 
 
 def tokenize(text: str) -> List[str]:
     """Tokenizes text into lowercase alphanumeric terms with stopword filtering."""
+    # Normalize common tech split words and variations
+    text = re.sub(r"\bci[\s\-_/]+cd\b", "cicd", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bml[\s\-_]+ops\b", "mlops", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bdev[\s\-_]+ops\b", "devops", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bgit[\s\-_]+ops\b", "gitops", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bfin[\s\-_]+ops\b", "finops", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bai[\s\-_]+ops\b", "aiops", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bk8[\s\-_]*s\b", "k8s", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bopen[\s\-_]+tofu\b", "opentofu", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bmicro[\s\-_]+services\b", "microservices", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bpipline(s)?\b", r"pipeline\1", text, flags=re.IGNORECASE)
     words = re.findall(r"\b[a-zA-Z0-9_\-\.]{2,}\b", text.lower())
     return [w for w in words if w not in STOPWORDS]
 

@@ -1,17 +1,16 @@
 {
   "source_type": "local_yaml",
   "file_name": "bio.yaml",
-  "raw_hash": "0ad865b6ebcc9ef5101df6ee98b3550e41157500d633c53a7080bb1389b7ac0d",
-  "ingested_at": "2026-10-05T22:55:03.797051Z",
+  "raw_hash": "72e3418355ed4f9570c7dc62f4832e38f6d91606a9f973790be5f6843a404891",
+  "ingested_at": "2026-10-07T17:11:08.406087Z",
   "payload": {
     "name": "Brandon Foster",
     "handle": "brandocomando",
     "title": "Senior Platform & MLOps Engineer",
-    "location": "United States",
+    "location": "Southern California",
     "headline": "Building high-throughput distributed systems, sovereign AI infrastructure, and autonomous agent workflows.",
-    "email": "brandon@example.com",
     "github": "https://github.com/brandocomando",
-    "linkedin": "https://linkedin.com/in/brandon-foster",
+    "linkedin": "https://www.linkedin.com/in/brandon-foster",
     "summary": "Senior Platform, Distributed Systems, and MLOps Engineer with deep expertise in architecting cloud-native infrastructure, high-concurrency microservices, and AI-powered systems. Specialized in Kubernetes (EKS/GKE), GitOps (ArgoCD), Infrastructure as Code (Terraform), enterprise streaming platforms (Kafka/Confluent), zero-trust security (mTLS, App Mesh), and local/production AI agent architectures. Proven track record leading multi-account cloud consolidations, large-scale Bitbucket-to-GitHub migrations, and saving over $10K/month in cloud FinOps optimizations.\n",
     "domains": [
       "Platform Engineering & Infrastructure as Code (Terraform)",

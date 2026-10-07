@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Bot, User as UserIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Sparkles, X, Send, Bot, User as UserIcon, Mail, Minus, Maximize2 } from 'lucide-react';
 import { ChatMessage, QuotaStatus } from '../types';
 import { streamChat } from '../lib/api';
 
@@ -11,7 +11,34 @@ interface AiChatDrawerProps {
   onOpenAuth: () => void;
   initialPrompt?: string;
   authToken?: string | null;
+  onOpenContact?: (initialQuestion?: string) => void;
 }
+
+const STREAMING_PHRASES = [
+  "Deep thinking...",
+  "Consulting Claude...",
+  "Brewing a fresh pot of coffee...",
+  "Feeding the cats...",
+  "Checking Brandon's resume...",
+  "Untangling YAML indentation...",
+  "Querying Hybrid RAG retrieval engine...",
+  "Converting caffeine into tokens...",
+  "Running terraform plan in memory...",
+  "Grepping through git commit logs...",
+  "Calibrating Kubernetes pods...",
+  "Synthesizing distributed systems knowledge...",
+  "Asking the terminal politely...",
+  "Recalibrating Reciprocal Rank Fusion...",
+  "Double-checking ArgoCD sync status...",
+  "Optimizing scale-to-zero FinOps metrics...",
+  "Pondering distributed consensus (Raft)...",
+  "Petting the cats for extra compute..."
+];
+
+const getRandomPhrase = (current?: string): string => {
+  const pool = STREAMING_PHRASES.filter((p) => p !== current);
+  return pool[Math.floor(Math.random() * pool.length)];
+};
 
 export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   isOpen,
@@ -20,7 +47,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   onRefreshQuota,
   onOpenAuth,
   initialPrompt,
-  authToken
+  authToken,
+  onOpenContact
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -32,8 +60,86 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   ]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
+  const [streamingPhrase, setStreamingPhrase] = useState<string>(() => getRandomPhrase());
   const [rateLimitExceeded, setRateLimitExceeded] = useState(false);
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  // Adjustable Drawer Width
+  const DEFAULT_DRAWER_WIDTH = 420;
+  const MIN_DRAWER_WIDTH = 340;
+  const [width, setWidth] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('portfolio_chat_width');
+        if (saved) {
+          const parsed = parseInt(saved, 10);
+          if (!isNaN(parsed) && parsed >= MIN_DRAWER_WIDTH) {
+            return Math.min(parsed, window.innerWidth - 48);
+          }
+        }
+      } catch {}
+    }
+    return DEFAULT_DRAWER_WIDTH;
+  });
+
+  const [isResizing, setIsResizing] = useState(false);
+  const isResizingRef = useRef(false);
+  const widthRef = useRef(width);
+  widthRef.current = width;
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      const maxW = Math.max(MIN_DRAWER_WIDTH, window.innerWidth - 48);
+      setWidth((prev) => (prev > maxW ? maxW : prev));
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, []);
+
+  const startResizing = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    isResizingRef.current = true;
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    if (isResizingRef.current) {
+      setIsResizing(false);
+      isResizingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      try {
+        localStorage.setItem('portfolio_chat_width', widthRef.current.toString());
+      } catch {}
+    }
+  }, []);
+
+  const resize = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isResizingRef.current) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const maxW = Math.max(MIN_DRAWER_WIDTH, Math.min(900, window.innerWidth - 48));
+    const calculatedWidth = window.innerWidth - clientX;
+    const newWidth = Math.max(MIN_DRAWER_WIDTH, Math.min(calculatedWidth, maxW));
+    setWidth(newWidth);
+    widthRef.current = newWidth;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', resize);
+    window.addEventListener('mouseup', stopResizing);
+    window.addEventListener('touchmove', resize);
+    window.addEventListener('touchend', stopResizing);
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+      window.removeEventListener('touchmove', resize);
+      window.removeEventListener('touchend', stopResizing);
+    };
+  }, [resize, stopResizing]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -47,13 +153,115 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   }, [messages, isStreaming]);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (!isWaitingForResponse) return;
+    setStreamingPhrase(getRandomPhrase());
+    const interval = setInterval(() => {
+      setStreamingPhrase((prev) => getRandomPhrase(prev));
+    }, 2400);
+    return () => clearInterval(interval);
+  }, [isWaitingForResponse]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialPrompt) {
+        setIsMinimized(false);
+      }
+    } else {
+      setIsMinimized(false);
+    }
+  }, [isOpen, initialPrompt]);
+
+  useEffect(() => {
+    if (isOpen && !isMinimized && !rateLimitExceeded && inputRef.current) {
       inputRef.current.focus();
     }
     if (initialPrompt && isOpen) {
       handleSendPrompt(initialPrompt);
     }
-  }, [isOpen, initialPrompt]);
+  }, [isOpen, isMinimized, isStreaming, rateLimitExceeded, initialPrompt]);
+
+  const getLastUserQuestion = (assistantMsgId: string): string | undefined => {
+    const idx = messages.findIndex((msg) => msg.id === assistantMsgId);
+    if (idx >= 0) {
+      for (let i = idx - 1; i >= 0; i--) {
+        if (messages[i].role === 'user') {
+          return messages[i].content;
+        }
+      }
+    }
+    const userMsgs = messages.filter((m) => m.role === 'user');
+    return userMsgs.length > 0 ? userMsgs[userMsgs.length - 1].content : undefined;
+  };
+
+  const renderBoldSegments = (text: string, keyPrefix: string) => {
+    const parts: React.ReactNode[] = [];
+    let lastIdx = 0;
+    const boldRegex = /\*\*([^*]+)\*\*/g;
+    let match;
+
+    while ((match = boldRegex.exec(text)) !== null) {
+      if (match.index > lastIdx) {
+        parts.push(text.substring(lastIdx, match.index));
+      }
+      parts.push(
+        <strong key={`${keyPrefix}-b-${match.index}`} className="font-semibold text-white">
+          {match[1]}
+        </strong>
+      );
+      lastIdx = boldRegex.lastIndex;
+    }
+    if (lastIdx < text.length) {
+      parts.push(text.substring(lastIdx));
+    }
+    return <React.Fragment key={keyPrefix}>{parts}</React.Fragment>;
+  };
+
+  const renderFormattedContent = (content: string, assistantMsgId: string) => {
+    const parts: React.ReactNode[] = [];
+    let lastIdx = 0;
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let match;
+
+    while ((match = linkRegex.exec(content)) !== null) {
+      if (match.index > lastIdx) {
+        parts.push(renderBoldSegments(content.substring(lastIdx, match.index), `txt-${lastIdx}`));
+      }
+      const linkText = match[1];
+      const linkUrl = match[2];
+
+      if (linkUrl === '#contact' || linkUrl.includes('contact')) {
+        parts.push(
+          <button
+            key={`contact-${match.index}`}
+            type="button"
+            onClick={() => onOpenContact?.(getLastUserQuestion(assistantMsgId))}
+            className="text-cyan-400 underline font-semibold hover:text-cyan-300 inline cursor-pointer"
+          >
+            {linkText}
+          </button>
+        );
+      } else {
+        parts.push(
+          <a
+            key={`link-${match.index}`}
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-cyan-400 underline hover:text-cyan-300"
+          >
+            {linkText}
+          </a>
+        );
+      }
+      lastIdx = linkRegex.lastIndex;
+    }
+
+    if (lastIdx < content.length) {
+      parts.push(renderBoldSegments(content.substring(lastIdx), `txt-${lastIdx}`));
+    }
+
+    return parts;
+  };
 
   const handleSendPrompt = async (promptText: string) => {
     if (!promptText.trim() || isStreaming) return;
@@ -77,6 +285,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     setMessages((prev) => [...prev, userMsg, initialAssistantMsg]);
     setInput('');
     setIsStreaming(true);
+    setIsWaitingForResponse(true);
     await streamChat({
       question: promptText,
       history: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -87,6 +296,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         );
       },
       onToken: (token) => {
+        setIsWaitingForResponse(false);
         setMessages((prev) =>
           prev.map((msg) =>
             msg.id === assistantMsgId ? { ...msg, content: msg.content + token } : msg
@@ -94,10 +304,13 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         );
       },
       onDone: () => {
+        setIsWaitingForResponse(false);
         setIsStreaming(false);
         onRefreshQuota();
+        setTimeout(() => inputRef.current?.focus(), 10);
       },
       onError: (err) => {
+        setIsWaitingForResponse(false);
         setIsStreaming(false);
         if (err?.error === 'rate_limit_exceeded') {
           setRateLimitExceeded(true);
@@ -126,40 +339,143 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           );
         }
         onRefreshQuota();
+        setTimeout(() => inputRef.current?.focus(), 10);
       }
     });
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[480px] bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-      {/* Drawer Header */}
-      <div className="px-4 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
-            <Sparkles className="w-4 h-4 text-white" />
+  if (isMinimized) {
+    return (
+      <div
+        onClick={() => setIsMinimized(false)}
+        className="fixed bottom-0 right-0 sm:right-6 z-40 w-full sm:w-[380px] h-12 bg-slate-900/95 backdrop-blur-md border border-b-0 border-slate-700/80 rounded-t-xl shadow-2xl flex items-center justify-between px-3.5 cursor-pointer transition-all hover:bg-slate-800/95 group animate-in slide-in-from-bottom duration-200"
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
           </div>
-          <div>
-            <h3 className="font-bold text-sm text-white flex items-center gap-1.5">
+          <div className="min-w-0">
+            <h4 className="font-bold text-xs text-white flex items-center gap-1.5 truncate">
               Brandon's AI Agent
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            </h3>
-            <p className="text-[11px] font-mono text-cyan-400">
-              Gemini 2.0 Flash • Hybrid RAG (Dense+BM25)
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            </h4>
+            <p className="text-[10px] font-mono text-cyan-400 truncate">
+              {isWaitingForResponse
+                ? streamingPhrase
+                : isStreaming
+                ? "Streaming response..."
+                : `${messages.filter((m) => m.role === 'user').length} quer${
+                    messages.filter((m) => m.role === 'user').length === 1 ? 'y' : 'ies'
+                  } • Click to expand`}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          {quota && (
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
+              {quota.remaining}/{quota.limit}
+            </span>
+          )}
+          <button
+            onClick={() => setIsMinimized(false)}
+            title="Maximize chat"
+            className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-md transition-colors cursor-pointer"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={onClose}
+            title="Close chat"
+            className="p-1 text-slate-400 hover:text-white hover:bg-slate-700/60 rounded-md transition-colors cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : `${width}px`,
+        maxWidth: '100vw'
+      }}
+      className={`fixed top-16 bottom-0 right-0 z-40 bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col ${
+        isResizing ? 'transition-none select-none' : 'animate-in slide-in-from-right duration-300'
+      }`}
+    >
+      {/* Resizable Left Edge Handle */}
+      <div
+        onMouseDown={startResizing}
+        onTouchStart={startResizing}
+        onDoubleClick={() => {
+          setWidth(DEFAULT_DRAWER_WIDTH);
+          widthRef.current = DEFAULT_DRAWER_WIDTH;
+          try {
+            localStorage.setItem('portfolio_chat_width', DEFAULT_DRAWER_WIDTH.toString());
+          } catch {}
+        }}
+        title="Drag left/right to resize width • Double-click to reset"
+        className="hidden sm:flex absolute -left-2 top-0 bottom-0 w-4 cursor-ew-resize items-center justify-center z-50 group/handle select-none"
+      >
+        <div
+          className={`w-1 h-full transition-colors duration-150 rounded-full ${
+            isResizing
+              ? 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.7)]'
+              : 'group-hover/handle:bg-cyan-500/80 bg-transparent'
+          }`}
+        />
+        <div
+          className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-8 rounded-full border border-slate-700/80 transition-all duration-150 flex flex-col items-center justify-center gap-1 shadow-md ${
+            isResizing
+              ? 'bg-cyan-950 border-cyan-400 opacity-100 scale-105'
+              : 'bg-slate-900 group-hover/handle:bg-slate-800 group-hover/handle:border-cyan-500/60 opacity-0 group-hover/handle:opacity-100'
+          }`}
+        >
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+          <div className="w-1 h-1 rounded-full bg-slate-400 group-hover/handle:bg-cyan-300" />
+        </div>
+      </div>
+
+      {/* Drawer Header */}
+      <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 backdrop-blur-md">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm text-white flex items-center gap-1.5 truncate">
+              Brandon's AI Agent
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+            </h3>
+            <p className="text-[10.5px] font-mono text-cyan-400 truncate">
+              Gemini 2.0 Flash • Hybrid RAG
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
           {quota && (
             <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
               {quota.remaining}/{quota.limit} left
             </span>
           )}
           <button
+            onClick={() => setIsMinimized(true)}
+            title="Minimize chat"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
+          >
+            <Minus className="w-4 h-4" />
+          </button>
+          <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors"
+            title="Close chat"
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -169,7 +485,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       {/* Quota Upgrade Banner (if anonymous or low) */}
       {!quota?.authenticated && (
         <div className="px-4 py-2 bg-gradient-to-r from-cyan-950/60 to-indigo-950/60 border-b border-cyan-800/40 flex items-center justify-between text-xs">
-          <span className="text-cyan-300 font-medium">Anonymous visitor limit: 5 questions</span>
+          <span className="text-cyan-300 font-medium">
+            Anonymous visitor limit: {quota?.limit ?? 10} questions
+          </span>
           <button
             onClick={onOpenAuth}
             className="text-white bg-cyan-600 hover:bg-cyan-500 px-2 py-0.5 rounded text-[11px] font-semibold transition-colors"
@@ -201,43 +519,49 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                   : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
               }`}
             >
-              <div className="whitespace-pre-wrap">{m.content}</div>
-
-              {/* Retrieved Sources Dropdown */}
-              {m.sources && m.sources.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-slate-800 text-[11px]">
-                  <button
-                    onClick={() =>
-                      setExpandedSources((prev) => ({ ...prev, [m.id]: !prev[m.id] }))
-                    }
-                    className="flex items-center gap-1 text-slate-400 hover:text-cyan-300 transition-colors font-mono"
-                  >
-                    <span>{m.sources.length} Verified Sources Retrieved</span>
-                    {expandedSources[m.id] ? (
-                      <ChevronUp className="w-3 h-3" />
-                    ) : (
-                      <ChevronDown className="w-3 h-3" />
-                    )}
-                  </button>
-
-                  {expandedSources[m.id] && (
-                    <div className="mt-2 space-y-1.5">
-                      {m.sources.map((s, idx) => (
-                        <div
-                          key={idx}
-                          className="p-2 rounded bg-slate-950/80 border border-slate-800/80"
-                        >
-                          <div className="font-semibold text-cyan-300 flex items-center justify-between">
-                            <span>{s.title}</span>
-                            <span className="text-[10px] text-slate-500 font-mono">
-                              RRF: {s.rrf_score?.toFixed(4)}
-                            </span>
-                          </div>
-                          <p className="text-slate-400 text-[10px] mt-0.5">{s.excerpt}</p>
-                        </div>
-                      ))}
+              <div className="whitespace-pre-wrap">
+                {m.role === 'assistant' ? (
+                  m.content ? (
+                    renderFormattedContent(m.content, m.id)
+                  ) : (
+                    <div className="flex items-center gap-2 font-mono text-xs text-slate-300">
+                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shrink-0" />
+                      <span className="transition-all duration-300">{streamingPhrase}</span>
                     </div>
-                  )}
+                  )
+                ) : (
+                  m.content
+                )}
+              </div>
+
+              {/* Direct Contact CTA if redirected to contact page or off-topic */}
+              {m.role === 'assistant' &&
+                (m.content.includes('#contact') ||
+                  m.content.toLowerCase().includes('contact page') ||
+                  m.content.includes('maybe you should ask him')) && (
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80">
+                    <button
+                      onClick={() => onOpenContact?.(getLastUserQuestion(m.id))}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-500/40 text-cyan-300 hover:text-white text-xs font-semibold transition-all shadow-sm cursor-pointer group"
+                    >
+                      <Mail className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                      <span>Send Question Directly to Brandon</span>
+                    </button>
+                  </div>
+                )}
+
+              {/* Referenced Topics */}
+              {m.sources && m.sources.length > 0 && (
+                <div className="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] font-mono text-slate-500">Related:</span>
+                  {m.sources.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-full bg-slate-800/80 text-[10px] text-cyan-300 font-medium border border-slate-700/60"
+                    >
+                      {s.title}
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
@@ -249,13 +573,6 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             )}
           </div>
         ))}
-
-        {isStreaming && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span>Streaming tokens from Gemini 2.0 Flash...</span>
-          </div>
-        )}
 
         <div ref={messagesEndRef} />
       </div>
@@ -303,7 +620,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 ? "Daily limit reached. Sign in above to unlock."
                 : "Ask about Kubernetes, Terraform, MLOps, Kafka..."
             }
-            disabled={isStreaming || rateLimitExceeded}
+            disabled={rateLimitExceeded}
             className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 disabled:opacity-50"
           />
           <button

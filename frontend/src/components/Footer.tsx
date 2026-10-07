@@ -1,7 +1,11 @@
 import React from 'react';
-import { Terminal, Github } from 'lucide-react';
+import { Terminal, Github, Linkedin } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenContact?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
   return (
     <footer className="border-t border-slate-800 bg-[#070a12] py-12 text-xs text-slate-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,7 +16,7 @@ export const Footer: React.FC = () => {
             </div>
             <div>
               <div className="font-bold text-white text-sm">Brandon Foster</div>
-              <p className="text-slate-500 text-[11px]">Senior Platform & MLOps Engineer</p>
+              <p className="text-slate-500 text-[11px]">Staff/ Senior Platform & MLOps Engineer</p>
             </div>
           </div>
 
@@ -21,6 +25,12 @@ export const Footer: React.FC = () => {
             <a href="#experience" className="hover:text-cyan-400 transition-colors">Experience</a>
             <a href="#projects" className="hover:text-cyan-400 transition-colors">Projects</a>
             <a href="#skills" className="hover:text-cyan-400 transition-colors">Skills</a>
+            <button
+              onClick={onOpenContact}
+              className="hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              Contact
+            </button>
             <a
               href="https://github.com/brandocomando"
               target="_blank"
@@ -29,6 +39,15 @@ export const Footer: React.FC = () => {
             >
               <Github className="w-3.5 h-3.5" />
               <span>GitHub</span>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/brandon-foster"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+            >
+              <Linkedin className="w-3.5 h-3.5" />
+              <span>LinkedIn</span>
             </a>
           </div>
 

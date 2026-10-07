@@ -2,3 +2,11 @@ project_id          = "your-gcp-project-id"
 region              = "us-central1"
 github_repository   = "brandocomando/portfolio"
 firebase_project_id = "your-gcp-project-id"
+
+# Optional: contact-form email forwarding via SMTP.
+# The password itself is NOT set here; it lives in Secret Manager (see README / gcloud secrets versions add).
+# smtp_host                    = "smtp.gmail.com"
+# smtp_user                    = "you@gmail.com"
+# smtp_password_secret_id      = "smtp-password"
+# notification_email_secret_id = "notification-email"
+

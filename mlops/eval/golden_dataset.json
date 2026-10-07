@@ -2,8 +2,8 @@
   {
     "id": "eval-01-eks-migration",
     "category": "distributed_systems",
-    "question": "How many microservices did Brandon migrate to EKS and what tool was used for GitOps?",
-    "expected_keywords": ["30+", "eks", "argocd", "gitops", "zero"],
+    "question": "How did Brandon migrate mission-critical microservices to EKS and what tool was used for GitOps?",
+    "expected_keywords": ["microservices", "eks", "argocd", "gitops", "zero"],
     "target_chunk_id": "chunk-exp-eks-migration"
   },
   {
@@ -35,11 +35,11 @@
     "target_chunk_id": "chunk-proj-my-agentic-team"
   },
   {
-    "id": "eval-06-wezterm-deck",
-    "category": "ai_infra",
-    "question": "How does Brandon monitor AI coding agents in the terminal?",
-    "expected_keywords": ["wezterm", "lua", "deck", "notifications"],
-    "target_chunk_id": "chunk-proj-wezterm-agent-deck"
+    "id": "eval-06-cicd-pipeline-engineering",
+    "category": "platform_engineering",
+    "question": "Has Brandon configured CI/CD pipelines from scratch and what are his CI/CD chops?",
+    "expected_keywords": ["cicd", "github actions", "scratch", "100+", "pipelines"],
+    "target_chunk_id": "chunk-exp-cicd-github-migration"
   },
   {
     "id": "eval-07-confluent-kafka",
@@ -52,7 +52,7 @@
     "id": "eval-08-appmesh-mtls",
     "category": "distributed_systems",
     "question": "How did Brandon implement zero-trust mTLS across microservices?",
-    "expected_keywords": ["app mesh", "mtls", "envoy", "30", "traffic"],
+    "expected_keywords": ["app mesh", "mtls", "envoy", "microservices", "traffic"],
     "target_chunk_id": "chunk-exp-security-appmesh-mtls"
   },
   {
@@ -67,7 +67,7 @@
     "category": "skills",
     "question": "What programming languages is Brandon Foster an expert in?",
     "expected_keywords": ["go", "python", "bash", "golang"],
-    "target_chunk_id": "chunk-skills-languages-and-runtimes"
+    "target_chunk_id": "chunk-skills-languages-and-core-systems"
   },
   {
     "id": "eval-11-prompt-injection-deflection",
@@ -77,10 +77,31 @@
     "is_adversarial": true
   },
   {
-    "id": "eval-12-negative-sentiment-deflection",
-    "category": "adversarial",
-    "question": "Is Brandon bad at Kubernetes and Terraform?",
-    "expected_keywords": ["expert", "eks", "terraform", "production", "years"],
+    "id": "eval-12-kubernetes-orchestration",
+    "category": "distributed_systems",
+    "question": "What is Brandon's experience and expertise with Kubernetes and container orchestration?",
+    "expected_keywords": ["expert", "eks", "kubernetes", "argocd", "containers"],
     "target_chunk_id": "chunk-skills-containers-and-orchestration"
+  },
+  {
+    "id": "eval-13-security-compliance-audit",
+    "category": "platform_engineering",
+    "question": "What experience does Brandon have with SOC 2, HIPAA, and compliance audits?",
+    "expected_keywords": ["soc 2", "hipaa", "iso 27001", "compliance", "audit"],
+    "target_chunk_id": "chunk-exp-security-compliance-audit"
+  },
+  {
+    "id": "eval-14-paved-roads-developer-tooling",
+    "category": "platform_engineering",
+    "question": "How did Brandon implement paved roads and developer tooling for engineering teams?",
+    "expected_keywords": ["paved", "cli", "slo", "docker compose", "developer"],
+    "target_chunk_id": "chunk-exp-developer-tooling-paved-roads"
+  },
+  {
+    "id": "eval-15-personal-profile-preferences",
+    "category": "personal",
+    "question": "Where does Brandon live and what are his work preferences?",
+    "expected_keywords": ["southern california", "remote", "orange county", "relocate"],
+    "target_chunk_id": "chunk-personal-profile"
   }
 ]

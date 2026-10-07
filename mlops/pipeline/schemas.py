@@ -13,7 +13,7 @@ class BioProfile(BaseModel):
     title: str = Field(..., min_length=5, description="Primary professional title")
     location: str = Field(..., description="Geographic location")
     headline: str = Field(..., min_length=10, description="Short elevator pitch")
-    email: str = Field(..., description="Contact email")
+    email: Optional[str] = Field(None, description="Contact email")
     github: str = Field(..., description="GitHub profile URL")
     linkedin: Optional[str] = Field(None, description="LinkedIn profile URL")
     summary: str = Field(..., min_length=50, description="Comprehensive bio summary")
@@ -51,6 +51,19 @@ class SkillItem(BaseModel):
 class SkillCategory(BaseModel):
     name: str = Field(..., min_length=3)
     skills: List[SkillItem] = Field(..., min_length=1)
+
+
+class PersonalProfile(BaseModel):
+    location: str = Field(..., description="Geographic location")
+    work_preferences: Dict[str, Any] = Field(..., description="Work preference details")
+    years_of_experience: str = Field(..., description="DevOps experience years")
+    experience_summary: str = Field(..., description="Experience summary statement")
+    employers: Dict[str, Any] = Field(..., description="Current and past employers")
+    education: Dict[str, Any] = Field(..., description="School and degree")
+    hobbies: List[str] = Field(default_factory=list, description="Personal hobbies")
+    fun_facts: Dict[str, Any] = Field(..., description="Fun personal facts and preferences")
+    socials: Dict[str, str] = Field(..., description="Social profile URLs")
+
 
 
 class KnowledgeChunk(BaseModel):

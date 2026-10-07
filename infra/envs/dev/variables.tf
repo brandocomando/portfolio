@@ -26,3 +26,29 @@ variable "firebase_project_id" {
   type        = string
   default     = ""
 }
+
+# --- Contact-form email forwarding (optional) ---
+variable "smtp_host" {
+  description = "SMTP host for contact-form forwarding (e.g. smtp.gmail.com). Empty disables SMTP."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_user" {
+  description = "SMTP username (e.g. you@gmail.com)"
+  type        = string
+  default     = ""
+}
+
+variable "smtp_password_secret_id" {
+  description = "Secret Manager secret ID holding the SMTP password (e.g. smtp-password). Empty disables it."
+  type        = string
+  default     = ""
+}
+
+variable "notification_email_secret_id" {
+  description = "Secret Manager secret ID holding the notification email recipient (e.g. notification-email). Empty disables it."
+  type        = string
+  default     = ""
+}
+

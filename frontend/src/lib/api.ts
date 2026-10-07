@@ -1,4 +1,4 @@
-import { QuotaStatus } from '../types';
+import { QuotaStatus, ContactSubmission } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -6,7 +6,10 @@ export function getSessionId(): string {
   try {
     let sid = localStorage.getItem('portfolio_session_id');
     if (!sid) {
-      sid = 'sid_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+      const randomBytes = new Uint8Array(16);
+      crypto.getRandomValues(randomBytes);
+      const randomPart = Array.from(randomBytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      sid = 'sid_' + randomPart + Date.now().toString(36);
       localStorage.setItem('portfolio_session_id', sid);
     }
     return sid;
@@ -141,4 +144,26 @@ export async function streamChat({
   } catch (error) {
     if (onError) onError(error);
   }
+}
+
+export async function submitContactForm(
+  payload: ContactSubmission
+): Promise<{ status: string; message: string }> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Session-ID': getSessionId()
+  };
+
+  const response = await fetch(`${API_BASE}/api/v1/leads/contact`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Failed to submit message. Please try again.');
+  }
+
+  return await response.json();
 }

@@ -1,0 +1,135 @@
+version: '3'
+
+# ==============================================================================
+# Brandon Foster Portfolio Platform - Taskfile
+# Unified task runner for local development, testing, MLOps, and deployment.
+# ==============================================================================
+
+env:
+  PYTHONPATH: .
+  ENV: development
+  PATH: '{{if env "NVM_BIN"}}{{env "NVM_BIN"}}:{{end}}{{env "PATH"}}'
+
+vars:
+  PYTHON: '{{.PYTHON | default ".venv/bin/python"}}'
+  UVICORN: '{{.UVICORN | default ".venv/bin/uvicorn"}}'
+  PYTEST: '{{.PYTEST | default ".venv/bin/pytest"}}'
+  BACKEND_PORT: '{{.BACKEND_PORT | default "8080"}}'
+  BACKEND_HOST: '{{.BACKEND_HOST | default "127.0.0.1"}}'
+
+tasks:
+  default:
+    desc: List all available commands and workflows
+    cmds:
+      - task --list
+    silent: true
+
+  # ----------------------------------------------------------------------------
+  # Local Development
+  # ----------------------------------------------------------------------------
+  dev:
+    desc: Launch full-stack local development (FastAPI backend + Vite frontend)
+    cmds:
+      - ./scripts/dev.sh
+
+  dev:backend:
+    desc: Run FastAPI backend server locally with hot-reload (http://127.0.0.1:8080)
+    cmds:
+      - echo "Starting FastAPI backend on http://{{.BACKEND_HOST}}:{{.BACKEND_PORT}}..."
+      - '{{.UVICORN}} backend.app.main:app --host {{.BACKEND_HOST}} --port {{.BACKEND_PORT}} --reload'
+
+  dev:frontend:
+    desc: Run Vite React SPA locally with hot-reload (http://localhost:5173)
+    dir: frontend
+    cmds:
+      - echo "Starting Vite frontend on http://localhost:5173..."
+      - npm run dev
+
+  dev:docker:
+    desc: Run containerized backend locally with Docker Compose
+    cmds:
+      - docker compose up --build
+
+  dev:docker:down:
+    desc: Stop local Docker Compose containers
+    cmds:
+      - docker compose down
+
+  # ----------------------------------------------------------------------------
+  # Testing & Quality Gates
+  # ----------------------------------------------------------------------------
+  test:
+    desc: Run all backend unit and integration tests with pytest
+    cmds:
+      - '{{.PYTEST}} backend/tests/ -v'
+
+  test:frontend:
+    desc: Typecheck and validate React frontend
+    dir: frontend
+    cmds:
+      - npm run build
+
+  test:all:
+    desc: Run both backend tests and frontend typechecks
+    cmds:
+      - task: test
+      - task: test:frontend
+
+  # ----------------------------------------------------------------------------
+  # MLOps Pipeline & Evaluation
+  # ----------------------------------------------------------------------------
+  mlops:eval:
+    desc: Run MLOps golden dataset continuous evaluation quality gate
+    cmds:
+      - '{{.PYTHON}} mlops/eval/evaluate_agent.py'
+
+  mlops:pipeline:
+    desc: Run Medallion data pipeline (Ingest -> Silver -> Gold Index)
+    cmds:
+      - '{{.PYTHON}} mlops/pipeline/run_pipeline.py'
+
+  # ----------------------------------------------------------------------------
+  # Build & Containerization
+  # ----------------------------------------------------------------------------
+  build:
+    desc: Build frontend production assets and backend Docker image
+    cmds:
+      - task: build:frontend
+      - task: build:docker
+
+  build:frontend:
+    desc: Build optimized production bundle for Firebase Hosting CDN
+    dir: frontend
+    cmds:
+      - npm run build
+
+  build:docker:
+    desc: Build minimal distroless production container for Cloud Run
+    cmds:
+      - docker build -f backend/Dockerfile -t portfolio-backend:latest .
+
+  # ----------------------------------------------------------------------------
+  # Infrastructure as Code (Terraform)
+  # ----------------------------------------------------------------------------
+  infra:plan:
+    desc: Run Terraform plan for prod environment
+    dir: infra/envs/prod
+    cmds:
+      - terraform plan
+
+  infra:apply:
+    desc: Run Terraform apply for prod environment
+    dir: infra/envs/prod
+    cmds:
+      - terraform apply
+
+  # ----------------------------------------------------------------------------
+  # Maintenance & Cleanup
+  # ----------------------------------------------------------------------------
+  clean:
+    desc: Clean build caches, bytecode, and temp files
+    cmds:
+      - find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+      - find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+      - rm -rf frontend/dist
+      - echo "✓ Cleaned cache directories and build artifacts."

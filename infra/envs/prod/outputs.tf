@@ -37,3 +37,8 @@ output "cloud_dns_nameservers" {
   description = "Nameservers if Google Cloud DNS is enabled"
   value       = module.custom_domain.cloud_dns_nameservers
 }
+
+output "firebase_required_dns_updates" {
+  description = "Dynamic DNS records computed by Firebase, including secret TXT verification token"
+  value       = module.custom_domain.required_dns_updates
+}

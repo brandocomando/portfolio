@@ -1,6 +1,7 @@
 name: Terraform CI (Security, Lint & Plan)
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
@@ -11,6 +12,7 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+  issues: write
 
 jobs:
   terraform-verify:
@@ -25,11 +27,15 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '1.8.5'
+          terraform_wrapper: false
 
       - name: Check Terraform Formatting
+        id: fmt
         run: terraform fmt -check -recursive infra/
+        continue-on-error: true
 
       - name: Run Trivy IaC Security Scan
+        id: trivy
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
@@ -47,8 +53,197 @@ jobs:
         env:
           WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
 
-      - name: Terraform Init & Validate
+      - name: Terraform Init
+        id: init
+        env:
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+          WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          STATE_BUCKET: ${{ secrets.GCP_TF_STATE_BUCKET }}
         run: |
           cd infra/envs/prod
-          terraform init -backend=false
-          terraform validate
+          if [ -n "$WIF_PROVIDER" ] && [ -n "$STATE_BUCKET" ]; then
+            terraform init -backend-config="bucket=$STATE_BUCKET"
+          else
+            echo "Workload Identity Federation or state bucket not configured; initializing with -backend=false"
+            terraform init -backend=false
+          fi
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        if: steps.init.outcome == 'success'
+        run: |
+          cd infra/envs/prod
+          terraform validate -no-color 2>&1 | tee validate.txt
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: plan
+        if: steps.init.outcome == 'success' && steps.validate.outcome == 'success'
+        env:
+          TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+          WIF_PROVIDER: ${{ secrets.GCP_WIF_PROVIDER }}
+          STATE_BUCKET: ${{ secrets.GCP_TF_STATE_BUCKET }}
+        run: |
+          cd infra/envs/prod
+          if [ -z "$WIF_PROVIDER" ] || [ -z "$STATE_BUCKET" ] || [ -z "$TF_VAR_project_id" ]; then
+            echo "Google Cloud credentials, state bucket, or project ID secret not configured. Skipping remote terraform plan." > plan.txt
+          else
+            set -o pipefail
+            terraform plan -no-color -input=false 2>&1 | tee plan.txt
+          fi
+        continue-on-error: true
+
+      - name: Post Terraform Plan to PR
+        uses: actions/github-script@v7
+        if: always() && github.event_name == 'pull_request'
+        env:
+          FMT_OUTCOME: ${{ steps.fmt.outcome }}
+          INIT_OUTCOME: ${{ steps.init.outcome }}
+          VALIDATE_OUTCOME: ${{ steps.validate.outcome }}
+          PLAN_OUTCOME: ${{ steps.plan.outcome }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+
+            const issueNumber = context.payload.pull_request?.number || context.issue.number;
+            if (!issueNumber) {
+              core.info('No pull request number found; skipping PR comment.');
+              return;
+            }
+
+            const planFilePath = 'infra/envs/prod/plan.txt';
+            const validateFilePath = 'infra/envs/prod/validate.txt';
+            let planOutput = '';
+
+            if (fs.existsSync(planFilePath)) {
+              planOutput = fs.readFileSync(planFilePath, 'utf8').trim();
+            } else if (fs.existsSync(validateFilePath)) {
+              planOutput = fs.readFileSync(validateFilePath, 'utf8').trim();
+            }
+
+            if (!planOutput) {
+              planOutput = 'No output generated from Terraform plan step.';
+            }
+
+            // GitHub comment body limit is 65,536 characters.
+            const MAX_PLAN_LENGTH = 60000;
+            let isTruncated = false;
+            if (planOutput.length > MAX_PLAN_LENGTH) {
+              planOutput = planOutput.substring(0, MAX_PLAN_LENGTH);
+              isTruncated = true;
+            }
+
+            // Prevent closing code fence prematurely
+            const safePlanOutput = planOutput.replace(/```/g, "'''");
+
+            const fmtOutcome = process.env.FMT_OUTCOME || 'skipped';
+            const initOutcome = process.env.INIT_OUTCOME || 'skipped';
+            const validateOutcome = process.env.VALIDATE_OUTCOME || 'skipped';
+            const planOutcome = process.env.PLAN_OUTCOME || 'skipped';
+
+            const outcomeBadge = (outcome) => {
+              switch (outcome) {
+                case 'success':
+                  return '✅ Success';
+                case 'failure':
+                  return '❌ Failed';
+                case 'skipped':
+                  return '⏭️ Skipped';
+                default:
+                  return `❓ ${outcome}`;
+              }
+            };
+
+            let summaryCallout = '';
+            const summaryMatch =
+              safePlanOutput.match(/Plan:\s*\d+\s*to add,\s*\d+\s*to change,\s*\d+\s*to destroy\./i) ||
+              safePlanOutput.match(/No changes\.\s*Your infrastructure matches the configuration\./i);
+
+            if (summaryMatch) {
+              summaryCallout = `> 📋 **${summaryMatch[0]}**`;
+            } else if (planOutcome === 'failure') {
+              summaryCallout = '> ⚠️ **Terraform Plan encountered errors. Please check the output below.**';
+            }
+
+            const COMMENT_TAG = '<!-- terraform-ci-pr-comment -->';
+            const isFailed = planOutcome === 'failure' || validateOutcome === 'failure' || initOutcome === 'failure';
+            const detailsTag = isFailed ? '<details open>' : '<details>';
+            const detailsTitle = isFailed ? '❌ <b>Terraform Plan / Error Output</b>' : '📋 <b>Terraform Plan Output</b>';
+
+            const truncationWarning = isTruncated
+              ? '\n\n> ⚠️ *Note: Terraform plan output was truncated due to GitHub comment size limits. See the workflow run logs for full output.*'
+              : '';
+
+            const commitSha = context.sha ? context.sha.substring(0, 7) : 'HEAD';
+            const repoUrl = context.payload.repository?.html_url || '';
+            const commitLink = repoUrl ? `[\`${commitSha}\`](${repoUrl}/commit/${context.sha})` : `\`${commitSha}\``;
+            const branchName = context.payload.pull_request?.head?.ref || context.ref || '';
+
+            const lines = [
+              COMMENT_TAG,
+              '### 🪐 Terraform CI Plan (Production)',
+              '',
+              '| Step | Status |',
+              '| :--- | :--- |',
+              `| 🖌 **Format & Style** | ${outcomeBadge(fmtOutcome)} |`,
+              `| ⚙️ **Initialization** | ${outcomeBadge(initOutcome)} |`,
+              `| 🤖 **Validation** | ${outcomeBadge(validateOutcome)} |`,
+              `| 📖 **Plan** | ${outcomeBadge(planOutcome)} |`,
+            ];
+
+            if (summaryCallout) {
+              lines.push('', summaryCallout);
+            }
+
+            lines.push(
+              '',
+              detailsTag,
+              `<summary>${detailsTitle}</summary>`,
+              '',
+              '```terraform',
+              safePlanOutput,
+              '```' + truncationWarning,
+              '',
+              '</details>',
+              '',
+              `*Triggered by commit ${commitLink} on branch \`${branchName}\`*`
+            );
+
+            const body = lines.join('\n');
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              per_page: 100,
+            });
+
+            const existingComment = comments.find((c) =>
+              c.body && c.body.includes(COMMENT_TAG)
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body,
+              });
+              core.info(`Updated existing Terraform plan comment ID ${existingComment.id}`);
+            } else {
+              const newComment = await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: body,
+              });
+              core.info(`Created new Terraform plan comment ID ${newComment.data.id}`);
+            }
+
+      - name: Check Terraform Status
+        if: steps.fmt.outcome == 'failure' || steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure'
+        run: |
+          echo "::error::Terraform CI checks failed (fmt: ${{ steps.fmt.outcome }}, init: ${{ steps.init.outcome }}, validate: ${{ steps.validate.outcome }}, plan: ${{ steps.plan.outcome }})."
+          exit 1

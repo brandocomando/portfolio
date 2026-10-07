@@ -3,9 +3,10 @@ import { Terminal, Github, Linkedin } from 'lucide-react';
 
 interface FooterProps {
   onOpenContact?: () => void;
+  onOpenLegal?: (doc: 'privacy' | 'terms') => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenContact, onOpenLegal }) => {
   return (
     <footer className="border-t border-slate-800 bg-[#070a12] py-12 text-xs text-slate-400">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,6 +31,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenContact }) => {
               className="hover:text-cyan-400 transition-colors cursor-pointer"
             >
               Contact
+            </button>
+            <button
+              onClick={() => onOpenLegal?.('privacy')}
+              className="hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              Privacy
+            </button>
+            <button
+              onClick={() => onOpenLegal?.('terms')}
+              className="hover:text-cyan-400 transition-colors cursor-pointer"
+            >
+              Terms
             </button>
             <a
               href="https://github.com/brandocomando"

@@ -76,3 +76,6 @@ service-account*.json
 .idea/
 .vscode/
 tmp/
+
+# Git Worktrees
+.worktrees/

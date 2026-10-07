@@ -168,9 +168,10 @@ class FirestoreLeadService:
                 )
                 msg.attach(MIMEText(body, "plain"))
 
+                smtp_pwd = settings.SMTP_PASSWORD.strip()
                 with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
                     server.starttls()
-                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                    server.login(settings.SMTP_USER, smtp_pwd)
                     server.send_message(msg)
                 logger.info(f"Successfully sent contact email via SMTP to {settings.NOTIFICATION_EMAIL_TO}")
             except Exception as e:

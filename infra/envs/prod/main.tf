@@ -86,3 +86,9 @@ module "auth" {
 
   depends_on = [module.apis]
 }
+
+# Import existing Identity Platform configuration into Terraform state
+import {
+  to = module.auth.google_identity_platform_config.auth
+  id = "projects/portfolio-510722/config"
+}

@@ -93,7 +93,7 @@ class InMemoryRateLimiter:
                     "requires_auth": not user.is_authenticated,
                     "message": (
                         f"You've reached your daily limit of {limit} questions as an anonymous visitor. "
-                        "Sign in with Google or GitHub to unlock 30 daily questions and connect directly with Brandon!"
+                        f"Sign in with Google or GitHub to unlock {settings.AUTH_DAILY_LIMIT} daily questions and connect directly with Brandon!"
                         if not user.is_authenticated
                         else f"You've reached your authenticated limit of {limit} questions per day. Quota resets in {reset_seconds // 3600}h {(reset_seconds % 3600) // 60}m."
                     )

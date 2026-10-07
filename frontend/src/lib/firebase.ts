@@ -9,12 +9,12 @@ import {
 } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDummyKeyForTestingAndDemoMode",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "portfolio-demo.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "portfolio-demo",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "portfolio-demo.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1234567890",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1234567890:web:abcdef"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB7t6zRal6bW4jzOOZpTjq4lZc-lkoGFp0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "portfolio-510722.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "portfolio-510722",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "portfolio-510722.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "339039725614",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:339039725614:web:cf9958d6fe4be5d12017bf"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -23,33 +23,8 @@ export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-export async function loginWithGoogle(): Promise<{ token: string; user: User | null }> {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const token = await result.user.getIdToken();
-    return { token, user: result.user };
-  } catch (error) {
-    console.warn("Firebase popup failed or not configured, using simulated dev auth token:", error);
-    // Development fallback token accepted by backend dev mode
-    return {
-      token: "dev-test-token-recruiter-demo",
-      user: {
-        uid: "recruiter-demo-uid",
-        displayName: "Technical Recruiter",
-        email: "recruiter@hiringtech.com",
-        photoURL: null,
-      } as unknown as User
-    };
-  }
-}
-
-export async function loginWithGithub(): Promise<{ token: string; user: User | null }> {
-  try {
-    const result = await signInWithPopup(auth, githubProvider);
-    const token = await result.user.getIdToken();
-    return { token, user: result.user };
-  } catch (error) {
-    console.warn("Firebase GitHub popup fallback:", error);
+export function loginAsDevDemo(role: 'recruiter' | 'engineer' = 'recruiter'): { token: string; user: User } {
+  if (role === 'engineer') {
     return {
       token: "dev-test-token-github-engineer",
       user: {
@@ -59,6 +34,69 @@ export async function loginWithGithub(): Promise<{ token: string; user: User | n
         photoURL: null,
       } as unknown as User
     };
+  }
+  return {
+    token: "dev-test-token-recruiter-demo",
+    user: {
+      uid: "recruiter-demo-uid",
+      displayName: "Technical Recruiter",
+      email: "recruiter@hiringtech.com",
+      photoURL: null,
+    } as unknown as User
+  };
+}
+
+export async function loginWithGoogle(): Promise<{ token: string; user: User | null }> {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const token = await result.user.getIdToken();
+    return { token, user: result.user };
+  } catch (error: any) {
+    if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+      throw new Error('Sign-in cancelled. Popup was closed before completion.');
+    }
+
+    if (import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === 'true') {
+      console.warn("Dev mode fallback: using simulated token:", error);
+      return loginAsDevDemo('recruiter');
+    }
+
+    console.error("Firebase Google popup error:", error);
+    let message = error?.message || "Google authentication failed";
+    if (error?.code === 'auth/operation-not-allowed') {
+      message = "Google Sign-In is not enabled yet in the Firebase Console (Authentication > Sign-in method).";
+    } else if (error?.code === 'auth/unauthorized-domain') {
+      message = "This domain is not authorized in Firebase Console (Authentication > Settings > Authorized domains).";
+    } else if (error?.code === 'auth/api-key-not-valid') {
+      message = "Firebase API key is invalid or restricted. Please verify Firebase project settings.";
+    }
+    throw new Error(message);
+  }
+}
+
+export async function loginWithGithub(): Promise<{ token: string; user: User | null }> {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    const token = await result.user.getIdToken();
+    return { token, user: result.user };
+  } catch (error: any) {
+    if (error?.code === 'auth/popup-closed-by-user' || error?.code === 'auth/cancelled-popup-request') {
+      throw new Error('Sign-in cancelled. Popup was closed before completion.');
+    }
+
+    if (import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_BYPASS === 'true') {
+      console.warn("Dev mode fallback: using simulated token:", error);
+      return loginAsDevDemo('engineer');
+    }
+
+    console.error("Firebase GitHub popup error:", error);
+    let message = error?.message || "GitHub authentication failed";
+    if (error?.code === 'auth/operation-not-allowed') {
+      message = "GitHub Sign-In is not enabled yet in the Firebase Console (Authentication > Sign-in method).";
+    } else if (error?.code === 'auth/unauthorized-domain') {
+      message = "This domain is not authorized in Firebase Console (Authentication > Settings > Authorized domains).";
+    }
+    throw new Error(message);
   }
 }
 

@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from fastapi import APIRouter, Depends, BackgroundTasks
 
+from backend.app.core.config import settings
 from backend.app.core.security import UserIdentity, get_current_user_optional
 from backend.app.core.rate_limiter import rate_limiter
 from backend.app.services.firestore_service import firestore_service
@@ -36,7 +37,9 @@ async def get_user_quota(user: UserIdentity = Depends(get_current_user_optional)
         "remaining": status.remaining,
         "reset_seconds": status.reset_seconds,
         "user_email": user.email,
-        "user_name": user.name
+        "user_name": user.name,
+        "auth_limit": settings.AUTH_DAILY_LIMIT,
+        "anon_limit": settings.ANON_DAILY_LIMIT,
     }
 
 

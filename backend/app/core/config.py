@@ -42,7 +42,7 @@ def _fetch_gcp_secret(secret_id: str, project_id: Optional[str] = None) -> Optio
         val = response.payload.data.decode("UTF-8").strip()
         return val if val else None
     except Exception as exc:
-        logger.debug("GCP Secret Manager lookup skipped/failed for secret '%s': %s", secret_id, exc)
+        logger.debug("GCP Secret Manager lookup skipped/failed: %s", exc)
         return None
 
 

@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from backend.app.core.config import settings
 from backend.app.core.telemetry import RequestTracingMiddleware
+from backend.app.core.client_auth import ClientVerificationMiddleware
 from backend.app.api.router import api_v1_router
 from backend.app.api.v1.health import router as root_health_router
 
@@ -17,10 +18,10 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Tracing Middleware
-app.add_middleware(RequestTracingMiddleware)
+# 1. Client Verification Middleware (checks custom verification header on /api routes)
+app.add_middleware(ClientVerificationMiddleware)
 
-# CORS Middleware
+# 2. CORS Middleware (evaluates origin against settings.CORS_ORIGINS and attaches CORS headers)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -28,6 +29,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 3. Tracing Middleware (outermost: logs request lifecycle and attaches X-Trace-ID)
+app.add_middleware(RequestTracingMiddleware)
 
 # Include Routers
 app.include_router(root_health_router)  # Top level /healthz, /readyz, /metrics

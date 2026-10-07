@@ -64,6 +64,27 @@ resource "google_cloud_run_v2_service" "backend" {
       }
 
       env {
+        name  = "CUSTOM_DOMAIN"
+        value = var.custom_domain
+      }
+
+      dynamic "env" {
+        for_each = var.cors_origins != "" ? [var.cors_origins] : []
+        content {
+          name  = "CORS_ORIGINS"
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.client_verification_secret != "" ? [var.client_verification_secret] : []
+        content {
+          name  = "CLIENT_VERIFICATION_SECRET"
+          value = env.value
+        }
+      }
+
+      env {
         name = "GEMINI_API_KEY"
         value_source {
           secret_key_ref {

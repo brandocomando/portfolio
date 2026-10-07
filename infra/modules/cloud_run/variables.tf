@@ -104,3 +104,21 @@ variable "allow_unauthenticated" {
   type        = bool
   default     = true
 }
+
+variable "custom_domain" {
+  description = "Custom domain for the portfolio (e.g. brandonfoster.dev)"
+  type        = string
+  default     = "brandonfoster.dev"
+}
+
+variable "cors_origins" {
+  description = "Allowed origins for CORS (comma-separated or JSON list)"
+  type        = string
+  default     = ""
+}
+
+variable "client_verification_secret" {
+  description = "Client verification secret shared with the frontend"
+  type        = string
+  default     = "portfolio-client-v1"
+}

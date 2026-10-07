@@ -52,13 +52,44 @@ variable "notification_email_secret_id" {
   default     = ""
 }
 
-# --- Auth & Domain Configuration ---
+# --- Custom Domain, SSL & DNS ---
 variable "custom_domain" {
-  description = "Custom domain for the portfolio (e.g. brandonfoster.dev)"
+  description = "Custom apex domain for the portfolio (e.g. brandonfoster.dev)"
   type        = string
   default     = "brandonfoster.dev"
 }
 
+variable "enable_custom_domain" {
+  description = "Whether to register the custom domain with Firebase Hosting"
+  type        = bool
+  default     = true
+}
+
+variable "enable_cloud_dns" {
+  description = "Whether to manage DNS zones in Google Cloud DNS"
+  type        = bool
+  default     = false
+}
+
+variable "client_verification_secret" {
+  description = "Client verification secret shared between frontend and backend"
+  type        = string
+  default     = "portfolio-client-v1"
+}
+
+variable "verification_txt_record" {
+  description = "Optional Firebase TXT ownership verification token to provision in Cloud DNS on the 2nd run (e.g. 'hosting-site-verification=...')"
+  type        = string
+  default     = ""
+}
+
+variable "auto_verify_dns" {
+  description = "Whether to automatically pipe the TXT verification record from Firebase into Cloud DNS in one go via depends_on"
+  type        = bool
+  default     = true
+}
+
+# --- Auth & OAuth Configuration ---
 variable "google_oauth_client_id" {
   description = "Google OAuth 2.0 Web Client ID (optional)"
   type        = string

@@ -36,6 +36,10 @@ module "cloud_run" {
   smtp_password_secret_id      = var.smtp_password_secret_id
   notification_email_secret_id = var.notification_email_secret_id
 
+  # Custom Domain, CORS, and Client Verification
+  custom_domain              = var.custom_domain
+  client_verification_secret = var.client_verification_secret
+
   depends_on = [module.apis]
 }
 
@@ -69,7 +73,23 @@ module "secrets" {
   depends_on = [module.apis]
 }
 
-# 7. Authentication & Firebase Web App Configuration
+# 7. Custom Domain, Free Managed SSL & DNS
+module "custom_domain" {
+  source                       = "../../modules/custom_domain"
+  project_id                   = var.project_id
+  firebase_site_id             = var.firebase_project_id != "" ? var.firebase_project_id : var.project_id
+  custom_domain                = var.custom_domain
+  enable_custom_domain_mapping = var.enable_custom_domain
+  enable_cloud_dns             = var.enable_cloud_dns
+  enable_www_subdomain         = true
+  redirect_www_to_apex         = true
+  verification_txt_record      = var.verification_txt_record
+  auto_verify_dns              = var.auto_verify_dns
+
+  depends_on = [module.apis]
+}
+
+# 8. Authentication & Firebase Web App Configuration
 module "auth" {
   source     = "../../modules/auth"
   project_id = var.project_id

@@ -53,13 +53,24 @@ class Settings(BaseSettings):
     PORT: int = 8080
     HOST: str = "0.0.0.0"
 
-    # CORS
+    # Domain & Client Verification
+    CUSTOM_DOMAIN: str = "brandonfoster.dev"
+    CLIENT_VERIFICATION_ENABLED: bool = True
+    CLIENT_VERIFICATION_HEADER: str = "x-portfolio-client"
+    CLIENT_VERIFICATION_SECRET: str = "portfolio-client-v1"
+
+    # CORS Allowed Origins
     CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://*.web.app",
-        "https://*.firebaseapp.com",
-        "*"
+        "http://localhost:8080",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8080",
+        "https://portfolio-510722.web.app",
+        "https://portfolio-510722.firebaseapp.com",
+        "https://brandonfoster.dev",
+        "https://www.brandonfoster.dev",
     ]
 
     # AI Model Settings
@@ -103,7 +114,7 @@ class Settings(BaseSettings):
     )
 
     @model_validator(mode="after")
-    def resolve_secrets(self) -> "Settings":
+    def resolve_secrets_and_domain(self) -> "Settings":
         if not self.NOTIFICATION_EMAIL_TO and self.NOTIFICATION_EMAIL_SECRET_ID:
             secret_val = _fetch_gcp_secret(
                 secret_id=self.NOTIFICATION_EMAIL_SECRET_ID,
@@ -111,6 +122,14 @@ class Settings(BaseSettings):
             )
             if secret_val:
                 self.NOTIFICATION_EMAIL_TO = secret_val
+
+        # Dynamically ensure CUSTOM_DOMAIN origins are added to CORS_ORIGINS
+        if self.CUSTOM_DOMAIN:
+            cleaned_domain = self.CUSTOM_DOMAIN.strip().lower().removeprefix("http://").removeprefix("https://")
+            for origin in [f"https://{cleaned_domain}", f"https://www.{cleaned_domain}"]:
+                if origin not in self.CORS_ORIGINS:
+                    self.CORS_ORIGINS.append(origin)
+
         return self
 
 

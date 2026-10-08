@@ -424,10 +424,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   return (
     <div
       style={{
-        width: typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : `${width}px`,
-        maxWidth: '100vw'
+        width: typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : `${width}px`
       }}
-      className={`fixed top-16 bottom-0 right-0 z-40 bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col ${
+      className={`fixed inset-x-0 sm:inset-x-auto sm:right-0 top-16 bottom-0 z-40 w-full sm:w-auto max-w-full bg-[#090d16] border-l border-slate-800 shadow-2xl flex flex-col ${
         isResizing ? 'transition-none select-none' : 'animate-in slide-in-from-right duration-300'
       }`}
     >
@@ -521,7 +520,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       )}
 
       {/* Messages Thread */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-4 space-y-4 overscroll-contain">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -536,13 +535,13 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             )}
 
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 leading-relaxed ${
+              className={`min-w-0 max-w-[88%] sm:max-w-[85%] rounded-2xl px-4 py-3 leading-relaxed break-words [overflow-wrap:anywhere] ${
                 m.role === 'user'
                   ? 'bg-cyan-600 text-white rounded-tr-none'
                   : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none shadow-sm'
               }`}
             >
-              <div className="whitespace-pre-wrap">
+              <div className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                 {m.role === 'assistant' ? (
                   m.content ? (
                     renderFormattedContent(m.content, m.id)
@@ -625,7 +624,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       )}
 
       {/* Chat Input Bar */}
-      <div className="p-3.5 border-t border-slate-800 bg-slate-900/90">
+      <div className="p-3 sm:p-3.5 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-slate-800 bg-slate-900/95 backdrop-blur-md">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -644,12 +643,12 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 : "Ask about Kubernetes, Terraform, MLOps, Kafka..."
             }
             disabled={rateLimitExceeded}
-            className="flex-1 px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 disabled:opacity-50"
+            className="flex-1 px-3.5 py-2.5 text-base sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!input.trim() || isStreaming || rateLimitExceeded}
-            className="p-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
+            className="p-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors cursor-pointer"
           >
             <Send className="w-4 h-4" />
           </button>

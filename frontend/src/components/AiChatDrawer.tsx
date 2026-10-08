@@ -476,7 +476,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
             </h3>
             <p className="text-[10.5px] font-mono text-cyan-400 truncate">
-              Gemini 2.0 Flash • Hybrid RAG
+              Gemini 3.8 Flash • Hybrid RAG
             </p>
           </div>
         </div>

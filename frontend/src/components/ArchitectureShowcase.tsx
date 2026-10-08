@@ -100,7 +100,7 @@ const ALL_ADRS: AdrEntry[] = [
     id: "ADR-010",
     title: "Dual-Process Cognitive Architecture (System 1 & System 2)",
     category: "Cognitive AI & FinOps",
-    summary: "Separated sub-5ms in-memory deterministic routing and FinOps relevance gating (System 1) from grounded Gemini 2.5 Flash generative streaming (System 2), blocking 100% of LLM costs on off-topic and bot traffic.",
+    summary: "Separated sub-5ms in-memory deterministic routing and FinOps relevance gating (System 1) from grounded Gemini 3.8 Flash generative streaming (System 2), blocking 100% of LLM costs on off-topic and bot traffic.",
     file: "docs/adr/ADR-010-dual-process-cognitive-architecture.md"
   },
   {
@@ -287,7 +287,7 @@ export const ArchitectureShowcase: React.FC = () => {
                   <div>
                     <div className="text-cyan-400 font-bold text-sm mb-3 flex items-center gap-2">
                       <Bot className="w-4 h-4 text-cyan-400" />
-                      System 2: Grounded Gemini 2.5 Flash Orchestration
+                      System 2: Grounded Gemini 3.8 Flash Orchestration
                     </div>
                     <ul className="space-y-2 text-slate-300">
                       <li className="flex items-start gap-2">
@@ -309,7 +309,7 @@ export const ArchitectureShowcase: React.FC = () => {
                     </ul>
                   </div>
                   <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] font-mono text-cyan-300">
-                    Engine: Gemini 2.5 Flash | Token Stream: SSE over HTTP/2
+                    Engine: Gemini 3.8 Flash | Token Stream: SSE over HTTP/2
                   </div>
                 </div>
               </div>

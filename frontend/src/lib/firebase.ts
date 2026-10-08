@@ -10,7 +10,7 @@ import {
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB7t6zRal6bW4jzOOZpTjq4lZc-lkoGFp0",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "portfolio-510722.firebaseapp.com",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "brandonfoster.dev",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "portfolio-510722",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "portfolio-510722.firebasestorage.app",
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "339039725614",

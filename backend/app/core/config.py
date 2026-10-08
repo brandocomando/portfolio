@@ -89,6 +89,7 @@ class Settings(BaseSettings):
     FIREBASE_PROJECT_ID: Optional[str] = None
     FIRESTORE_COLLECTION_LEADS: str = "portfolio_leads"
     FIRESTORE_COLLECTION_CONVERSATIONS: str = "portfolio_conversations"
+    FIRESTORE_COLLECTION_QUOTA: str = "portfolio_user_quota"
 
     NOTIFICATION_EMAIL_TO: Optional[str] = None
     NOTIFICATION_EMAIL_SECRET_ID: Optional[str] = "notification-email"

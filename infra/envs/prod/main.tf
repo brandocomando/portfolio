@@ -82,7 +82,8 @@ module "custom_domain" {
   enable_custom_domain_mapping = var.enable_custom_domain
   enable_cloud_dns             = var.enable_cloud_dns
   enable_www_subdomain         = true
-  redirect_www_to_apex         = true
+  redirect_apex_to_www         = true
+  redirect_www_to_apex         = false
   verification_txt_record      = var.verification_txt_record
   auto_verify_dns              = var.auto_verify_dns
 

@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
 
     # Domain & Client Verification
-    CUSTOM_DOMAIN: str = "brandonfoster.dev"
+    CUSTOM_DOMAIN: str = "www.brandonfoster.dev"
     CLIENT_VERIFICATION_ENABLED: bool = True
     CLIENT_VERIFICATION_HEADER: str = "x-portfolio-client"
     CLIENT_VERIFICATION_SECRET: str = "portfolio-client-v1"

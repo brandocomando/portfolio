@@ -27,10 +27,16 @@ variable "enable_www_subdomain" {
   default     = true
 }
 
+variable "redirect_apex_to_www" {
+  description = "Whether apex domain (e.g. brandonfoster.dev) should automatically 301 redirect to www subdomain (e.g. www.brandonfoster.dev)"
+  type        = bool
+  default     = true
+}
+
 variable "redirect_www_to_apex" {
   description = "Whether www subdomain should automatically 301 redirect to apex domain"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "enable_cloud_dns" {

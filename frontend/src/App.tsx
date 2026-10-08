@@ -159,6 +159,7 @@ export const App: React.FC = () => {
         onRefreshQuota={() => refreshQuota(authToken)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         initialPrompt={initialPrompt}
+        onClearInitialPrompt={() => setInitialPrompt(undefined)}
         authToken={authToken}
         onOpenContact={handleOpenContact}
       />

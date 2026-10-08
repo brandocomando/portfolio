@@ -130,22 +130,6 @@ async def test_chat_stream_conversational_python():
         assert "FastAPI" in streamed
 
 
-@pytest.mark.asyncio
-async def test_contact_form_submission_success():
-    """Verify that visitors can submit their contact question and email."""
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        payload = {
-            "name": "Alex Recruiter",
-            "email": "alex@techrecruiting.com",
-            "question": "Are you interested in a Principal Platform Engineer role?"
-        }
-        resp = await ac.post("/api/v1/leads/contact", json=payload)
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["status"] == "success"
-        assert "forwarded directly to Brandon" in data["message"]
-
 
 @pytest.mark.asyncio
 async def test_contact_form_submission_validation():

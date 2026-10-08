@@ -10,6 +10,7 @@ interface AiChatDrawerProps {
   onRefreshQuota: () => void;
   onOpenAuth: () => void;
   initialPrompt?: string;
+  onClearInitialPrompt?: () => void;
   authToken?: string | null;
   onOpenContact?: (initialQuestion?: string) => void;
 }
@@ -47,6 +48,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   onRefreshQuota,
   onOpenAuth,
   initialPrompt,
+  onClearInitialPrompt,
   authToken,
   onOpenContact
 }) => {
@@ -146,6 +148,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isStreamingRef = useRef(false);
+  const handledInitialPromptRef = useRef<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,24 +168,31 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     return () => clearInterval(interval);
   }, [isWaitingForResponse]);
 
+  // Handle drawer open/close transitions
   useEffect(() => {
-    if (isOpen) {
-      if (initialPrompt) {
-        setIsMinimized(false);
-      }
-    } else {
+    if (!isOpen) {
+      handledInitialPromptRef.current = null;
+      setIsMinimized(false);
+    } else if (initialPrompt) {
       setIsMinimized(false);
     }
   }, [isOpen, initialPrompt]);
 
+  // Focus input on open or unminimize
   useEffect(() => {
     if (isOpen && !isMinimized && !rateLimitExceeded && inputRef.current) {
       inputRef.current.focus();
     }
-    if (initialPrompt && isOpen) {
+  }, [isOpen, isMinimized, rateLimitExceeded]);
+
+  // Send initial prompt strictly once per distinct prompt text
+  useEffect(() => {
+    if (isOpen && initialPrompt && handledInitialPromptRef.current !== initialPrompt) {
+      handledInitialPromptRef.current = initialPrompt;
       handleSendPrompt(initialPrompt);
+      onClearInitialPrompt?.();
     }
-  }, [isOpen, isMinimized, isStreaming, rateLimitExceeded, initialPrompt]);
+  }, [isOpen, initialPrompt, onClearInitialPrompt]);
 
   const getLastUserQuestion = (assistantMsgId: string): string | undefined => {
     const idx = messages.findIndex((msg) => msg.id === assistantMsgId);
@@ -267,8 +278,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   };
 
   const handleSendPrompt = async (promptText: string) => {
-    if (!promptText.trim() || isStreaming) return;
+    if (!promptText.trim() || isStreamingRef.current) return;
 
+    isStreamingRef.current = true;
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -289,62 +301,70 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     setInput('');
     setIsStreaming(true);
     setIsWaitingForResponse(true);
-    await streamChat({
-      question: promptText,
-      history: messages.map((m) => ({ role: m.role, content: m.content })),
-      authToken,
-      onSources: (sources) => {
-        setMessages((prev) =>
-          prev.map((msg) => (msg.id === assistantMsgId ? { ...msg, sources } : msg))
-        );
-      },
-      onToken: (token) => {
-        setIsWaitingForResponse(false);
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMsgId ? { ...msg, content: msg.content + token } : msg
-          )
-        );
-      },
-      onDone: () => {
-        setIsWaitingForResponse(false);
-        setIsStreaming(false);
-        onRefreshQuota();
-        setTimeout(() => inputRef.current?.focus(), 10);
-      },
-      onError: (err) => {
-        setIsWaitingForResponse(false);
-        setIsStreaming(false);
-        if (err?.error === 'rate_limit_exceeded') {
-          setRateLimitExceeded(true);
+    try {
+      await streamChat({
+        question: promptText,
+        history: messages.map((m) => ({ role: m.role, content: m.content })),
+        authToken,
+        onSources: (sources) => {
+          setMessages((prev) =>
+            prev.map((msg) => (msg.id === assistantMsgId ? { ...msg, sources } : msg))
+          );
+        },
+        onToken: (token) => {
+          setIsWaitingForResponse(false);
           setMessages((prev) =>
             prev.map((msg) =>
-              msg.id === assistantMsgId
-                ? {
-                    ...msg,
-                    content:
-                      err?.message ||
-                      `⚠️ **Daily Query Limit Reached.** You've used all ${targetAnonLimit} questions available to anonymous visitors. Sign in with Google or GitHub to unlock ${targetAuthLimit} daily questions and connect directly with Brandon!`
-                  }
-                : msg
+              msg.id === assistantMsgId ? { ...msg, content: msg.content + token } : msg
             )
           );
-        } else {
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMsgId
-                ? {
-                    ...msg,
-                    content: "An error occurred while streaming the response. Please try again."
-                  }
-                : msg
-            )
-          );
+        },
+        onDone: () => {
+          isStreamingRef.current = false;
+          setIsWaitingForResponse(false);
+          setIsStreaming(false);
+          onRefreshQuota();
+          setTimeout(() => inputRef.current?.focus(), 10);
+        },
+        onError: (err) => {
+          isStreamingRef.current = false;
+          setIsWaitingForResponse(false);
+          setIsStreaming(false);
+          if (err?.error === 'rate_limit_exceeded') {
+            setRateLimitExceeded(true);
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMsgId
+                  ? {
+                      ...msg,
+                      content:
+                        err?.message ||
+                        `⚠️ **Daily Query Limit Reached.** You've used all ${targetAnonLimit} questions available to anonymous visitors. Sign in with Google or GitHub to unlock ${targetAuthLimit} daily questions and connect directly with Brandon!`
+                    }
+                  : msg
+              )
+            );
+          } else {
+            setMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === assistantMsgId
+                  ? {
+                      ...msg,
+                      content: "An error occurred while streaming the response. Please try again."
+                    }
+                  : msg
+              )
+            );
+          }
+          onRefreshQuota();
+          setTimeout(() => inputRef.current?.focus(), 10);
         }
-        onRefreshQuota();
-        setTimeout(() => inputRef.current?.focus(), 10);
-      }
-    });
+      });
+    } catch {
+      isStreamingRef.current = false;
+      setIsWaitingForResponse(false);
+      setIsStreaming(false);
+    }
   };
 
   if (!isOpen) return null;

@@ -4,7 +4,10 @@ locals {
 
   # Dynamically extract TXT verification record from Firebase required_dns_updates
   dynamic_txt_records = flatten([
-    for u in try(google_firebase_hosting_custom_domain.apex[0].required_dns_updates, []) : [
+    for u in concat(
+      try(google_firebase_hosting_custom_domain.apex[0].required_dns_updates, []),
+      try(google_firebase_hosting_custom_domain.www[0].required_dns_updates, [])
+    ) : [
       for d in u.desired : [
         for r in d.records : format("\"%s\"", replace(r.rdata, "\"", "")) if r.type == "TXT"
       ]
@@ -17,18 +20,7 @@ locals {
   ] : local.dynamic_txt_records
 }
 
-# 1. Firebase Hosting Custom Domain: Apex Domain (Triggers Google-managed SSL provisioning)
-resource "google_firebase_hosting_custom_domain" "apex" {
-  provider              = google-beta
-  count                 = var.enable_custom_domain_mapping ? 1 : 0
-  project               = var.project_id
-  site_id               = local.site_id
-  custom_domain         = local.clean_domain
-  cert_preference       = "GROUPED"
-  wait_dns_verification = false
-}
-
-# 2. Firebase Hosting Custom Domain: www Subdomain (301 Redirect to Apex)
+# 1. Firebase Hosting Custom Domain: www Subdomain (Standardized Primary Domain)
 resource "google_firebase_hosting_custom_domain" "www" {
   provider              = google-beta
   count                 = var.enable_custom_domain_mapping && var.enable_www_subdomain ? 1 : 0
@@ -38,8 +30,20 @@ resource "google_firebase_hosting_custom_domain" "www" {
   redirect_target       = var.redirect_www_to_apex ? local.clean_domain : null
   cert_preference       = "GROUPED"
   wait_dns_verification = false
+}
 
-  depends_on = [google_firebase_hosting_custom_domain.apex]
+# 2. Firebase Hosting Custom Domain: Apex Domain (Auto 301 Redirect to www)
+resource "google_firebase_hosting_custom_domain" "apex" {
+  provider              = google-beta
+  count                 = var.enable_custom_domain_mapping ? 1 : 0
+  project               = var.project_id
+  site_id               = local.site_id
+  custom_domain         = local.clean_domain
+  redirect_target       = var.redirect_apex_to_www ? "www.${local.clean_domain}" : null
+  cert_preference       = "GROUPED"
+  wait_dns_verification = false
+
+  depends_on = [google_firebase_hosting_custom_domain.www]
 }
 
 # 3. Optional: Google Cloud DNS Managed Zone (if DNS is delegated to GCP)

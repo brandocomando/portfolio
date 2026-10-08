@@ -167,9 +167,10 @@ resource "google_cloud_run_v2_service" "backend" {
           path = "/healthz"
           port = 8080
         }
-        initial_delay_seconds = 2
+        initial_delay_seconds = 5
         period_seconds        = 5
-        failure_threshold     = 3
+        timeout_seconds       = 4
+        failure_threshold     = 12 # 60 seconds budget to allow Python cold-start and secret resolution
       }
 
       liveness_probe {

@@ -326,63 +326,66 @@ def detect_approved_personal(query: str) -> Optional[str]:
     if re.search(r"\b(?:favorite|fav)\s+colou?r\b|\bwhat\s+(?:is\s+his|is\s+your)\s+colou?r\b", q_lower):
         return "Brandon's favorite color is **Blue**!"
 
-    # Coffee or Tea
+    # Coffee Preparation / How he drinks coffee
+    if any(re.search(pat, q_lower) for pat in [
+        r"\bhow\s+(?:does\s+he|do\s+you|does\s+brandon)\s+(?:like|take|make|brew|drink)\s+(?:his\s+|your\s+)?coffee\b",
+        r"\b(?:what\s+kind\s+of|what\s+type\s+of)\s+coffee\b",
+        r"\b(?:black|french\s+press)\s+coffee\b",
+        r"\bhow\s+(?:is\s+his|is\s+your)\s+coffee\b",
+        r"\bcoffee\s+preparation\b",
+    ]):
+        return "Brandon drinks his coffee **black, brewed with a French press**! ☕ (Hands down, he runs on coffee and prefers it over tea)."
+
+    # Coffee or Tea Binary Preference
     if any(re.search(pat, q_lower) for pat in [
         r"\bcoffee\s+or\s+tea\b",
         r"\btea\s+or\s+coffee\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:drink|have|like|prefer|love)\s+(?:coffee|tea)\b",
-        r"\b(?:like|prefer|love)\s+coffee\b",
-        r"\b(?:like|prefer|love)\s+tea\b",
-        r"\b(?:favorite|fav)\s+drink\b",
-        r"\bcoffee\b",
-        r"\btea\b",
+        r"\b(?:does\s+he|do\s+you|does\s+brandon)\s+(?:prefer|choose)\s+(?:coffee|tea)\b",
+        r"\b(?:does\s+he|do\s+you|does\s+brandon)\s+(?:drink|like|love)\s+tea\b",
+        r"\b(?:favorite|fav)\s+(?:morning\s+)?drink\b",
+        r"\b(?:do\s+you|does\s+he)\s+drink\s+coffee\b",
     ]):
         if "tea" in q_lower and "coffee" not in q_lower:
             return "Brandon runs on **COFFEE!!!!!!** ☕ (not much of a tea drinker)."
-        return "**COFFEE!!!!!!** (Hands down—he runs on coffee! ☕)"
+        return "**COFFEE!!!!!!** (Hands down—he runs on coffee and prefers it over tea! ☕)"
 
-    # Cats or Dogs / Pets
+    # Cats or Dogs Binary Preference
     if any(re.search(pat, q_lower) for pat in [
         r"\bcats?\s+or\s+dogs?\b",
         r"\bdogs?\s+or\s+cats?\b",
-        r"\b(?:cats|dogs)\s+person\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:have|like|prefer|love)\s+(?:pets|a\s+pet|cats?|dogs?)\b",
-        r"\b(?:his|your)\s+(?:pets?|cats?|dogs?)\b",
-        r"\b(?:like|prefer|love)\s+cats?\b",
-        r"\b(?:like|prefer|love)\s+dogs?\b",
-        r"\bcat\s+lover\b",
-        r"\bdog\s+lover\b",
-        r"\bcat\s+person\b",
-        r"\bdog\s+person\b",
-        r"\bcats?\b",
-        r"\bdogs?\b",
-        r"\bpets?\b",
+        r"\b(?:is\s+he|are\s+you)\s+(?:a\s+)?(?:cat|dog)\s+(?:person|lover)\b",
+        r"\b(?:cat|dog)\s+person\b",
+        r"\b(?:does\s+he|do\s+you|does\s+brandon)\s+prefer\s+(?:cats?|dogs?)\b",
+        r"\b(?:does\s+he|do\s+you|does\s+brandon)\s+(?:like|prefer)\s+(?:cats?\s+or\s+dogs?|dogs?\s+or\s+cats?)\b",
     ]):
         if "dog" in q_lower and "cat" not in q_lower:
             return "Brandon is definitely a cat person (**Cats!!!!!** 🐱), rather than dogs!"
         return "**Cats!!!!!** (Brandon is definitely a cat person! 🐱)"
 
-    # Education & University
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:where\s+did\s+he\s+go\s+to\s+school|where\s+did\s+you\s+go\s+to\s+school)\b",
-        r"\b(?:education|college|university|degree|school|alma\s+mater|biola)\b",
-        r"\bwhat\s+did\s+he\s+study\b",
-    ]):
-        return (
-            "Brandon attended **Biola University**, graduating with a Bachelor of Science (**BS**) in **Computer Science**."
-        )
+    # Education & University (College / Degree / Alma Mater)
+    if not re.search(r"\b(?:high\s+school|elementary|middle\s+school|grade\s+school|gpa|grades?|sat|act)\b", q_lower):
+        if any(re.search(pat, q_lower) for pat in [
+            r"\bwhere\s+did\s+(?:he|brandon|you)\s+go\s+to\s+(?:school|college|university)\b",
+            r"\b(?:what\s+is\s+his|what\s+is\s+your|what\s+is\s+brandon\'?s?)\s+(?:education|degree|alma\s+mater)\b",
+            r"\bwhat\s+(?:college|university)\s+did\s+(?:he|brandon|you)\s+(?:go\s+to|attend)\b",
+            r"\b(?:what\s+degree\s+does\s+he\s+have|does\s+he\s+have\s+a\s+degree)\b",
+            r"\bwhat\s+did\s+(?:he|brandon|you)\s+study\b",
+            r"\bbiola\s*(?:university)?\b",
+            r"\b(?:his|brandon\'?s?)\s+(?:college|university|alma\s+mater|degree)\b",
+        ]):
+            return (
+                "Brandon attended **Biola University**, graduating with a Bachelor of Science (**BS**) in **Computer Science**."
+            )
 
     # Tabs or Spaces
     if re.search(r"\btabs?\s+or\s+spaces?\b|\bspaces?\s+or\s+tabs?\b", q_lower):
         return "**Tabs**!"
 
-    # Night Owl or Early Bird
+    # Night Owl or Early Bird Binary Preference
     if any(re.search(pat, q_lower) for pat in [
         r"\bnight\s*owl\s+or\s+early\s*bird\b",
         r"\bearly\s*bird\s+or\s+night\s*owl\b",
-        r"\bnight\s*owl\b",
-        r"\bearly\s*bird\b",
-        r"\bmorning\s+person\b",
+        r"\b(?:is\s+he|are\s+you|does\s+he\s+consider\s+himself)\s+(?:an?\s+)?(?:early\s*bird|night\s*owl|morning\s+person)\b",
     ]):
         return "Brandon is an **early bird**! 🌅"
 
@@ -394,16 +397,23 @@ def detect_approved_personal(query: str) -> Optional[str]:
     if re.search(r"\b(?:favorite|fav)\s+season\b|\bwhich\s+season\b", q_lower):
         return "Brandon's favorite season is **Fall**! 🍂"
 
-    # Dad Jokes
-    if re.search(r"\bdad\s+jokes?\b", q_lower):
-        return "**All the time!** (Brandon loves a good dad joke! 😄)"
+    # Dad Jokes Preference
+    if not re.search(r"\b(?:tell|give|say|share|crack)\s+(?:me\s+)?(?:a\s+)?dad\s+joke\b", q_lower):
+        if any(re.search(pat, q_lower) for pat in [
+            r"\b(?:does\s+he|do\s+you|does\s+brandon)\s+(?:like|tell|love|enjoy)\s+dad\s+jokes?\b",
+            r"\bdad\s+jokes?\s+(?:all\s+the\s+time|fan|enthusiast)?\??$",
+        ]):
+            return "**All the time!** (Brandon loves a good dad joke! 😄)"
 
     # Beach or Mountains
     if re.search(r"\bbeach\s+or\s+mountains?\b|\bmountains?\s+or\s+beach\b", q_lower):
         return "**Mountains**! 🏔️"
 
     # Favorite Place
-    if re.search(r"\b(?:favorite|fav)\s+place\b|\byosemite\b", q_lower):
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:favorite|fav)\s+(?:place|destination|spot|park|vacation)\b",
+        r"\bwhere\s+(?:is\s+his|is\s+your)\s+favorite\s+place\b",
+    ]):
         return "Brandon's favorite place is **Yosemite**! 🏞️"
 
     # Most Commonly Used Emoji
@@ -425,30 +435,33 @@ def detect_approved_personal(query: str) -> Optional[str]:
         )
 
     # Personal Hobbies (Hiking, Camping, Cooking)
-    if any(re.search(pat, q_lower) for pat in [
-        r"\b(?:what\s+are\s+his|what\s+are\s+your|what\s+are\s+brandon\'?s?)\s+hobbies\b",
-        r"\b(?:does\s+he|do\s+you)\s+have\s+any\s+hobbies\b",
-        r"\bhobb(?:y|ies)\b",
-        r"\b(?:what\s+does\s+he\s+do\s+(?:in\s+his\s+free\s+time|for\s+fun|outside\s+of\s+work))\b",
-        r"\bwhat\s+(?:are\s+his\s+interests|does\s+he\s+do\s+outside\s+work)\b",
-        r"\b(?:does\s+he\s+like\s+to\s+|does\s+he\s+enjoy\s+)(?:hike|hiking|camp|camping|cook|cooking)\b",
-        r"\b(?:does\s+he|do\s+you)\s+(?:hike|camp|cook)\b",
-        r"\b(?:like|enjoy)\s+(?:hiking|camping|cooking)\b",
-        r"\b(?:hiking|camping|cooking)\b",
-    ]):
-        if "cook" in q_lower and not any(w in q_lower for w in ["hike", "camp", "hobb"]):
-            return "Yes! Outside of engineering, **Cooking** is one of Brandon's favorite hobbies (along with **Hiking** and **Camping**)! 🍳🥾⛺"
-        if "camp" in q_lower and not any(w in q_lower for w in ["hike", "cook", "hobb"]):
-            return "Yes! Brandon loves **Camping** and spending time outdoors in nature, alongside **Hiking** and **Cooking**! ⛺🥾🍳"
-        if "hike" in q_lower and not any(w in q_lower for w in ["camp", "cook", "hobb"]):
-            return "Yes! Brandon loves **Hiking** in the mountains (his favorite place is Yosemite!), along with **Camping** and **Cooking**! 🥾🏔️⛺"
-        return (
-            "Outside of platform engineering, Brandon's favorite hobbies are:\n\n"
-            "• **Hiking** 🥾 (he loves the mountains and trails, especially Yosemite!)\n"
-            "• **Camping** ⛺ (spending time outdoors in nature)\n"
-            "• **Cooking** 🍳\n\n"
-            "Would you like to explore his technical background or architecture projects?"
-        )
+    is_open_ended_hobby = bool(
+        re.search(r"^(?:where|what|which|how|why)\b", q_lower) and
+        not re.search(r"\b(?:what\s+are\s+(?:his|your|brandon\'?s?)\s+hobbies|what\s+hobbies)\b", q_lower)
+    )
+    if not is_open_ended_hobby:
+        if any(re.search(pat, q_lower) for pat in [
+            r"\b(?:what\s+are\s+his|what\s+are\s+your|what\s+are\s+brandon\'?s?)\s+hobbies\b",
+            r"\b(?:does\s+he|do\s+you)\s+have\s+(?:any\s+)?hobbies\b",
+            r"\bhobb(?:y|ies)\??$",
+            r"\b(?:what\s+does\s+he\s+do\s+(?:in\s+his\s+free\s+time|for\s+fun|outside\s+of\s+work))\b",
+            r"\bwhat\s+(?:are\s+his\s+interests|does\s+he\s+do\s+outside\s+work)\b",
+            r"\b(?:does\s+he\s+like\s+to\s+|does\s+he\s+enjoy\s+)(?:hike|hiking|camp|camping|cook|cooking)\b",
+            r"\b(?:does\s+he|do\s+you)\s+(?:hike|camp|cook)\??$",
+        ]):
+            if "cook" in q_lower and not any(w in q_lower for w in ["hike", "camp", "hobb"]):
+                return "Yes! Outside of engineering, **Cooking** is one of Brandon's favorite hobbies (along with **Hiking** and **Camping**)! 🍳🥾⛺"
+            if "camp" in q_lower and not any(w in q_lower for w in ["hike", "cook", "hobb"]):
+                return "Yes! Brandon loves **Camping** and spending time outdoors in nature, alongside **Hiking** and **Cooking**! ⛺🥾🍳"
+            if "hike" in q_lower and not any(w in q_lower for w in ["camp", "cook", "hobb"]):
+                return "Yes! Brandon loves **Hiking** in the mountains (his favorite place is Yosemite!), along with **Camping** and **Cooking**! 🥾🏔️⛺"
+            return (
+                "Outside of platform engineering, Brandon's favorite hobbies are:\n\n"
+                "• **Hiking** 🥾 (he loves the mountains and trails, especially Yosemite!)\n"
+                "• **Camping** ⛺ (spending time outdoors in nature)\n"
+                "• **Cooking** 🍳\n\n"
+                "Would you like to explore his technical background or architecture projects?"
+            )
 
     return None
 

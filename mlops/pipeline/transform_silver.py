@@ -105,6 +105,7 @@ def run_silver_transform():
             f"  • Hobbies: {hobbies_str} (Outdoor adventures and culinary creativity)\n"
             f"  • Favorite Color: {personal.fun_facts.get('favorite_color', '')}\n"
             f"  • Coffee or Tea: {personal.fun_facts.get('coffee_or_tea', '')}\n"
+            f"  • Coffee Preparation: {personal.fun_facts.get('coffee_preparation', 'Black, brewed with a French press')}\n"
             f"  • Cats or Dogs: {personal.fun_facts.get('cats_or_dogs', '')}\n"
             f"  • Tabs or Spaces: {personal.fun_facts.get('tabs_or_spaces', '')}\n"
             f"  • Night Owl or Early Bird: {personal.fun_facts.get('chronotype', '')}\n"
@@ -121,7 +122,7 @@ def run_silver_transform():
             title="Brandon Foster Personal Profile & Preferences",
             category="personal",
             content=personal_content,
-            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "hybrid", "orange-county", "la", "los-angeles", "office", "in-office", "onsite", "relocation", "coffee", "cats", "hobbies", "hobby", "hiking", "camping", "cooking"],
+            tags=["personal", "preferences", "location", "education", "employers", "trivia", "california", "remote", "hybrid", "orange-county", "la", "los-angeles", "office", "in-office", "onsite", "relocation", "coffee", "french-press", "cats", "hobbies", "hobby", "hiking", "camping", "cooking"],
             source_file="personal.yaml",
             token_estimate=estimate_tokens(personal_content),
             metadata={"location": personal.location, "current_employer": personal.employers.get("current"), "hobbies": hobbies_list}

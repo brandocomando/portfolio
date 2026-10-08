@@ -207,6 +207,7 @@ async def test_approved_personal_profile_answers():
             ("Where has Brandon worked?", ["Life360", "Persefoni AI", "Melrok", "Lakeshore", "Liferay"]),
             ("What is his favorite color?", ["Blue"]),
             ("Coffee or tea?", ["COFFEE"]),
+            ("How does Brandon like his coffee?", ["black", "French press"]),
             ("Cats or dogs?", ["Cats"]),
             ("Where did he go to school?", ["Biola University", "Computer Science"]),
             ("Tabs or spaces?", ["Tabs"]),

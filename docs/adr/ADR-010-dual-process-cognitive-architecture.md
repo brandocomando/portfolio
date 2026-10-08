@@ -27,7 +27,7 @@ Implemented in `backend/app/api/v1/chat.py`, this layer leverages retrieval scor
 * If the query is not recognized by local architectural handlers, it is deflected as `OFF_TOPIC_GENERAL` with 0 Gemini API calls:
   > *"I don't know—maybe you should ask him! That's outside the scope of Brandon Foster's professional engineering portfolio..."*
 
-### 3. System-2: Grounded Gemini 2.5 Flash Orchestration
+### 3. System-2: Grounded Gemini 3.8 Flash Orchestration
 When a query passes System-1 relevance gating:
 * The backend invokes Google GenAI SDK asynchronously (`_genai_client.aio.models.generate_content_stream`).
 * Strict system prompt boundaries ground answers in the retrieved Gold index chunks and enforce 12-turn conversational history normalization.

@@ -93,7 +93,7 @@ projects:
       - "FastAPI"
       - "Python"
       - "React / Vite / TypeScript"
-      - "Gemini 2.0 Flash"
+      - "Gemini 3.8 Flash"
       - "Hybrid Search (BM25 + Dense RRF)"
       - "GitHub Actions (OIDC/WIF)"
       - "AI Pair Programming"

@@ -68,7 +68,7 @@ variable "enable_custom_domain" {
 variable "enable_cloud_dns" {
   description = "Whether to manage DNS zones in Google Cloud DNS"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "client_verification_secret" {

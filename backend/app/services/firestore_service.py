@@ -6,6 +6,7 @@ and optionally sends instant webhook alerts to Slack or Discord.
 
 import logging
 import datetime
+import asyncio
 from typing import Optional
 import httpx
 
@@ -228,13 +229,17 @@ class FirestoreLeadService:
                 msg.attach(MIMEText(body, "plain"))
 
                 smtp_pwd = settings.SMTP_PASSWORD.strip()
-                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-                    server.starttls()
-                    server.login(settings.SMTP_USER, smtp_pwd)
-                    server.send_message(msg)
+
+                def _send_smtp():
+                    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10.0) as server:
+                        server.starttls()
+                        server.login(settings.SMTP_USER, smtp_pwd)
+                        server.send_message(msg)
+
+                await asyncio.to_thread(_send_smtp)
                 logger.info(f"Successfully sent contact email via SMTP to {settings.NOTIFICATION_EMAIL_TO}")
             except Exception as e:
-                logger.warning(f"Failed to send SMTP contact email: {e}")
+                logger.error(f"Failed to send SMTP contact email: {e}", exc_info=True)
 
         # 4. Forward via Resend API if configured
         if settings.RESEND_API_KEY and settings.NOTIFICATION_EMAIL_TO:

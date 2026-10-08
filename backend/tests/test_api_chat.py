@@ -232,7 +232,7 @@ async def test_approved_personal_profile_answers():
 
 @pytest.mark.asyncio
 async def test_off_topic_general_deflection():
-    """Verify that off-topic trivia deflects with 'I don't know—maybe you should ask him!'."""
+    """Verify that off-topic trivia deflects with 'not something I'm configured to answer' and suggests ChatGPT / Claude."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         resp = await ac.post(
@@ -240,8 +240,26 @@ async def test_off_topic_general_deflection():
             json={"messages": [], "question": "What is the capital of France?"}
         )
         streamed = extract_streamed_text(resp.text)
-        assert "I don't know—maybe you should ask him!" in streamed
-        assert "Contact Page" in streamed or "#contact" in streamed
+        assert "not something I'm configured to answer" in streamed
+        assert "ChatGPT" in streamed or "Claude" in streamed
+        assert "maybe you should ask him" not in streamed
+
+
+@pytest.mark.asyncio
+async def test_casual_greetings_whats_up():
+    """Verify that 'whats up' and casual greetings return a greeting rather than deflection."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        for q in ["whats up", "what's up", "What's up?", "how are you", "how's it going"]:
+            rate_limiter._buckets.clear()
+            resp = await ac.post(
+                "/api/v1/chat/stream",
+                json={"messages": [], "question": q}
+            )
+            assert resp.status_code == 200
+            streamed = extract_streamed_text(resp.text)
+            assert "maybe you should ask him" not in streamed
+            assert "Brandon Foster's AI Assistant" in streamed
 
 
 @pytest.mark.asyncio

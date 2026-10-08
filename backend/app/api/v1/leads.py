@@ -52,12 +52,10 @@ async def get_user_quota(
 @router.post("/contact", summary="Submit Visitor Question or Inquiry")
 async def submit_contact_form(
     submission: ContactSubmissionRequest,
-    background_tasks: BackgroundTasks,
     user: UserIdentity = Depends(get_current_user_optional)
 ):
     """Stores the visitor's question in Firestore and forwards an alert to Brandon."""
-    background_tasks.add_task(
-        firestore_service.record_contact_message,
+    await firestore_service.record_contact_message(
         email=submission.email,
         question=submission.question,
         name=submission.name,

@@ -26,6 +26,112 @@ export function getBaseHeaders(): Record<string, string> {
   };
 }
 
+export interface RetryOptions {
+  maxRetries?: number;
+  initialDelayMs?: number;
+  maxDelayMs?: number;
+  backoffFactor?: number;
+  retryOnStatusCodes?: number[];
+  timeoutMs?: number;
+}
+
+const DEFAULT_RETRY_STATUSES = [500, 502, 503, 504];
+
+/**
+ * Fetch wrapper with automatic exponential-backoff retries.
+ * Handles Cloud Run cold starts and transient network glitches invisibly to the user,
+ * logging retry attempts to console.warn.
+ */
+export async function fetchWithRetry(
+  url: string,
+  init?: RequestInit,
+  options?: RetryOptions
+): Promise<Response> {
+  const maxRetries = options?.maxRetries ?? 3;
+  const initialDelayMs = options?.initialDelayMs ?? 1000;
+  const maxDelayMs = options?.maxDelayMs ?? 5000;
+  const backoffFactor = options?.backoffFactor ?? 2;
+  const retryStatuses = options?.retryOnStatusCodes ?? DEFAULT_RETRY_STATUSES;
+  const timeoutMs = options?.timeoutMs ?? 20000;
+
+  let attempt = 0;
+  let delay = initialDelayMs;
+
+  while (true) {
+    let timeoutId: any;
+    let didTimeout = false;
+
+    try {
+      attempt++;
+
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        didTimeout = true;
+        controller.abort();
+      }, timeoutMs);
+
+      // Link external signal if present
+      const callerSignal = init?.signal;
+      if (callerSignal) {
+        if (callerSignal.aborted) {
+          throw new DOMException('Aborted', 'AbortError');
+        }
+        callerSignal.addEventListener('abort', () => controller.abort(), { once: true });
+      }
+
+      const response = await fetch(url, {
+        ...init,
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      // Check if retryable server error (cold start 502/503/504)
+      if (retryStatuses.includes(response.status) && attempt <= maxRetries) {
+        console.warn(
+          `[API Retry] Request to ${url} returned ${response.status} (likely cold start). Retrying in ${delay}ms (attempt ${attempt}/${maxRetries})...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay = Math.min(delay * backoffFactor, maxDelayMs);
+        continue;
+      }
+
+      if (attempt > 1) {
+        console.info(`[API Retry] Request to ${url} recovered successfully on attempt ${attempt}.`);
+      }
+
+      return response;
+    } catch (err: any) {
+      if (timeoutId) clearTimeout(timeoutId);
+
+      const isCallerAbort = init?.signal?.aborted;
+      if (isCallerAbort) {
+        throw err;
+      }
+
+      const isTimeout = didTimeout || err?.name === 'AbortError' || err?.name === 'TimeoutError';
+      const isNetworkError =
+        isTimeout ||
+        err instanceof TypeError ||
+        err?.message?.includes('Failed to fetch') ||
+        err?.message?.includes('NetworkError') ||
+        err?.message?.includes('Load failed');
+
+      if (isNetworkError && attempt <= maxRetries) {
+        const reason = isTimeout ? `timed out after ${timeoutMs}ms` : (err?.message || 'network failure');
+        console.warn(
+          `[API Retry] Request to ${url} failed (${reason}, likely cold start). Retrying in ${delay}ms (attempt ${attempt}/${maxRetries})...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay = Math.min(delay * backoffFactor, maxDelayMs);
+        continue;
+      }
+
+      throw err;
+    }
+  }
+}
+
 export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus> {
   const headers: Record<string, string> = {
     ...getBaseHeaders()
@@ -38,7 +144,11 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
   const defaultAnonLimit = Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 5;
 
   try {
-    const res = await fetch(`${API_BASE}/api/v1/leads/quota`, { headers });
+    const res = await fetchWithRetry(
+      `${API_BASE}/api/v1/leads/quota`,
+      { headers },
+      { maxRetries: 3, initialDelayMs: 800, timeoutMs: 15000 }
+    );
     if (!res.ok) {
       return {
         authenticated: !!authToken,
@@ -52,6 +162,7 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
     }
     return await res.json();
   } catch (e) {
+    console.warn('[API] fetchQuota failed after retries, falling back to default quota:', e);
     return {
       authenticated: !!authToken,
       tier: authToken ? 'authenticated' : 'anonymous',
@@ -92,17 +203,25 @@ export async function streamChat({
   }
 
   try {
-    const response = await fetch(`${API_BASE}/api/v1/chat/stream`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        messages: history,
-        question
-      })
-    });
+    const response = await fetchWithRetry(
+      `${API_BASE}/api/v1/chat/stream`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          messages: history,
+          question
+        })
+      },
+      {
+        maxRetries: 3,
+        initialDelayMs: 1000,
+        timeoutMs: 30000
+      }
+    );
 
     if (response.status === 429) {
-      const errData = await response.json();
+      const errData = await response.json().catch(() => ({ detail: 'Daily quota exceeded' }));
       if (onError) onError(errData.detail || errData);
       return;
     }
@@ -169,11 +288,19 @@ export async function submitContactForm(
     ...getBaseHeaders()
   };
 
-  const response = await fetch(`${API_BASE}/api/v1/leads/contact`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload)
-  });
+  const response = await fetchWithRetry(
+    `${API_BASE}/api/v1/leads/contact`,
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload)
+    },
+    {
+      maxRetries: 3,
+      initialDelayMs: 1000,
+      timeoutMs: 20000
+    }
+  );
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

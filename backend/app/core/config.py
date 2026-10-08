@@ -90,9 +90,9 @@ class Settings(BaseSettings):
     FIRESTORE_COLLECTION_LEADS: str = "portfolio_leads"
     FIRESTORE_COLLECTION_CONVERSATIONS: str = "portfolio_conversations"
 
-    # Lead & Contact Alerts (Server-side notification configuration)
     NOTIFICATION_EMAIL_TO: Optional[str] = None
     NOTIFICATION_EMAIL_SECRET_ID: Optional[str] = "notification-email"
+    SMTP_PASSWORD_SECRET_ID: Optional[str] = "smtp-password"
     LEAD_NOTIFICATION_WEBHOOK_URL: Optional[str] = None
     FIRESTORE_COLLECTION_CONTACT: str = "portfolio_contact_messages"
     SMTP_HOST: Optional[str] = None
@@ -122,6 +122,20 @@ class Settings(BaseSettings):
             )
             if secret_val:
                 self.NOTIFICATION_EMAIL_TO = secret_val
+
+        if not self.SMTP_PASSWORD and self.SMTP_PASSWORD_SECRET_ID:
+            secret_val = _fetch_gcp_secret(
+                secret_id=self.SMTP_PASSWORD_SECRET_ID,
+                project_id=self.GCP_PROJECT_ID
+            )
+            if secret_val:
+                self.SMTP_PASSWORD = secret_val
+
+        if not self.SMTP_USER and self.NOTIFICATION_EMAIL_TO:
+            self.SMTP_USER = self.NOTIFICATION_EMAIL_TO
+
+        if not self.SMTP_HOST and self.SMTP_USER and "@gmail.com" in self.SMTP_USER.lower():
+            self.SMTP_HOST = "smtp.gmail.com"
 
         # Dynamically ensure CUSTOM_DOMAIN origins are added to CORS_ORIGINS
         if self.CUSTOM_DOMAIN:

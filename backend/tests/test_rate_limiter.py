@@ -6,6 +6,9 @@ from backend.app.core.security import UserIdentity
 from backend.app.core.rate_limiter import InMemoryRateLimiter
 
 
+from backend.app.core.config import settings
+
+
 def test_read_only_quota_check_does_not_consume():
     limiter = InMemoryRateLimiter()
     anon_user = UserIdentity(
@@ -19,8 +22,8 @@ def test_read_only_quota_check_does_not_consume():
         status = limiter.get_quota_status(anon_user)
         assert status.allowed is True
         assert status.tier == "anonymous"
-        assert status.remaining == 10
-        assert status.limit == 10
+        assert status.remaining == settings.ANON_DAILY_LIMIT
+        assert status.limit == settings.ANON_DAILY_LIMIT
 
 
 def test_anonymous_rate_limit_enforcement():
@@ -31,14 +34,14 @@ def test_anonymous_rate_limit_enforcement():
         client_ip="192.168.1.50"
     )
 
-    # 10 calls should succeed (ANON_DAILY_LIMIT = 10)
-    for i in range(10):
+    limit = settings.ANON_DAILY_LIMIT
+    for i in range(limit):
         status = limiter.check_limit(anon_user, consume=True)
         assert status.allowed is True
         assert status.tier == "anonymous"
-        assert status.remaining == 9 - i
+        assert status.remaining == (limit - 1) - i
 
-    # 11th call must raise HTTPException 429
+    # Next call must raise HTTPException 429
     with pytest.raises(HTTPException) as exc_info:
         limiter.check_limit(anon_user, consume=True)
 
@@ -58,17 +61,21 @@ def test_authenticated_rate_limit_allowance():
         client_ip="192.168.1.50"
     )
 
-    # Authenticated user should have up to 30 calls
-    for i in range(15):
+    limit = settings.AUTH_DAILY_LIMIT
+    for i in range(limit):
         status = limiter.check_limit(auth_user, consume=True)
         assert status.allowed is True
         assert status.tier == "authenticated"
 
-    assert status.remaining == 15
+    assert status.remaining == 0
+
+    # Next call raises 429
+    with pytest.raises(HTTPException) as exc_info:
+        limiter.check_limit(auth_user, consume=True)
+    assert exc_info.value.status_code == 429
 
 
 def test_rate_limit_exception_message_contains_dynamic_limit(monkeypatch):
-    from backend.app.core.config import settings
     monkeypatch.setattr(settings, "AUTH_DAILY_LIMIT", 50)
     monkeypatch.setattr(settings, "ANON_DAILY_LIMIT", 5)
 
@@ -92,15 +99,38 @@ def test_rate_limit_exception_message_contains_dynamic_limit(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_user_quota_returns_auth_and_anon_limits():
+    from fastapi import BackgroundTasks
     from backend.app.api.v1.leads import get_user_quota
-    from backend.app.core.config import settings
 
     anon_user = UserIdentity(
         is_authenticated=False,
         uid="anon:10.0.0.2",
         client_ip="10.0.0.2"
     )
-    result = await get_user_quota(anon_user)
+    bg = BackgroundTasks()
+    result = await get_user_quota(background_tasks=bg, user=anon_user)
     assert result["authenticated"] is False
     assert result["auth_limit"] == settings.AUTH_DAILY_LIMIT
     assert result["anon_limit"] == settings.ANON_DAILY_LIMIT
+    assert result["limit"] == 5
+
+
+@pytest.mark.asyncio
+async def test_get_user_quota_authenticated_schedules_login_record():
+    from fastapi import BackgroundTasks
+    from backend.app.api.v1.leads import get_user_quota
+
+    auth_user = UserIdentity(
+        is_authenticated=True,
+        uid="usr_github_999",
+        email="recruiter@tech.com",
+        name="Senior Recruiter",
+        provider="github",
+        client_ip="10.0.0.3"
+    )
+    bg = BackgroundTasks()
+    result = await get_user_quota(background_tasks=bg, user=auth_user)
+    assert result["authenticated"] is True
+    assert result["auth_limit"] == 10
+    assert result["limit"] == 10
+    assert len(bg.tasks) == 1

@@ -68,8 +68,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const [isMinimized, setIsMinimized] = useState(false);
 
-  const targetAuthLimit = quota?.auth_limit || Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 30;
-  const targetAnonLimit = quota?.anon_limit || quota?.limit || Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 10;
+  const targetAuthLimit = quota?.auth_limit || Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 10;
+  const targetAnonLimit = quota?.anon_limit || quota?.limit || Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 5;
 
   // Adjustable Drawer Width
   const DEFAULT_DRAWER_WIDTH = 420;

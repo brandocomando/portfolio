@@ -34,8 +34,8 @@ export async function fetchQuota(authToken?: string | null): Promise<QuotaStatus
     headers['Authorization'] = `Bearer ${authToken}`;
   }
 
-  const defaultAuthLimit = Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 30;
-  const defaultAnonLimit = Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 10;
+  const defaultAuthLimit = Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 10;
+  const defaultAnonLimit = Number(import.meta.env.VITE_ANON_DAILY_LIMIT) || 5;
 
   try {
     const res = await fetch(`${API_BASE}/api/v1/leads/quota`, { headers });

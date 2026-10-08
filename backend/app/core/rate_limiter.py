@@ -1,17 +1,14 @@
-"""Multi-Tier Token Bucket Rate Limiter.
-
-Protects LLM API budgets by enforcing strict daily query limits:
-- Anonymous Tier: 5 queries / 24 hours (keyed by Client IP)
-- Authenticated Tier: 30 queries / 24 hours (keyed by Firebase UID)
-"""
-
 import time
+import hashlib
+import logging
 from typing import Dict, List, Optional
 from pydantic import BaseModel
 from fastapi import HTTPException, status, Depends
 
 from backend.app.core.config import settings
 from backend.app.core.security import UserIdentity, get_current_user_optional
+
+logger = logging.getLogger("portfolio.rate_limiter")
 
 
 class RateLimitStatus(BaseModel):
@@ -23,12 +20,81 @@ class RateLimitStatus(BaseModel):
 
 
 class InMemoryRateLimiter:
-    """Sliding-window in-memory rate limiter with periodic cleanup."""
+    """Sliding-window rate limiter with Firestore persistence and in-memory cache/fallback."""
 
     def __init__(self):
         # Maps bucket_key -> List of epoch timestamps
         self._buckets: Dict[str, List[float]] = {}
         self._last_cleanup: float = time.time()
+        self._firestore_client = None
+        self._firestore_initialized = False
+
+    def _get_firestore_client(self):
+        if not self._firestore_initialized:
+            try:
+                from google.cloud import firestore
+                self._firestore_client = firestore.Client(project=settings.GCP_PROJECT_ID)
+                self._firestore_initialized = True
+            except Exception as e:
+                logger.warning(f"Firestore rate-limiter initialization skipped or failed: {e}")
+                self._firestore_initialized = True
+                self._firestore_client = None
+        return self._firestore_client
+
+    def _firestore_doc_id(self, key: str) -> str:
+        """Ensures bucket key is a safe, valid Firestore document ID."""
+        # Clean safe characters: replace slashes or disallowed characters
+        safe_key = key.replace("/", "_")
+        if len(safe_key) > 100:
+            return hashlib.sha256(key.encode("utf-8")).hexdigest()
+        return safe_key
+
+    def _load_timestamps(self, key: str, now: float, window: float) -> List[float]:
+        """Loads active timestamps from memory, falling back to Firestore if not cached locally."""
+        if key in self._buckets:
+            return [ts for ts in self._buckets[key] if now - ts < window]
+
+        # Not in memory: query Firestore
+        client = self._get_firestore_client()
+        if client:
+            try:
+                doc_id = self._firestore_doc_id(key)
+                doc_ref = client.collection(settings.FIRESTORE_COLLECTION_QUOTA).document(doc_id)
+                doc = doc_ref.get()
+                if doc.exists:
+                    data = doc.to_dict() or {}
+                    ts_list = data.get("timestamps", [])
+                    if isinstance(ts_list, list):
+                        valid = [float(ts) for ts in ts_list if isinstance(ts, (int, float)) and now - float(ts) < window]
+                        self._buckets[key] = valid
+                        return valid
+            except Exception as e:
+                logger.warning(f"Failed to read rate-limit quota from Firestore for key '{key}': {e}")
+
+        return []
+
+    def _persist_timestamps(self, key: str, timestamps: List[float], user: UserIdentity, tier: str, limit: int):
+        """Persists updated timestamps to Firestore (best-effort, non-blocking to client)."""
+        client = self._get_firestore_client()
+        if not client:
+            return
+
+        try:
+            doc_id = self._firestore_doc_id(key)
+            doc_ref = client.collection(settings.FIRESTORE_COLLECTION_QUOTA).document(doc_id)
+            doc_ref.set({
+                "bucket_key": key,
+                "tier": tier,
+                "limit": limit,
+                "is_authenticated": user.is_authenticated,
+                "uid": user.uid,
+                "client_ip": user.client_ip,
+                "timestamps": timestamps,
+                "count": len(timestamps),
+                "last_updated": time.time(),
+            }, merge=True)
+        except Exception as e:
+            logger.warning(f"Failed to persist rate-limit quota to Firestore for key '{key}': {e}")
 
     def _cleanup_old_entries(self, now: float, window: float):
         """Purges buckets with no active entries in the current window."""
@@ -60,9 +126,7 @@ class InMemoryRateLimiter:
             limit = settings.ANON_DAILY_LIMIT
             tier = "anonymous"
 
-        timestamps = self._buckets.get(key, [])
-        # Keep only timestamps within the rolling window
-        active_timestamps = [ts for ts in timestamps if now - ts < window]
+        active_timestamps = self._load_timestamps(key, now, window)
         self._buckets[key] = active_timestamps
 
         remaining = max(0, limit - len(active_timestamps))
@@ -105,6 +169,9 @@ class InMemoryRateLimiter:
         self._buckets[key] = active_timestamps
         remaining = max(0, limit - len(active_timestamps))
 
+        # Persist across container restarts
+        self._persist_timestamps(key, active_timestamps, user, tier, limit)
+
         return RateLimitStatus(
             allowed=True,
             limit=limit,
@@ -125,3 +192,4 @@ def rate_limit_gate(
     user: UserIdentity = Depends(get_current_user_optional)
 ) -> RateLimitStatus:
     return rate_limiter.check_limit(user, consume=True)
+

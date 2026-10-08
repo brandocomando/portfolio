@@ -134,3 +134,44 @@ async def test_get_user_quota_authenticated_schedules_login_record():
     assert result["auth_limit"] == 10
     assert result["limit"] == 10
     assert len(bg.tasks) == 1
+
+
+def test_rate_limiter_restores_from_firestore_mock(monkeypatch):
+    """Verify that when a container restarts (new instance), quota is restored from Firestore."""
+    from unittest.mock import MagicMock
+    import time
+
+    mock_client = MagicMock()
+    mock_doc = MagicMock()
+    mock_snapshot = MagicMock()
+
+    now = time.time()
+    mock_snapshot.exists = True
+    mock_snapshot.to_dict.return_value = {
+        "timestamps": [now - 100, now - 50],
+        "count": 2
+    }
+    mock_doc.get.return_value = mock_snapshot
+    mock_client.collection.return_value.document.return_value = mock_doc
+
+    limiter = InMemoryRateLimiter()
+    limiter._firestore_client = mock_client
+    limiter._firestore_initialized = True
+
+    anon_user = UserIdentity(
+        is_authenticated=False,
+        uid="anon:persistent.test.ip",
+        client_ip="persistent.test.ip"
+    )
+
+    # First check on cold instance: should load existing 2 queries from Firestore
+    status = limiter.get_quota_status(anon_user)
+    assert status.remaining == settings.ANON_DAILY_LIMIT - 2
+    assert status.allowed is True
+
+    # Consuming next token should leave ANON_DAILY_LIMIT - 3
+    status = limiter.check_limit(anon_user, consume=True)
+    assert status.remaining == settings.ANON_DAILY_LIMIT - 3
+    # Verifies write back to Firestore
+    assert mock_doc.set.called
+

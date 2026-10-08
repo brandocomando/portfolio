@@ -7,7 +7,7 @@ locals {
     for u in concat(
       try(google_firebase_hosting_custom_domain.apex[0].required_dns_updates, []),
       try(google_firebase_hosting_custom_domain.www[0].required_dns_updates, [])
-    ) : [
+      ) : [
       for d in u.desired : [
         for r in d.records : format("\"%s\"", replace(r.rdata, "\"", "")) if r.type == "TXT"
       ]

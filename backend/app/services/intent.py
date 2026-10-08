@@ -93,6 +93,15 @@ GREETING_PATTERNS = [
     r"^howdy+$",
     r"^sup+$",
     r"^yo+$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?what'?s\s+up[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?whats\s+up[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?what\s+is\s+up[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?how\s+are\s+you(\s+doing)?[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?how'?s\s+it\s+going[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?hows\s+it\s+going[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?how\s+is\s+it\s+going[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?what'?s\s+(?:new|happening|good)[\.!\?]*$",
+    r"^(?:(?:hey|hi|hello)\s*,?\s*)?whats\s+(?:new|happening|good)[\.!\?]*$",
     r"^good\s+(morning|afternoon|evening|day)$",
     r"^greetings$",
     r"^who\s+are\s+you\??$",
@@ -190,10 +199,48 @@ def detect_math(query: str) -> Optional[str]:
         op_sym = "×" if op in ("*", "x") else op
         return (
             f"{m.group(1)} {op_sym} {m.group(3)} = **{res}**.\n\n"
-            "While I can perform quick calculations, my primary focus is Brandon Foster's engineering experience. "
-            "If you have non-engineering questions or personal inquiries, I don't know—maybe you should ask him! "
-            "You can submit your question and email through the **[Contact Page](#contact)**, and it will be forwarded straight to him."
+            "While I can perform quick calculations, my focus is Brandon Foster's engineering portfolio. "
+            "For general questions or problem solving, tools like **ChatGPT** or **Claude** are great resources!\n\n"
+            "Feel free to ask me about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure."
         )
+
+
+def is_query_about_brandon(query: str) -> bool:
+    """Determines whether a query is directed at / about Brandon Foster rather than general off-topic trivia."""
+    q_lower = query.lower().strip()
+
+    # Explicit name mentions
+    if re.search(r"\b(brandon|foster|brandocomando)\b", q_lower):
+        return True
+
+    # Third-person pronouns referring to Brandon
+    if re.search(r"\b(he|him|his|himself)\b", q_lower):
+        return True
+
+    # Second-person queries directed at the portfolio assistant representing Brandon
+    if re.search(
+        r"\b(your\s+(?:experience|background|career|role|resume|cv|portfolio|contact|email|phone|skills?|projects?|work|job|location|address|salary))\b",
+        q_lower,
+    ):
+        return True
+    if re.search(
+        r"\b(?:are|do|can|would|have)\s+you\s+(?:work|located|based|open\s+to|willing\s+to|have|build|use|know|code)\b",
+        q_lower,
+    ):
+        return True
+
+    # Career / personal attributes often asked about a candidate without explicit pronouns
+    if any(re.search(pat, q_lower) for pat in [
+        r"\b(?:work\s+preferences?|relocat\w*|salary\s+expectations?|clearance|security\s+clearance)\b",
+        r"\b(?:years\s+of\s+(?:experience|devops|engineering|platform))\b",
+        r"\b(?:former|past|previous|current)\s+(?:employer|company|job)\b",
+        r"\b(?:contact\s+info|reach\s+out|send\s+(?:a\s+)?message|hire\b)",
+        r"\b(?:resume|curriculum\s+vitae|cv)\b",
+    ]):
+        return True
+
+    return False
+
 def detect_approved_personal(query: str) -> Optional[str]:
     """System-1 Fast Path: Calibrated deterministic routing for authorized personal profile facts & trivia.
 
@@ -452,9 +499,13 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
     # 5. Conversational Greeting Check
     for pat in GREETING_PATTERNS:
         if re.search(pat, q_lower):
+            if re.search(r"\b(?:what'?s\s+up|whats\s+up|what\s+is\s+up|how\s+are\s+you|how'?s\s+it\s+going|hows\s+it\s+going)\b", q_lower):
+                greeting_intro = "Not much, just ready to help! I am Brandon Foster's AI Assistant."
+            else:
+                greeting_intro = "Hello! I am Brandon Foster's AI Assistant."
             return (
                 IntentType.GREETING,
-                "Hello! I am Brandon Foster's AI Assistant. I can answer questions and provide architectural deep-dives into Brandon's engineering background, including:\n\n"
+                f"{greeting_intro} I can answer questions and provide architectural deep-dives into Brandon's engineering background, including:\n\n"
                 "• **Platform & Cloud Engineering**: Enterprise Terraform module platforms, multi-cloud automation (AWS/GCP), CI/CD pipelines\n"
                 "• **Distributed Systems & Kubernetes**: Amazon EKS migrations, ArgoCD GitOps, AWS App Mesh zero-trust mTLS\n"
                 "• **Streaming Data Platforms**: Apache Kafka & Confluent Cloud migrations, Schema Registry governance\n"
@@ -487,11 +538,18 @@ def classify_intent(query: str) -> Tuple[IntentType, Optional[str]]:
     # 8. Off-Topic General Check
     for pat in OFF_TOPIC_GENERAL_PATTERNS:
         if re.search(pat, q_lower):
+            if is_query_about_brandon(q_raw):
+                return (
+                    IntentType.OFF_TOPIC_GENERAL,
+                    "I don't know—maybe you should ask Brandon directly! That's outside the scope of Brandon Foster's professional engineering portfolio. "
+                    "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him.\n\n"
+                    "Or feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!",
+                )
             return (
                 IntentType.OFF_TOPIC_GENERAL,
-                "I don't know—maybe you should ask him! That's outside the scope of Brandon Foster's professional engineering portfolio. "
-                "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him.\n\n"
-                "Or feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!",
+                "That's not something I'm configured to answer! As Brandon Foster's portfolio assistant, I'm focused specifically on his platform engineering background, architectures, and projects. "
+                "For general questions or trivia, you might want to ask **ChatGPT** or **Claude**!\n\n"
+                "Feel free to ask about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!",
             )
 
     # Default to Portfolio Search

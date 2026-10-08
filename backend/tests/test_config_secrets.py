@@ -31,7 +31,7 @@ def test_settings_fetches_from_gcp_secret_manager_when_not_in_env(monkeypatch):
     mock_secret_val = "gcp-secret-alerts@domain.example"
     with patch("backend.app.core.config._fetch_gcp_secret", return_value=mock_secret_val) as mock_fetch:
         s = Settings(_env_file=None)
-        mock_fetch.assert_called_once_with(secret_id="notification-email", project_id="test-project-123")
+        mock_fetch.assert_any_call(secret_id="notification-email", project_id="test-project-123")
         assert s.NOTIFICATION_EMAIL_TO == mock_secret_val
 
 

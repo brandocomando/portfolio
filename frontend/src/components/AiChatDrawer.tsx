@@ -560,7 +560,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
               {m.role === 'assistant' &&
                 (m.content.includes('#contact') ||
                   m.content.toLowerCase().includes('contact page') ||
-                  m.content.includes('maybe you should ask him')) && (
+                  m.content.includes('maybe you should ask')) && (
                   <div className="mt-3 pt-2.5 border-t border-slate-800/80">
                     <button
                       onClick={() => onOpenContact?.(getLastUserQuestion(m.id))}

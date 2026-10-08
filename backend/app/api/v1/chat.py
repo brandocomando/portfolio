@@ -12,7 +12,7 @@ from backend.app.core.rate_limiter import RateLimitStatus, rate_limit_gate
 from backend.app.services.retrieval_service import retrieval_service
 from backend.app.services.llm_client import llm_client
 from backend.app.services.synthesizer import is_conversational_followup, is_generic_continuation, synthesize_conversational_response
-from backend.app.services.intent import classify_intent, IntentType
+from backend.app.services.intent import classify_intent, IntentType, is_query_about_brandon
 from backend.app.services.firestore_service import firestore_service
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -95,16 +95,23 @@ async def chat_stream(
                     raw_sources=[],
                     conversation_history=[m.model_dump() for m in request.messages],
                 )
-                if "I don't know—maybe you should ask him!" not in candidate_synth:
+                if "maybe you should ask" not in candidate_synth and "not something I'm configured to answer" not in candidate_synth:
                     precomputed_answer = candidate_synth
                     raw_sources = []
                 else:
                     intent_type = IntentType.OFF_TOPIC_GENERAL
-                    precomputed_answer = (
-                        "I don't know—maybe you should ask him! That's outside the scope of Brandon Foster's professional engineering portfolio. "
-                        "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him.\n\n"
-                        "Or feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
-                    )
+                    if is_query_about_brandon(request.question):
+                        precomputed_answer = (
+                            "I don't know—maybe you should ask Brandon directly! That's outside the scope of Brandon Foster's professional engineering portfolio. "
+                            "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him.\n\n"
+                            "Or feel free to ask about his work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
+                        )
+                    else:
+                        precomputed_answer = (
+                            "That's not something I'm configured to answer! As Brandon Foster's portfolio assistant, I'm focused specifically on his platform engineering background, architectures, and projects. "
+                            "For general questions or trivia, you might want to ask **ChatGPT** or **Claude**!\n\n"
+                            "Feel free to ask about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
+                        )
                     raw_sources = []
 
         formatted_sources = [

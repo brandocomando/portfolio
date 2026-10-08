@@ -9,7 +9,7 @@ import re
 import difflib
 from typing import List, Dict, Any, Optional
 
-from backend.app.services.intent import detect_approved_personal
+from backend.app.services.intent import detect_approved_personal, is_query_about_brandon
 
 
 def clean_text(text: str) -> str:
@@ -383,8 +383,8 @@ def synthesize_conversational_response(
         return (
             f"{math_match.group(1)} {op_sym} {math_match.group(3)} is **{res}**!\n\n"
             "While I can do quick math, I'm really here to chat about Brandon Foster's engineering experience. "
-            "If you have non-engineering questions or personal inquiries, I don't know—maybe you should ask him! "
-            "You can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded directly to him."
+            "For general questions or problem solving, tools like **ChatGPT** or **Claude** are great resources!\n\n"
+            "Feel free to ask me about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure."
         )
 
     # 4. Approved Personal Information & Preferences (Explicitly authorized from personal.yaml)
@@ -988,9 +988,15 @@ def synthesize_conversational_response(
                     "If you'd like to ask Brandon directly about his experience in that area or discuss how his background maps to your team's stack, "
                     "you can submit your question and email through the **[Contact Page](#contact)** and it will be forwarded straight to him!"
                 )
+            if is_query_about_brandon(question):
+                return (
+                    "I don't know—maybe you should ask Brandon directly! That question isn't covered in Brandon's engineering portfolio docs. "
+                    "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
+                )
             return (
-                "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs. "
-                "You can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
+                "That's not something I'm configured to answer! As Brandon Foster's portfolio assistant, I'm focused specifically on his platform engineering background, architectures, and projects. "
+                "For general questions or trivia, you might want to ask **ChatGPT** or **Claude**!\n\n"
+                "Feel free to ask about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
             )
 
         # Parse content into clean conversational highlights
@@ -1047,9 +1053,15 @@ def synthesize_conversational_response(
         response += "Feel free to ask for deeper architectural details, design trade-offs, or specific tooling!"
         return response
 
+    if is_query_about_brandon(question):
+        return (
+            "I don't know—maybe you should ask Brandon directly! That question isn't covered in Brandon's engineering portfolio docs, "
+            "but you can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
+        )
     return (
-        "I don't know—maybe you should ask him! That question isn't covered in Brandon's engineering portfolio docs, "
-        "but you can submit your question and email directly through the **[Contact Page](#contact)** and it will be forwarded straight to him."
+        "That's not something I'm configured to answer! As Brandon Foster's portfolio assistant, I'm focused specifically on his platform engineering background, architectures, and projects. "
+        "For general questions or trivia, you might want to ask **ChatGPT** or **Claude**!\n\n"
+        "Feel free to ask about Brandon's work with Kubernetes, Terraform, Confluent Kafka, or AI infrastructure!"
     )
 
 

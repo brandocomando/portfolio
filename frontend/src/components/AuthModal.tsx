@@ -16,7 +16,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
 
   if (!isOpen) return null;
 
-  const targetLimit = authLimit || Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 30;
+  const targetLimit = authLimit || Number(import.meta.env.VITE_AUTH_DAILY_LIMIT) || 10;
 
   const handleGoogleLogin = async () => {
     setLoading(true);

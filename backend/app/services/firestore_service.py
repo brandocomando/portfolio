@@ -80,6 +80,65 @@ class FirestoreLeadService:
         if settings.LEAD_NOTIFICATION_WEBHOOK_URL:
             await self._send_webhook_alert(user, question)
 
+    async def record_user_login(self, user: UserIdentity):
+        """Records when an authenticated user logs into the portfolio."""
+        if not user.is_authenticated:
+            return
+
+        now = datetime.datetime.utcnow().isoformat() + "Z"
+        client = self._get_client()
+        lead_doc_id = user.uid
+
+        login_data = {
+            "uid": user.uid,
+            "email": user.email,
+            "name": user.name,
+            "picture": user.picture,
+            "provider": user.provider,
+            "last_login": now,
+            "last_active": now,
+            "client_ip": user.client_ip,
+        }
+
+        if client:
+            try:
+                from google.cloud import firestore
+                doc_ref = client.collection(settings.FIRESTORE_COLLECTION_LEADS).document(lead_doc_id)
+                doc_ref.set({
+                    **login_data,
+                    "login_count": firestore.Increment(1)
+                }, merge=True)
+                logger.info(f"👤 USER LOGIN RECORDED in Firestore: email='{user.email}' provider='{user.provider}' name='{user.name}'")
+            except Exception as e:
+                logger.error(f"Failed to record user login in Firestore: {e}")
+
+        # Trigger Webhook notification (Discord / Slack) if configured
+        if settings.LEAD_NOTIFICATION_WEBHOOK_URL:
+            await self._send_login_webhook_alert(user)
+
+        # High-visibility structured log for Google Cloud Logging (Cloud Run)
+        logger.info(f"👤 AUTHENTICATED USER SESSION: uid='{user.uid}' email='{user.email}' provider='{user.provider}' ip='{user.client_ip}'")
+
+    async def _send_login_webhook_alert(self, user: UserIdentity):
+        webhook_url = settings.LEAD_NOTIFICATION_WEBHOOK_URL
+        if not webhook_url:
+            return
+
+        text = (
+            f"👤 **User Signed In to Portfolio AI!**\n"
+            f"• **Name:** {user.name or 'N/A'}\n"
+            f"• **Email:** {user.email or 'N/A'}\n"
+            f"• **Provider:** {user.provider}\n"
+            f"• **IP Address:** {user.client_ip}\n"
+            f"• **Time:** {datetime.datetime.utcnow().isoformat()}Z"
+        )
+
+        try:
+            async with httpx.AsyncClient(timeout=4.0) as http_client:
+                await http_client.post(webhook_url, json={"content": text, "text": text})
+        except Exception as e:
+            logger.warning(f"Failed to send login webhook notification: {e}")
+
     async def _send_webhook_alert(self, user: UserIdentity, question: str):
         webhook_url = settings.LEAD_NOTIFICATION_WEBHOOK_URL
         if not webhook_url:

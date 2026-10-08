@@ -26,8 +26,14 @@ class ContactSubmissionRequest(BaseModel):
 
 
 @router.get("/quota", summary="Get User Rate Limit Quota")
-async def get_user_quota(user: UserIdentity = Depends(get_current_user_optional)):
+async def get_user_quota(
+    background_tasks: BackgroundTasks,
+    user: UserIdentity = Depends(get_current_user_optional)
+):
     """Returns current query quota and authentication tier for the client."""
+    if user.is_authenticated:
+        background_tasks.add_task(firestore_service.record_user_login, user)
+
     # Check without consuming a token
     status = rate_limiter.get_quota_status(user)
     return {

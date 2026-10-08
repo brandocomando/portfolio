@@ -144,7 +144,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Jane Doe (Recruiter at TechCorp)"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
+                  className="w-full px-3.5 py-2 text-base sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
                 />
               </div>
 
@@ -158,7 +158,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@company.com"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
+                  className="w-full px-3.5 py-2 text-base sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
                 />
               </div>
 
@@ -172,7 +172,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="What would you like to ask or discuss with Brandon?"
-                  className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors resize-none"
+                  className="w-full px-3.5 py-2 text-base sm:text-sm rounded-xl bg-slate-950 border border-slate-800 focus:border-cyan-500 focus:outline-none text-white placeholder-slate-500 transition-colors resize-none"
                 />
               </div>
 

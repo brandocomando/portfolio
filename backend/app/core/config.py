@@ -80,8 +80,8 @@ class Settings(BaseSettings):
     TEMPERATURE: float = 0.2
 
     # Rate Limiting (Token Bucket)
-    ANON_DAILY_LIMIT: int = 10
-    AUTH_DAILY_LIMIT: int = 30
+    ANON_DAILY_LIMIT: int = 5
+    AUTH_DAILY_LIMIT: int = 10
     RATE_LIMIT_WINDOW_SECONDS: int = 86400  # 24 hours
 
     # GCP & Firebase

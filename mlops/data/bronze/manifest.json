@@ -1,6 +1,6 @@
 {
   "stage": "bronze",
-  "ingested_at": "2026-10-08T16:20:24.379451Z",
+  "ingested_at": "2026-10-08T16:45:35.880433Z",
   "artifacts": {
     "skills": {
       "file": "/opt/personal/portfolio/mlops/data/bronze/skills_raw.json",

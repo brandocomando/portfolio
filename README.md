@@ -207,17 +207,16 @@ portfolio/
 * Python 3.10+
 * Node.js 20+
 * Terraform 1.5+
-* [Task](https://taskfile.dev) (`task`) or GNU Make (optional convenience runners)
+* [Task](https://taskfile.dev) (`task`) modern task runner
 
 ### Unified Task Runner (Recommended)
 ```bash
 # Launch full-stack environment with hot-reload (FastAPI :8080 + Vite :5173)
 task dev
-# or: make dev / ./scripts/dev.sh
+# or: ./scripts/dev.sh
 
 # Run all backend unit & integration tests and frontend typechecks
 task test:all
-# or: make test-all
 
 # Run Medallion data pipeline and golden dataset evaluation quality gate
 task mlops:pipeline

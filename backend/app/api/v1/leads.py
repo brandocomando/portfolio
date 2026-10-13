@@ -1,4 +1,5 @@
 import re
+import logging
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 from fastapi import APIRouter, Depends, BackgroundTasks
@@ -9,6 +10,8 @@ from backend.app.core.rate_limiter import rate_limiter
 from backend.app.services.firestore_service import firestore_service
 
 router = APIRouter(prefix="/leads", tags=["leads"])
+logger = logging.getLogger("portfolio.api.leads")
+
 
 
 class ContactSubmissionRequest(BaseModel):
@@ -55,6 +58,13 @@ async def submit_contact_form(
     user: UserIdentity = Depends(get_current_user_optional)
 ):
     """Stores the visitor's question in Firestore and forwards an alert to Brandon."""
+    requester = (
+        f"authenticated user '{user.email or submission.email}' (IP: {user.client_ip})"
+        if (user.is_authenticated or submission.email)
+        else f"anonymous IP '{user.client_ip}'"
+    )
+    logger.info(f"Question asked via contact form by {requester}: {submission.question}")
+
     await firestore_service.record_contact_message(
         email=submission.email,
         question=submission.question,

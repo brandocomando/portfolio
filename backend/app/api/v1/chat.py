@@ -19,6 +19,15 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 logger = logging.getLogger("portfolio.api.chat")
 
 
+def format_requester(user: UserIdentity) -> str:
+    """Formats requester identity as authenticated user or client IP for logging."""
+    if user.is_authenticated:
+        identity = user.email or user.uid
+        return f"authenticated user '{identity}' (IP: {user.client_ip})"
+    return f"anonymous IP '{user.client_ip}'"
+
+
+
 def _last_turns(messages) -> tuple[str, str]:
     """Returns (last_user_content, last_assistant_content) from prior turns."""
     last_asst, last_user = "", ""
@@ -63,6 +72,9 @@ async def chat_stream(
     rate_status: RateLimitStatus = Depends(rate_limit_gate)
 ):
     """Streams conversational token-by-token answer grounded in Brandon's portfolio."""
+    requester = format_requester(user)
+    logger.info(f"Question asked by {requester}: {request.question}")
+
     # Resolve contextual query for multi-turn continuations, options, and short followups
     is_followup = is_conversational_followup(request.question, request.messages)
     search_query = build_search_query(request.question, request.messages)
@@ -185,6 +197,9 @@ async def chat_langgraph(
     rate_status: RateLimitStatus = Depends(rate_limit_gate)
 ):
     """Executes stateful LangGraph agent graph with explicit guardrail, retrieval, and reasoning nodes."""
+    requester = format_requester(user)
+    logger.info(f"Question asked by {requester}: {request.question}")
+
     from backend.app.services.langgraph_agent import run_langgraph_agent
 
     result = await run_langgraph_agent(request.question)

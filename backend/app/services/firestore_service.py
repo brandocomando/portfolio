@@ -64,6 +64,13 @@ class FirestoreLeadService:
         if client:
             try:
                 doc_ref = client.collection(settings.FIRESTORE_COLLECTION_LEADS).document(lead_doc_id)
+                snap = doc_ref.get()
+                if not snap.exists:
+                    lead_data["created_at"] = now
+                elif "created_at" not in (snap.to_dict() or {}):
+                    created_val = getattr(snap, "create_time", None)
+                    lead_data["created_at"] = created_val.isoformat() if created_val else now
+
                 doc_ref.set(lead_data, merge=True)
 
                 # Append conversation record in subcollection
@@ -105,6 +112,15 @@ class FirestoreLeadService:
             try:
                 from google.cloud import firestore
                 doc_ref = client.collection(settings.FIRESTORE_COLLECTION_LEADS).document(lead_doc_id)
+                snap = doc_ref.get()
+                if not snap.exists:
+                    login_data["created_at"] = now
+                elif "created_at" not in (snap.to_dict() or {}):
+                    created_val = (snap.to_dict() or {}).get("first_login")
+                    if not created_val and getattr(snap, "create_time", None):
+                        created_val = snap.create_time.isoformat()
+                    login_data["created_at"] = created_val or now
+
                 doc_ref.set({
                     **login_data,
                     "login_count": firestore.Increment(1)

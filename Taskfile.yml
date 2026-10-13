@@ -124,6 +124,51 @@ tasks:
       - terraform apply
 
   # ----------------------------------------------------------------------------
+  # Observability, Logs & Telemetry
+  # ----------------------------------------------------------------------------
+  logs:
+    desc: View backend API logs over a time range (default past 24 hrs, e.g. task logs SINCE=7d)
+    vars:
+      SINCE: '{{.SINCE | default "24h"}}'
+    cmds:
+      - '{{.PYTHON}} scripts/query_logs.py --since {{.SINCE}} {{.CLI_ARGS}}'
+
+  logs:view:
+    desc: Alias for logs
+    cmds:
+      - task: logs
+        vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
+  logs:questions:
+    desc: Extract questions asked to the backend API over a time range (default past 24 hrs)
+    vars:
+      SINCE: '{{.SINCE | default "24h"}}'
+    cmds:
+      - '{{.PYTHON}} scripts/query_logs.py --since {{.SINCE}} --questions-only {{.CLI_ARGS}}'
+
+  questions:
+    desc: Alias for logs:questions (e.g. task questions SINCE=7d)
+    cmds:
+      - task: logs:questions
+        vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
+  # ----------------------------------------------------------------------------
+  # Database & Account Operations
+  # ----------------------------------------------------------------------------
+  firestore:accounts:
+    desc: Query Firestore DB for user accounts created over a time period (default past 24 hrs)
+    vars:
+      SINCE: '{{.SINCE | default "24h"}}'
+    cmds:
+      - '{{.PYTHON}} scripts/query_accounts.py --since {{.SINCE}} {{.CLI_ARGS}}'
+
+  accounts:
+    desc: Alias for firestore:accounts (e.g. task accounts SINCE=7d)
+    cmds:
+      - task: firestore:accounts
+        vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
+  # ----------------------------------------------------------------------------
   # Maintenance & Cleanup
   # ----------------------------------------------------------------------------
   clean:
@@ -133,3 +178,4 @@ tasks:
       - find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
       - rm -rf frontend/dist
       - echo "✓ Cleaned cache directories and build artifacts."
+

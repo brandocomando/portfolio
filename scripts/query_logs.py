@@ -148,6 +148,17 @@ def extract_question_info(log_text: str) -> Optional[Dict[str, str]]:
     return None
 
 
+def extract_trace_id(text: str, entry: Dict[str, Any]) -> Optional[str]:
+    """Extracts trace ID from log text or Cloud Logging entry metadata."""
+    m = re.search(r"trace_id=([^\s\]]+)", text)
+    if m and m.group(1) != "no-trace":
+        return m.group(1)
+    trace = entry.get("trace")
+    if trace:
+        return trace.split("/")[-1]
+    return None
+
+
 def format_timestamp(ts_str: str) -> str:
     """Formats an ISO timestamp into readable UTC string."""
     if not ts_str:
@@ -198,16 +209,49 @@ def main():
         print("=" * 80)
 
         questions = []
+        seen_traces = set()
+        seen_recent = []
+
         for entry in entries:
             text = entry.get("textPayload") or json.dumps(entry.get("jsonPayload", {}))
             q_info = extract_question_info(text)
-            if q_info:
-                ts = format_timestamp(entry.get("timestamp", ""))
-                questions.append({
-                    "timestamp": ts,
-                    "requester": q_info["requester"],
-                    "question": q_info["question"]
-                })
+            if not q_info:
+                continue
+
+            trace_id = extract_trace_id(text, entry)
+            if trace_id and trace_id in seen_traces:
+                continue
+
+            raw_ts = entry.get("timestamp", "")
+            try:
+                dt = datetime.fromisoformat(raw_ts.replace("Z", "+00:00")) if raw_ts else None
+            except Exception:
+                dt = None
+
+            # Deduplicate identical (requester, question) within 30 seconds (e.g. stream start vs stream end background task)
+            requester = q_info["requester"]
+            question = q_info["question"]
+            is_dup = False
+            if dt:
+                for prev_dt, prev_req, prev_q in seen_recent[-10:]:
+                    if prev_req == requester and prev_q == question and abs((dt - prev_dt).total_seconds()) <= 30:
+                        is_dup = True
+                        break
+
+            if is_dup:
+                continue
+
+            if trace_id:
+                seen_traces.add(trace_id)
+            if dt:
+                seen_recent.append((dt, requester, question))
+
+            ts = format_timestamp(raw_ts)
+            questions.append({
+                "timestamp": ts,
+                "requester": requester,
+                "question": question
+            })
 
         if not questions:
             print(f"\nNo questions found in logs over the specified time range (past {args.since}).")

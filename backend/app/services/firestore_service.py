@@ -43,8 +43,8 @@ class FirestoreLeadService:
         now = datetime.datetime.utcnow().isoformat() + "Z"
 
         if not user.is_authenticated:
-            # For anonymous visitors, we don't spam Firestore, only log telemetry
-            logger.info(f"Anonymous interaction from {user.client_ip}: '{question[:50]}'")
+            # For anonymous visitors, we don't spam Firestore, only record debug telemetry
+            logger.debug(f"Anonymous interaction from {user.client_ip}: '{question[:50]}'")
             return
 
         client = self._get_client()

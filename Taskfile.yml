@@ -156,7 +156,7 @@ tasks:
   # Database & Account Operations
   # ----------------------------------------------------------------------------
   firestore:accounts:
-    desc: Query Firestore DB for user accounts created over a time period (default past 24 hrs)
+    desc: Query Firestore DB for user accounts created and logins over a time period (default past 24 hrs)
     vars:
       SINCE: '{{.SINCE | default "24h"}}'
     cmds:
@@ -167,6 +167,32 @@ tasks:
     cmds:
       - task: firestore:accounts
         vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
+  # ----------------------------------------------------------------------------
+  # Combined Activity & Telemetry
+  # ----------------------------------------------------------------------------
+  activity:
+    desc: View all questions and account logins combined over a time period (default past 24 hrs, e.g. task activity SINCE=7d)
+    vars:
+      SINCE: '{{.SINCE | default "24h"}}'
+    cmds:
+      - task: accounts
+        vars: { SINCE: '{{.SINCE}}' }
+      - task: questions
+        vars: { SINCE: '{{.SINCE}}' }
+
+  activity:all:
+    desc: Alias for activity
+    cmds:
+      - task: activity
+        vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
+  summary:
+    desc: Alias for activity (e.g. task summary SINCE=7d)
+    cmds:
+      - task: activity
+        vars: { SINCE: '{{.SINCE | default "24h"}}' }
+
 
   # ----------------------------------------------------------------------------
   # Maintenance & Cleanup

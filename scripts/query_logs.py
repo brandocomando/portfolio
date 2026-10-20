@@ -43,13 +43,19 @@ def fetch_cloud_logs(
     since: str,
     start: Optional[str] = None,
     end: Optional[str] = None,
-    limit: int = 1000
+    limit: int = 1000,
+    questions_only: bool = False
 ) -> List[Dict[str, Any]]:
     """Fetches Cloud Run logs using the authenticated gcloud CLI."""
     filter_parts = [
         'resource.type="cloud_run_revision"',
         f'resource.labels.service_name="{service}"'
     ]
+
+    if questions_only:
+        filter_parts.append(
+            '("Question asked" OR "Anonymous interaction" OR "Question Asked" OR "CONTACT MESSAGE FORWARDED")'
+        )
 
     cmd = [
         "gcloud", "logging", "read",
@@ -194,7 +200,8 @@ def main():
             since=args.since,
             start=args.start,
             end=args.end,
-            limit=args.limit
+            limit=args.limit,
+            questions_only=args.questions_only
         )
         source_desc = f"Cloud Run '{args.service}' in project '{args.project}'"
 

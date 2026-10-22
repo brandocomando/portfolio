@@ -140,7 +140,7 @@ You have access to live repository exploration tools:
 HOW TO INVESTIGATE THIS PR:
 1. Review the `PULL REQUEST GIT DIFF` and `MODIFIED FILES SUMMARY` below.
 2. Autonomously decide what additional context from the repository you need to accurately threat-model the change:
-   - **Architecture Decision Records (`docs/adr/*.md`) & Threat Model (`SECURITY.md`)**: If a change touches architectural patterns, authentication/WIF (`ADR-005`), rate limiting (`ADR-007`), serverless Cloud Run scaling (`ADR-001`), vector store (`ADR-004`), or LangGraph/agent workflows (`ADR-009`), use `list_files("docs/adr")` or `read_file` to check whether the design trade-offs or intentional security constraints are already documented in an ADR or `SECURITY.md`.
+   - **Architecture Decision Records (`docs/adr/*.md`) & Threat Model (`SECURITY.md`)**: Use `list_files("docs/adr")` and `read_file` when relevant to check whether architectural trade-offs or security boundaries are already documented in an ADR or `SECURITY.md`.
    - **If an IAM policy, role, or Terraform resource was modified**: use `search_code` or `read_file` to check how the application code actually uses that service/permission (e.g., is the permission needed, or does it violate Least Privilege?).
    - **If an application route, service, or script was modified**: use `search_code`, `read_file`, or `inspect_terraform` to check how it is exposed (ingress, auth middleware, callers) and what runtime permissions it executes under.
 3. Call only the tools you need (typically 1 to 4 targeted tool calls). Once you have sufficient evidence, stop calling tools and summarize your findings.
@@ -220,11 +220,11 @@ PULL REQUEST GIT DIFF:
         synthesis_prompt = """
 Based on the Pull Request diff and all repository evidence gathered during your tool-calling investigation:
 1. Produce the final structured `SecurityReport` JSON.
-2. CRITICAL SCOPE & NO-FALSE-POSITIVE RULES:
+2. SCOPE & ACTIONABILITY RULES:
    - Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
-   - **DO NOT report threats that are already mitigated or properly guarded in the current code!** For example, if a workflow already has `if: github.event.pull_request.head.repo.full_name == github.repository`, `contents: read`, `persist-credentials: false`, and `timeout-minutes`, or if a script already calls `redact_secrets()` and blocks `.env` / path traversal, DO NOT create a `ThreatItem` telling the author to "maintain" or "preserve" what is already written.
-   - Only include a `ThreatItem` in `threats` if there is a **genuine, unresolved security flaw or missing control** that requires a real code change (`Medium`, `High`, or `Critical` contextual severity, or an unmitigated `Low` defect).
-   - If the PR diff is well-hardened and has no remaining actionable flaws, return an empty list `threats: []` and set `overall_contextual_severity` to `"Low"` or `"Informational"`, summarizing the verified security controls in `context_summary_narrative`.
+   - Distinguish clearly between **mitigated surfaces** and **unmitigated vulnerabilities**:
+     * If a threat surface introduced or touched by the PR is already properly mitigated by controls in the diff or surrounding codebase, set `is_remediation_required: False` and leave `ai_agent_prompt` and `suggested_fix` as empty strings `""`. Never generate a remediation telling the author to "maintain", "preserve", or "verify" controls that are already implemented.
+     * Set `is_remediation_required: True` ONLY when there is a genuine, unresolved security flaw or missing control that requires an actual code or configuration change.
 3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, `list_files`, and any relevant ADRs in `docs/adr/` or `SECURITY.md`) to:
    - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
    - Verify whether the change aligns with or violates architectural decisions in `docs/adr/*.md` (citing the specific ADR when relevant).
@@ -235,7 +235,7 @@ Based on the Pull Request diff and all repository evidence gathered during your 
    In @<file_path> (around <function/resource/lines>):
    1. Verify: Inspect @<file_path> and related callers to confirm the finding.
    2. Fix: <specific architectural or code change needed>.
-   3. Test: Run or add a pytest case in tests/ to verify the fix.
+   3. Test: Run or add a test case in tests/ to verify the fix.
    ```
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))

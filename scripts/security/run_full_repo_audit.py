@@ -185,9 +185,9 @@ Start by calling `list_files` (including `docs/adr`), `inspect_terraform`, and `
         synthesis_prompt = """
 Based on your autonomous exploration of the repository:
 1. Produce the structured `FullRepoAuditReport` JSON.
-2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls and Architecture Decision Records (`docs/adr/*.md`, `SECURITY.md`) you verified in the codebase (e.g., `ADR-001` scale-to-zero Cloud Run limits, `ADR-004` read-only in-memory vector store, `ADR-005` OIDC Workload Identity Federation `attribute_condition`, `ADR-007` tiered rate limiting, Secret Manager `secret_key_ref`, and actual SDK usage vs IAM roles).
-3. For each finding, populate `ai_agent_prompt` with a copy-pasteable "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
-4. Assign each finding a deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) for GitHub Issue deduplication.
+2. Calibrate `raw_severity` vs `contextual_severity` using the compensating controls, runtime configurations, and Architecture Decision Records (`docs/adr/*.md`, `SECURITY.md`) you verified via tool calls in the codebase. Only report genuine, unresolved security findings rather than already-mitigated controls.
+3. For each finding, populate `ai_agent_prompt` with a copy-pasteable multiline "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
+4. Assign each finding a deterministic `finding_id` (e.g., `SEC-<CATEGORY>-<COMPONENT>`) for GitHub Issue deduplication.
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 

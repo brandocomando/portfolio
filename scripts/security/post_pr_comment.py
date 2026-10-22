@@ -112,10 +112,6 @@ def format_markdown(report: dict) -> str:
             if t.get("is_remediation_required", True)
             and t.get("contextual_severity") not in {"Informational"}
             and (t.get("ai_agent_prompt") or t.get("suggested_fix"))
-            and not any(
-                phrase in (t.get("suggested_fix") or "").lower()
-                for phrase in ("maintained in", "verified categorization", "already mitigated")
-            )
         ]
 
         if actionable_threats:

@@ -1,0 +1,67 @@
+name: "AppSec Agentic Assessment"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Default to minimal read-only permissions at the workflow level
+permissions:
+  contents: read
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Isolate fork PRs and narrow token scopes strictly to PR comment & issue minimization
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r scripts/security/requirements.txt
+
+      - name: Run Unit Tests for AppSec Engine
+        run: |
+          pytest tests/security/ -v
+
+      - name: Run Material Change Detection Filter
+        id: filter
+        run: |
+          python scripts/security/filter_diff.py \
+            --output-github-env \
+            --output-json /tmp/materiality_gate.json
+
+      - name: Run LangGraph Agentic Threat Modeling & Verification Test Generator
+        if: steps.filter.outputs.IS_MATERIAL == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "::add-mask::$GEMINI_API_KEY"
+          python scripts/security/run_agentic_eval.py \
+            --materiality-file /tmp/materiality_gate.json \
+            --output-report /tmp/security_report.json
+
+      - name: Post PR Security Action Card
+        if: steps.filter.outputs.IS_MATERIAL == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::add-mask::$GH_TOKEN"
+          python scripts/security/post_pr_comment.py \
+            --report-file /tmp/security_report.json \
+            --pr-number ${{ github.event.pull_request.number }}

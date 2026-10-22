@@ -1,0 +1,62 @@
+name: "AppSec Full-Repository Audit & Issue Creator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_severity:
+        description: "Minimum contextual severity to open GitHub Issues for"
+        required: false
+        default: "Medium"
+        type: choice
+        options:
+          - Low
+          - Medium
+          - High
+          - Critical
+      max_issues:
+        description: "Maximum number of new GitHub Issues to open per run"
+        required: false
+        default: "5"
+  schedule:
+    # Runs weekly on Mondays at 09:00 UTC
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  full-security-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r scripts/security/requirements.txt
+
+      - name: Run Full-Repository LangGraph STRIDE Audit & Create GitHub Issues
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "::add-mask::$GEMINI_API_KEY"
+          echo "::add-mask::$GH_TOKEN"
+          python scripts/security/run_full_repo_audit.py \
+            --repo-root . \
+            --output-report /tmp/full_security_audit.json \
+            --min-severity "${{ inputs.min_severity || 'Medium' }}" \
+            --max-issues "${{ inputs.max_issues || '5' }}" \
+            --create-issues

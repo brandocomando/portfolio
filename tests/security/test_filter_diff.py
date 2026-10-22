@@ -1,14 +1,16 @@
 """
 Unit tests for Pillar 1: Material-Change Detection Filter (filter_diff.py)
-and PR Action Card Formatter (post_pr_comment.py).
+and PR Action Card Formatter & Comment Minimizer (post_pr_comment.py).
 """
+import json
 import os
 import sys
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../scripts/security")))
 
 from filter_diff import categorize_files, evaluate_materiality
-from post_pr_comment import format_markdown
+from post_pr_comment import COMMENT_MARKER, format_markdown, hide_previous_pr_comments
 
 
 def test_empty_file_list():
@@ -115,8 +117,27 @@ def test_format_markdown_three_blocks():
     }
 
     md = format_markdown(report, context=context, materiality=materiality)
+    assert COMMENT_MARKER in md
     assert "4-Pillar DevSecOps Pipeline Scorecard" in md
     assert "Block 1: Context-Aware Infrastructure & Blast-Radius Summary" in md
     assert "Block 2: Automated STRIDE Threat Model & Context Adjustments" in md
     assert "Block 3: Generated Model-Based Security Verification Suite" in md
     assert "Downgraded secret exposure risk from High to Low" in md
+
+
+def test_hide_previous_pr_comments(monkeypatch):
+    monkeypatch.setenv("GITHUB_REPOSITORY", "brandocomando/portfolio")
+    mock_comments = json.dumps(
+        [
+            {"id": 1, "node_id": "IC_old_appsec", "body": f"{COMMENT_MARKER}\n## Security Card"},
+            {"id": 2, "node_id": "IC_human_comment", "body": "Looks good to me!"},
+        ]
+    )
+
+    with patch("post_pr_comment.subprocess.check_output", return_value=mock_comments), patch(
+        "post_pr_comment.subprocess.check_call"
+    ) as mock_call:
+        hide_previous_pr_comments("34")
+        assert mock_call.call_count == 1
+        called_args = mock_call.call_args[0][0]
+        assert "id=IC_old_appsec" in called_args

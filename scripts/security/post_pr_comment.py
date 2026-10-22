@@ -7,11 +7,21 @@ PR comment featuring:
   - Block 1: Context-Aware Infrastructure & Reachability Summary (+ ASCII DFD)
   - Block 2: Automated STRIDE Threat Model across Trust Boundaries & Remediation Patches
   - Block 3: Synthesized Model-Based Security Test Suite (pytest + adversarial curl probes)
+
+Automatically hides (minimizes as OUTDATED) any previous DevSecOps security assessment
+comments on the PR before posting the latest assessment.
 """
 import argparse
 import json
 import os
 import subprocess
+
+COMMENT_MARKER = "<!-- appsec-agentic-pr-comment -->"
+LEGACY_HEADER_SIGNATURES = (
+    COMMENT_MARKER,
+    "Agentic DevSecOps PR Security Assessment",
+    "DevSecOps Agentic Security Card:",
+)
 
 
 def format_markdown(
@@ -31,7 +41,7 @@ def format_markdown(
         else "🔴"
     )
 
-    md = []
+    md = [COMMENT_MARKER]
     md.append(f"## {badge_emoji} Agentic DevSecOps PR Security Assessment — `{severity}` Contextual Risk")
     md.append(f"**Executive Summary:** {report.get('summary', 'Evaluation complete.')}\n")
 
@@ -169,8 +179,64 @@ def format_markdown(
     return "\n".join(md)
 
 
+def hide_previous_pr_comments(pr_number: str):
+    """Finds and minimizes (hides as OUTDATED) previous AppSec assessment comments on the PR."""
+    repo = os.getenv("GITHUB_REPOSITORY")
+    if not repo:
+        try:
+            repo = subprocess.check_output(
+                ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+                text=True,
+                stderr=subprocess.DEVNULL,
+            ).strip()
+        except Exception:
+            return
+
+    if not repo:
+        return
+
+    try:
+        output = subprocess.check_output(
+            ["gh", "api", f"repos/{repo}/issues/{pr_number}/comments", "--paginate"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        comments = json.loads(output)
+    except Exception as e:
+        print(f"Warning: Could not list existing PR comments to minimize: {e}")
+        return
+
+    minimized_count = 0
+    mutation = (
+        "mutation($id: ID!) { "
+        "minimizeComment(input: {subjectId: $id, classifier: OUTDATED}) { "
+        "minimizedComment { isMinimized } "
+        "} }"
+    )
+
+    for comment in comments:
+        body = comment.get("body") or ""
+        node_id = comment.get("node_id")
+        if not node_id:
+            continue
+        if any(sig in body for sig in LEGACY_HEADER_SIGNATURES):
+            try:
+                subprocess.check_call(
+                    ["gh", "api", "graphql", "-f", f"query={mutation}", "-f", f"id={node_id}"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                minimized_count += 1
+            except Exception as e:
+                print(f"Warning: Failed to minimize comment {node_id}: {e}")
+
+    if minimized_count > 0:
+        print(f"Minimized (hidden as OUTDATED) {minimized_count} previous security comment(s) on PR #{pr_number}.")
+
+
 def post_github_comment(pr_number: str, comment_body: str):
     try:
+        hide_previous_pr_comments(str(pr_number))
         cmd = ["gh", "pr", "comment", str(pr_number), "--body", comment_body]
         subprocess.check_call(cmd)
         print(f"Successfully posted comment to PR #{pr_number}")

@@ -95,6 +95,7 @@ def test_format_markdown_three_blocks():
                 "raw_severity": "Medium",
                 "contextual_severity": "Low",
                 "context_rationale": "Executed via subprocess list arguments without shell=True.",
+                "ai_agent_prompt": "In @scripts/security/filter_diff.py, verify git diff argument handling and add unit tests.",
                 "suggested_fix": "cmd = ['git', 'diff', '--name-only', f'{base_ref}...HEAD']",
             }
         ],
@@ -106,6 +107,8 @@ def test_format_markdown_three_blocks():
     assert "### 1. Context Summary" in md
     assert "Autonomous LangGraph Repo Investigation (1 tool calls)" in md
     assert "### 2. STRIDE Threat Model" in md
+    assert "Prompt for AI Agents" in md
+    assert "In @scripts/security/filter_diff.py, verify git diff argument handling" in md
     assert "### 3. Generated Model-Based Test Suite" in md
     assert "scripts/security/filter_diff.py" in md
 

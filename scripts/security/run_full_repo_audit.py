@@ -48,6 +48,14 @@ class RepoSecurityFinding(BaseModel):
     context_rationale: str = Field(
         description="How surrounding Terraform/application controls discovered via tools mitigate or amplify this risk"
     )
+    ai_agent_prompt: str = Field(
+        description=(
+            "Copy-pasteable CodeRabbit-style 'Prompt for AI Agents' instructing a coding agent to: "
+            "(1) inspect the affected files and verify the finding in context, "
+            "(2) apply the specific security remediation without breaking existing functionality, and "
+            "(3) run or add a verification test to confirm the fix."
+        )
+    )
     remediation_patch: str = Field(
         description="Actionable code or Terraform HCL patch to resolve the finding"
     )
@@ -178,7 +186,8 @@ Start by calling `list_files` or `inspect_terraform` and `search_code` to map th
 Based on your autonomous exploration of the repository:
 1. Produce the structured `FullRepoAuditReport` JSON.
 2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls you verified in the codebase (e.g., OIDC `attribute_condition`, Secret Manager `secret_key_ref`, `ClientVerificationMiddleware`, Firebase JWT verification, and actual SDK usage vs IAM roles).
-3. Assign each finding a deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) for GitHub Issue deduplication.
+3. For each finding, populate `ai_agent_prompt` with a copy-pasteable "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
+4. Assign each finding a deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) for GitHub Issue deduplication.
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 
@@ -249,6 +258,12 @@ def ensure_security_label():
 
 def format_issue_body(finding: dict) -> str:
     files_md = ", ".join(f"`{f}`" for f in finding.get("affected_files", []))
+    ai_prompt = finding.get("ai_agent_prompt") or (
+        f"In {', '.join('@' + f for f in finding.get('affected_files', []))}, "
+        f"verify the {finding['stride_category']} finding ({finding['title']}): {finding['description']}. "
+        f"Confirm how it interacts with existing controls ({finding['context_rationale']}), "
+        f"apply the remediation, and verify with tests."
+    )
     return f"""<!-- appsec-finding-id: {finding['finding_id']} -->
 ## 🛡️ Automated DevSecOps Security Finding: `{finding['finding_id']}`
 
@@ -266,12 +281,17 @@ def format_issue_body(finding: dict) -> str:
 ### 2. Context-Aware Severity Rationale
 > {finding['context_rationale']}
 
-### 3. Recommended Remediation Patch
+### 3. 🤖 Prompt for AI Agents *(Copy & paste into your coding agent)*
+```text
+{ai_prompt}
+```
+
+### 4. Recommended Remediation Patch
 ```hcl
 {finding['remediation_patch']}
 ```
 
-### 4. Verification Test / Probe
+### 5. Verification Test / Probe
 ```python
 {finding['verification_test']}
 ```

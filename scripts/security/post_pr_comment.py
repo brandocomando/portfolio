@@ -4,7 +4,8 @@ GitHub PR Action Card Formatter & Reporter.
 Formats the DevSecOps security evaluation into a clean, professional Markdown
 PR review card containing three core sections:
   1. Context Summary (Autonomous LangGraph repo investigation & severity adjustments)
-  2. STRIDE Threat Model (Architectural threats, context adjustments, and remediation patches)
+  2. STRIDE Threat Model (Architectural threats, context adjustments, and CodeRabbit-style
+     "🤖 Prompt for AI Agents" + Suggested Patch blocks)
   3. Generated Model-Based Test Suite (Runnable pytest verification tests + curl probes)
 
 Automatically hides (minimizes as OUTDATED) any previous DevSecOps security assessment
@@ -78,13 +79,22 @@ def format_markdown(report: dict) -> str:
             )
         md.append("")
 
-        md.append("#### Remediation Guidance")
+        md.append("#### Remediation & AI Agent Prompts")
         for idx, t in enumerate(threats, start=1):
+            comp = t.get("affected_component", "")
+            title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
+            ai_prompt = t.get("ai_agent_prompt") or (
+                f"In @{comp}, verify the following {t['category']} finding: {t['description']}. "
+                f"Confirm whether the issue is applicable in context ({t['context_rationale']}), "
+                f"apply the remediation, and run pytest to verify."
+            )
+            md.append(f"<details><summary><b>🤖 {title} — Prompt for AI Agents & Patch</b></summary>\n")
+            md.append("##### 📋 Prompt for AI Agents *(Copy & paste into your coding agent)*")
+            md.append(f"```text\n{ai_prompt}\n```\n")
             if t.get("suggested_fix"):
-                comp = t.get("affected_component", "")
-                title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
-                md.append(f"<details><summary><b>{title}</b></summary>\n")
-                md.append(f"```python\n{t['suggested_fix']}\n```\n</details>\n")
+                md.append("##### 🔧 Suggested Code / Configuration Patch")
+                md.append(f"```python\n{t['suggested_fix']}\n```")
+            md.append("</details>\n")
     else:
         md.append("✅ **No critical architectural or STRIDE threats identified in this diff.**\n")
 

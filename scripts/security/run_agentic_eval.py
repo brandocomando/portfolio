@@ -47,8 +47,16 @@ class ThreatItem(BaseModel):
     context_rationale: str = Field(
         description="How the files/code/infrastructure discovered via tool calls justified downgrading, escalating, or flagging this change"
     )
+    ai_agent_prompt: str = Field(
+        description=(
+            "Copy-pasteable CodeRabbit-style 'Prompt for AI Agents' instructing a coding agent to: "
+            "(1) inspect the exact file/lines/functions in `affected_component` and verify the finding against surrounding context, "
+            "(2) apply the specific security fix without breaking existing functionality, and "
+            "(3) run or add a pytest verification test to confirm the fix."
+        )
+    )
     suggested_fix: str = Field(
-        description="Actionable remediation snippet for the modified file in this PR"
+        description="Actionable code or Terraform HCL remediation snippet for the modified file in this PR"
     )
 
 
@@ -221,7 +229,12 @@ Based on the Pull Request diff and all repository evidence gathered during your 
    - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
    - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, and execution environment.
    - Explicitly mention what repo context was verified in `context_summary_narrative` and `context_rationale`.
-4. Generate runnable `pytest` verification tests (`generated_verification_tests`) and optional `curl`/CLI probes (`generated_adversarial_curl_probes`) tailored to the modified code in this PR.
+4. For every `ThreatItem`, populate `ai_agent_prompt` with a self-contained, copy-pasteable prompt formatted like CodeRabbit's "Prompt for AI Agents":
+   - Start with: `In @<file_path> (around <function/resource/lines>), ...`
+   - Instruct the coding agent to first **verify the finding** by inspecting the target file and related callers/configs to confirm whether the risk applies.
+   - Specify the exact architectural or code modification needed to remediate the issue safely.
+   - Instruct the coding agent to run or add a `pytest` test to verify the fix.
+5. Generate runnable `pytest` verification tests (`generated_verification_tests`) and optional `curl`/CLI probes (`generated_adversarial_curl_probes`) tailored to the modified code in this PR.
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 

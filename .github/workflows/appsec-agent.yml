@@ -32,21 +32,21 @@ jobs:
         run: |
           pytest tests/security/ -v
 
-      - name: "Pillar 1: Run Material Change Detection Gate"
+      - name: Run Material Change Detection Filter
         id: filter
         run: |
           python scripts/security/filter_diff.py \
             --output-github-env \
             --output-json /tmp/materiality_gate.json
 
-      - name: "Pillar 2: Extract In-Repo Terraform & Application Context"
+      - name: Extract Terraform & Application Context
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         run: |
           python scripts/security/extract_context.py \
             --repo-root . \
             --output-file /tmp/tf_context.json
 
-      - name: "Pillar 3 & 4: Run Agentic STRIDE Threat Modeling & Verification Test Generator"
+      - name: Run Agentic STRIDE Threat Modeling & Verification Test Generator
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -56,7 +56,7 @@ jobs:
             --materiality-file /tmp/materiality_gate.json \
             --output-report /tmp/security_report.json
 
-      - name: Post 4-Pillar PR Action Card
+      - name: Post PR Security Action Card
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

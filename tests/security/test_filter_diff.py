@@ -118,10 +118,9 @@ def test_format_markdown_three_blocks():
 
     md = format_markdown(report, context=context, materiality=materiality)
     assert COMMENT_MARKER in md
-    assert "4-Pillar DevSecOps Pipeline Scorecard" in md
-    assert "Block 1: Context-Aware Infrastructure & Blast-Radius Summary" in md
-    assert "Block 2: Automated STRIDE Threat Model & Context Adjustments" in md
-    assert "Block 3: Generated Model-Based Security Verification Suite" in md
+    assert "### 1. Context Summary" in md
+    assert "### 2. STRIDE Threat Model" in md
+    assert "### 3. Generated Model-Based Test Suite" in md
     assert "Downgraded secret exposure risk from High to Low" in md
 
 

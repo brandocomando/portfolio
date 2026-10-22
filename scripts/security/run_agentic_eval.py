@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pillar 3 & Pillar 4: Automated STRIDE Threat Modeling & Model-Based Security Test Generator.
+Automated STRIDE Threat Modeling & Security Verification Test Generator.
 Combines Git diff, Terraform infrastructure topology (reachability, IAM blast radius,
 trust boundaries), and application route surface into a structured LLM DevSecOps evaluation.
 """
@@ -46,10 +46,10 @@ class SecurityReport(BaseModel):
         description="Executive summary of the pull request security posture across application code and Terraform infrastructure"
     )
     context_summary_narrative: str = Field(
-        description="2-3 sentence Block 1 Context Summary narrative explicitly citing workload reachability (public vs private ingress), IAM blast radius (scoped vs broad roles), and how findings were contextually adjusted"
+        description='Concise 2-3 sentence Context Summary (e.g., "Workload exposed via Cloud Run INGRESS_TRAFFIC_ALL; runtime SA scoped to datastore.user and secretAccessor. Downranked secret leakage risk from High to Low due to Secret Manager secret_key_ref injection.")'
     )
     data_flow_diagram_ascii: str = Field(
-        description="Compact ASCII Data Flow Diagram (DFD) illustrating the PR's data flow across trust boundaries (e.g. [Untrusted Client] --HTTPS--> [Cloud Run + ClientVerificationMiddleware] --IAM SA--> [Firestore / Secret Manager])"
+        description="Compact ASCII Data Flow Diagram (DFD) illustrating the PR's data flow across trust boundaries"
     )
     overall_contextual_severity: str = Field(
         description="Highest contextual severity remaining across all identified threats (Critical, High, Medium, Low, or Informational)"
@@ -59,7 +59,7 @@ class SecurityReport(BaseModel):
         description="Complete, runnable pytest security verification suite testing authentication boundary rejection (401/403), BOLA/IDOR, header spoofing, or malformed payload rejection against the repo's routes/logic"
     )
     generated_adversarial_curl_probes: str = Field(
-        description="Executable curl / shell adversarial test probes targeting the modified endpoints or boundaries (e.g., missing X-Portfolio-Client header, forged Bearer JWT, oversized/malformed JSON payload)"
+        description="Executable curl adversarial test probes targeting the modified endpoints or boundaries (e.g., missing X-Portfolio-Client header, forged Bearer JWT, oversized/malformed JSON payload)"
     )
 
 
@@ -104,51 +104,38 @@ def main():
     client = genai.Client(api_key=api_key)
 
     prompt = f"""
-You are a Staff Principal DevSecOps & Cloud Security Architect performing an automated, context-aware PR inspection across a 4-Pillar Agentic DevSecOps Pipeline:
-1. Material-Change Detection Gate
-2. Context-Aware Infrastructure & Application Topology Aggregator
-3. Automated STRIDE Threat Modeling across Trust Boundaries & Data Flow Diagrams (DFD)
-4. Model-Based Adversarial Security Verification Test Generation
+You are a Staff Application Security & Cloud DevSecOps Engineer reviewing a Pull Request.
+Analyze the following Pull Request diff together with the extracted in-repo Terraform cloud topology and FastAPI application route surface.
 
-Analyze the following Pull Request diff together with the extracted in-repo Terraform cloud topology and FastAPI route surface.
-
-================================================================================
-PILLAR 1: MATERIAL-CHANGE DETECTION SUMMARY
-================================================================================
+MODIFIED FILES SUMMARY:
 {json.dumps(materiality_context, indent=2)}
 
-================================================================================
-PILLAR 2: VERIFIED TERRAFORM INFRASTRUCTURE & APPLICATION TOPOLOGY
-================================================================================
+TERRAFORM INFRASTRUCTURE & APPLICATION TOPOLOGY:
 {json.dumps(infra_context, indent=2)}
 
-================================================================================
-PULL REQUEST GIT DIFF
-================================================================================
+PULL REQUEST GIT DIFF:
 ```diff
 {git_diff[:16000]}
 ```
 
-================================================================================
-MANDATORY EVALUATION & OUTPUT RULES
-================================================================================
-1. **Context Summary Narrative (`context_summary_narrative`)**:
-   Write a sharp, concrete architectural summary showing how the in-repo Terraform definitions informed your risk scoring. Explicitly reference the actual resources found in the topology (e.g., `google_cloud_run_v2_service.backend` with `INGRESS_TRAFFIC_ALL`, `ClientVerificationMiddleware`, `sa-portfolio-backend` scoped to `roles/datastore.user` and `roles/secretmanager.secretAccessor`, vs CI/CD WIF service account roles or internal-only components) and state which findings were downgraded or escalated due to reachability and IAM blast radius.
+EVALUATION RULES:
+1. **Context Summary (`context_summary_narrative`)**:
+   Write a concise 2-3 sentence architectural context summary explaining how the co-located Terraform definitions affect the risk of this PR (e.g., workload reachability, IAM role scoping, Secret Manager injection, OIDC conditions, and which findings were downranked or escalated as a result).
 
 2. **ASCII Data Flow Diagram (`data_flow_diagram_ascii`)**:
-   Produce a clear, compact ASCII diagram showing the request path, trust boundaries, middleware gates, runtime service account identity, and backing datastores/secrets.
+   Produce a compact ASCII diagram showing the request path, trust boundaries, middleware gates, runtime service account identity, and backing datastores/secrets.
 
-3. **STRIDE Threat Modeling (`threats`)**:
-   - Identify concrete architectural or code-level threats across STRIDE categories (`Spoofing`, `Tampering`, `Repudiation`, `Information Disclosure`, `Denial of Service`, `Elevation of Privilege`).
-   - Always populate `trust_boundary` and `affected_component` with real names from the repo/diff.
-   - **Context Adjustment Requirement**:
-     * Demonstrate at least one **Context-Aware Downgrade** where a theoretical/raw finding is downgraded (e.g., `High` -> `Low` or `Critical` -> `Medium`) because Terraform or middleware context proves constrained blast radius, secret injection via Secret Manager (`secret_key_ref`), OIDC repository attribute condition (`assertion.repository == ...`), or non-routable internal execution.
-     * Demonstrate **Context-Aware Escalation / Preservation** where public ingress (`INGRESS_TRAFFIC_ALL` / `allUsers`) or broad IAM roles (`roles/editor`, `roles/secretmanager.admin`, wildcard `*`, or `DELETE_PROTECTION_DISABLED` on Firestore) warrant heightened scrutiny.
-   - Provide copy-pasteable Python or Terraform HCL remediation patches in `suggested_fix`.
+3. **STRIDE Threat Model (`threats`)**:
+   - Analyze changes across STRIDE categories (`Spoofing`, `Tampering`, `Repudiation`, `Information Disclosure`, `Denial of Service`, `Elevation of Privilege`).
+   - Populate `trust_boundary` and `affected_component` with actual resource/file/route names from the repository.
+   - Adjust severity using the Terraform context:
+     * Downgrade severity when infrastructure or middleware controls mitigate raw exposure (e.g., private/non-routable components, scoped runtime IAM roles, Secret Manager `secret_key_ref`, OIDC `assertion.repository` constraint, or `ClientVerificationMiddleware`).
+     * Escalate or maintain severity when public ingress (`INGRESS_TRAFFIC_ALL` / `allUsers` / `0.0.0.0/0`) or broad IAM privileges (`roles/editor`, `roles/secretmanager.admin`, wildcard `*`) increase blast radius.
+   - Provide actionable Python or Terraform HCL remediation snippets in `suggested_fix`.
 
-4. **Model-Based Security Verification Suite (`generated_verification_tests` & `generated_adversarial_curl_probes`)**:
-   - In `generated_verification_tests`, write realistic, self-contained `pytest` security tests (using `fastapi.testclient.TestClient` or unit harness) that dynamically verify boundary enforcement (e.g., rejecting requests missing `X-Portfolio-Client` verification header with HTTP 403, testing spoofed `X-Forwarded-For` / `Authorization: Bearer <malformed_jwt>` handling, or boundary validation).
-   - In `generated_adversarial_curl_probes`, provide 2-3 realistic `curl` adversarial command snippets targeting the API routes to verify unauthenticated boundary rejection, header tampering, or rate-limit/payload abuse.
+4. **Generated Model-Based Test Suite (`generated_verification_tests` & `generated_adversarial_curl_probes`)**:
+   - Generate runnable `pytest` verification tests asserting boundary rejection (HTTP 401/403, missing `X-Portfolio-Client` header rejection, malformed JWT rejection, or input validation).
+   - Provide targeted `curl` test commands attempting an unauthenticated bypass or boundary breach against the application routes.
 """
 
     model_name = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")

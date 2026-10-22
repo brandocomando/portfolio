@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 GitHub PR Action Card Formatter & Reporter.
-Formats the 4-Pillar Agentic DevSecOps evaluation into a comprehensive Markdown
-PR comment featuring:
-  - 4-Pillar Coverage Scorecard & Materiality Gate Breakdown
-  - Block 1: Context-Aware Infrastructure & Reachability Summary (+ ASCII DFD)
-  - Block 2: Automated STRIDE Threat Model across Trust Boundaries & Remediation Patches
-  - Block 3: Synthesized Model-Based Security Test Suite (pytest + adversarial curl probes)
+Formats the DevSecOps security evaluation into a clean, professional Markdown
+PR review card containing three core sections:
+  1. Context Summary (Infrastructure reachability, IAM scope, and severity adjustments)
+  2. STRIDE Threat Model (Architectural threats, context adjustments, and remediation patches)
+  3. Generated Model-Based Test Suite (Runnable pytest verification tests + curl probes)
 
 Automatically hides (minimizes as OUTDATED) any previous DevSecOps security assessment
 comments on the PR before posting the latest assessment.
@@ -21,6 +20,7 @@ LEGACY_HEADER_SIGNATURES = (
     COMMENT_MARKER,
     "Agentic DevSecOps PR Security Assessment",
     "DevSecOps Agentic Security Card:",
+    "DevSecOps Security Assessment",
 )
 
 
@@ -42,52 +42,18 @@ def format_markdown(
     )
 
     md = [COMMENT_MARKER]
-    md.append(f"## {badge_emoji} Agentic DevSecOps PR Security Assessment — `{severity}` Contextual Risk")
-    md.append(f"**Executive Summary:** {report.get('summary', 'Evaluation complete.')}\n")
+    md.append(f"## {badge_emoji} DevSecOps Security Assessment — `{severity}` Contextual Risk")
+    md.append(f"**Summary:** {report.get('summary', 'Evaluation complete.')}\n")
 
     # -------------------------------------------------------------------------
-    # 4-Pillar DevSecOps Coverage Scorecard
+    # 1. Context Summary
     # -------------------------------------------------------------------------
-    cats = materiality.get("categories", {})
-    infra_count = len(cats.get("infrastructure", []))
-    sec_count = len(cats.get("security_and_auth", []))
-    app_count = len(cats.get("application_logic", []))
-    dep_count = len(cats.get("dependencies", []))
-    bypass_count = len(cats.get("non_material_bypassed", []))
-
-    ingress_count = len(context.get("public_ingress_points", []))
-    iam_count = len(context.get("iam_bindings", []))
-    overpriv_count = len(context.get("overprivileged_iam_bindings", []))
-    route_count = len(context.get("application_routes", []))
-    threat_count = len(report.get("threats", []))
-
-    md.append("### 📊 4-Pillar DevSecOps Pipeline Scorecard")
-    md.append("| Pillar | Coverage | Pipeline Telemetry & In-Repo Verification |")
-    md.append("| :--- | :---: | :--- |")
-    md.append(
-        f"| **1. Material-Change Detection Gate** | `100%` | Triggered (`{infra_count}` Infra, `{sec_count}` Security/Auth, `{app_count}` App, `{dep_count}` Deps; `{bypass_count}` cosmetic files bypassed) |"
-    )
-    md.append(
-        f"| **2. Context-Aware Infra Aggregator** | `95%` | Parsed `{ingress_count}` ingress points, `{iam_count}` IAM bindings (`{overpriv_count}` broad/wildcard), `{route_count}` API routes |"
-    )
-    md.append(
-        f"| **3. Automated STRIDE Threat Modeling** | `95%` | Evaluated `{threat_count}` architectural threats across verified GCP/AWS trust boundaries |"
-    )
-    md.append(
-        "| **4. Model-Based Security Testing** | `80%` | Synthesized dynamic `pytest` boundary assertions & adversarial `curl` probes |"
-    )
-    md.append("")
-
-    # -------------------------------------------------------------------------
-    # Block 1: Context-Aware Infrastructure & Reachability Summary
-    # -------------------------------------------------------------------------
-    md.append("---")
-    md.append("### 🌐 Block 1: Context-Aware Infrastructure & Blast-Radius Summary")
+    md.append("### 1. Context Summary")
     context_narrative = report.get(
         "context_summary_narrative",
         "Evaluated workload reachability, IAM role scoping, and middleware boundaries from co-located Terraform definitions.",
     )
-    md.append(f"> **Context Verdict:** {context_narrative}\n")
+    md.append(f"> {context_narrative}\n")
 
     if context:
         is_pub = context.get("is_public_facing", False)
@@ -101,7 +67,7 @@ def format_markdown(
             )
         )
         md.append(
-            f"- **IAM Blast Radius (`iam_wildcard_or_broad_role={has_wc}`):** "
+            f"- **IAM Scope (`iam_wildcard_or_broad_role={has_wc}`):** "
             + (
                 ", ".join(f"`{s}`" for s in context.get("iam_wildcard_statements", [])[:4])
                 if context.get("iam_wildcard_statements")
@@ -110,72 +76,62 @@ def format_markdown(
         )
         if context.get("security_middlewares"):
             md.append(
-                "- **Active Security Middleware:** "
+                "- **Active Security Controls:** "
                 + ", ".join(f"`{m}`" for m in context.get("security_middlewares", []))
-            )
-        if context.get("datastores"):
-            md.append(
-                "- **Backing Datastores:** "
-                + ", ".join(f"`{d}`" for d in context.get("datastores", []))
             )
         md.append("")
 
     dfd = report.get("data_flow_diagram_ascii")
     if dfd:
-        md.append("<details open><summary><b>🗺️ Verified Architecture & Trust Boundary Data Flow Diagram (DFD)</b></summary>\n")
+        md.append("<details><summary><b>Architecture & Trust Boundary Data Flow Diagram (DFD)</b></summary>\n")
         md.append(f"```text\n{dfd}\n```\n</details>\n")
 
     # -------------------------------------------------------------------------
-    # Block 2: STRIDE Threat Model & Contextual Risk Adjustments
+    # 2. STRIDE Threat Model
     # -------------------------------------------------------------------------
-    md.append("---")
-    md.append("### 🛡️ Block 2: Automated STRIDE Threat Model & Context Adjustments")
+    md.append("### 2. STRIDE Threat Model")
     threats = report.get("threats", [])
     if threats:
         md.append(
-            "| STRIDE Category | Trust Boundary & Component | Threat Description | Raw Severity | Contextual Severity | Context Adjustment Rationale |"
+            "| Category | Component & Boundary | Threat Description | Raw Severity | Contextual Severity | Context Rationale |"
         )
         md.append("| :--- | :--- | :--- | :---: | :---: | :--- |")
         for t in threats:
             boundary = t.get("trust_boundary", "Application Boundary")
             comp = t.get("affected_component", "N/A")
             md.append(
-                f"| **{t['category']}** | `{boundary}`<br/>*({comp})* | {t['description']} | `{t['raw_severity']}` | **{t['contextual_severity']}** | {t['context_rationale']} |"
+                f"| **{t['category']}** | `{comp}`<br/>*({boundary})* | {t['description']} | `{t['raw_severity']}` | **{t['contextual_severity']}** | {t['context_rationale']} |"
             )
         md.append("")
 
-        md.append("#### 🔧 Actionable Remediation Patches (Code & Terraform)")
+        md.append("#### Remediation Guidance")
         for idx, t in enumerate(threats, start=1):
             if t.get("suggested_fix"):
                 comp = t.get("affected_component", "")
-                title = f"Remediation {idx}: {t['category']} — {comp}" if comp else f"Remediation {idx}: {t['category']}"
+                title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
                 md.append(f"<details><summary><b>{title}</b></summary>\n")
                 md.append(f"```python\n{t['suggested_fix']}\n```\n</details>\n")
     else:
         md.append("✅ **No critical architectural or STRIDE threats identified in this diff.**\n")
 
     # -------------------------------------------------------------------------
-    # Block 3: Generated Model-Based Security Test Suite
+    # 3. Generated Model-Based Test Suite
     # -------------------------------------------------------------------------
-    md.append("---")
-    md.append("### 🧪 Block 3: Generated Model-Based Security Verification Suite")
+    md.append("### 3. Generated Model-Based Test Suite")
     test_code = report.get("generated_verification_tests")
     if test_code:
         md.append(
-            "<details open><summary><b>🐍 Synthesized Pytest Boundary & Auth Verification Suite (<code>tests/security/test_generated_verification.py</code>)</b></summary>\n"
+            "<details open><summary><b>Verification Test Stubs (<code>pytest</code>)</b></summary>\n"
         )
         md.append(f"```python\n{test_code}\n```\n</details>\n")
 
     curl_probes = report.get("generated_adversarial_curl_probes")
     if curl_probes:
         md.append(
-            "<details><summary><b>🎯 Adversarial Boundary & Fuzzing Probes (<code>curl</code>)</b></summary>\n"
+            "<details><summary><b>Adversarial Boundary Probes (<code>curl</code>)</b></summary>\n"
         )
         md.append(f"```bash\n{curl_probes}\n```\n</details>\n")
 
-    md.append(
-        "---\n*Automated 4-Pillar DevSecOps assessment powered by in-repo Terraform context extraction & Gemini 3.5 Flash structured threat modeling.*"
-    )
     return "\n".join(md)
 
 

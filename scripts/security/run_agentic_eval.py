@@ -139,8 +139,9 @@ You have access to live repository exploration tools:
 HOW TO INVESTIGATE THIS PR:
 1. Review the `PULL REQUEST GIT DIFF` and `MODIFIED FILES SUMMARY` below.
 2. Autonomously decide what additional context from the repository you need to accurately threat-model the change:
-   - If an IAM policy, role, or Terraform resource was modified: use `search_code` or `read_file` to check how the application code actually uses that service/permission (e.g., is the permission needed, or does it violate Least Privilege?).
-   - If an application route, service, or script was modified: use `search_code`, `read_file`, or `inspect_terraform` to check how it is exposed (ingress, auth middleware, callers) and what runtime permissions it executes under.
+   - **Architecture Decision Records (`docs/adr/*.md`) & Threat Model (`SECURITY.md`)**: If a change touches architectural patterns, authentication/WIF (`ADR-005`), rate limiting (`ADR-007`), serverless Cloud Run scaling (`ADR-001`), vector store (`ADR-004`), or LangGraph/agent workflows (`ADR-009`), use `list_files("docs/adr")` or `read_file` to check whether the design trade-offs or intentional security constraints are already documented in an ADR or `SECURITY.md`.
+   - **If an IAM policy, role, or Terraform resource was modified**: use `search_code` or `read_file` to check how the application code actually uses that service/permission (e.g., is the permission needed, or does it violate Least Privilege?).
+   - **If an application route, service, or script was modified**: use `search_code`, `read_file`, or `inspect_terraform` to check how it is exposed (ingress, auth middleware, callers) and what runtime permissions it executes under.
 3. Call only the tools you need (typically 1 to 4 targeted tool calls). Once you have sufficient evidence, stop calling tools and summarize your findings.
 
 MODIFIED FILES SUMMARY:
@@ -219,10 +220,11 @@ PULL REQUEST GIT DIFF:
 Based on the Pull Request diff and all repository evidence gathered during your tool-calling investigation:
 1. Produce the final structured `SecurityReport` JSON.
 2. CRITICAL SCOPE RULE: Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
-3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, `list_files`) to:
+3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, `list_files`, and any relevant ADRs in `docs/adr/` or `SECURITY.md`) to:
    - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
-   - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, and execution environment.
-   - Explicitly mention what repo context was verified in `context_summary_narrative` and `context_rationale`.
+   - Verify whether the change aligns with or violates architectural decisions in `docs/adr/*.md` (citing the specific ADR when relevant).
+   - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, documented ADR constraints, and execution environment.
+   - Explicitly mention what repo context (and any ADR) was verified in `context_summary_narrative` and `context_rationale`.
 4. For every `ThreatItem`, populate `ai_agent_prompt` with a self-contained, copy-pasteable prompt formatted like CodeRabbit's "Prompt for AI Agents":
    - Start with: `In @<file_path> (around <function/resource/lines>), ...`
    - Instruct the coding agent to first **verify the finding** by inspecting the target file and related callers/configs to confirm whether the risk applies.

@@ -114,12 +114,12 @@ def build_full_repo_audit_graph(client: genai.Client, repo_root: str):
             prompt = f"""
 You are an autonomous Principal Cloud Security & DevSecOps Architect performing a Full-Repository Security Audit.
 Instead of relying on hardcoded paths, use your repository exploration tools to dynamically discover and inspect the codebase:
-- `list_files(subdir, glob_pattern)`: Discover all directories, Terraform modules, backend services, MLOps pipelines, and CI/CD workflows.
+- `list_files(subdir, glob_pattern)`: Discover all directories, Architecture Decision Records (`docs/adr/*.md`), `SECURITY.md`, Terraform modules, backend services, MLOps pipelines, and CI/CD workflows.
 - `search_code(regex_query, file_glob)`: Search for IAM bindings, SDK calls, authentication middlewares, rate limiters, or secret handling.
-- `read_file(file_path, start_line, end_line)`: Read key files to verify whether IAM permissions match actual code usage and whether security controls are properly enforced.
+- `read_file(file_path, start_line, end_line)`: Read key files (including `docs/adr/*.md` and `SECURITY.md`) to understand intentional architectural trade-offs and verify whether IAM permissions match actual code usage and whether security controls are properly enforced.
 - `inspect_terraform(tf_path)`: Parse `.tf` files into structured HCL2 JSON.
 
-Start by calling `list_files` or `inspect_terraform` and `search_code` to map the repository's architecture (up to {state['max_iterations']} steps) so you can perform a comprehensive, evidence-backed STRIDE audit.
+Start by calling `list_files` (including `docs/adr`), `inspect_terraform`, and `search_code` to map the repository's architecture (up to {state['max_iterations']} steps) so you can perform a comprehensive, evidence-backed STRIDE audit that respects documented ADRs.
 """
             contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
 
@@ -185,7 +185,7 @@ Start by calling `list_files` or `inspect_terraform` and `search_code` to map th
         synthesis_prompt = """
 Based on your autonomous exploration of the repository:
 1. Produce the structured `FullRepoAuditReport` JSON.
-2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls you verified in the codebase (e.g., OIDC `attribute_condition`, Secret Manager `secret_key_ref`, `ClientVerificationMiddleware`, Firebase JWT verification, and actual SDK usage vs IAM roles).
+2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls and Architecture Decision Records (`docs/adr/*.md`, `SECURITY.md`) you verified in the codebase (e.g., `ADR-001` scale-to-zero Cloud Run limits, `ADR-004` read-only in-memory vector store, `ADR-005` OIDC Workload Identity Federation `attribute_condition`, `ADR-007` tiered rate limiting, Secret Manager `secret_key_ref`, and actual SDK usage vs IAM roles).
 3. For each finding, populate `ai_agent_prompt` with a copy-pasteable "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
 4. Assign each finding a deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) for GitHub Issue deduplication.
 """

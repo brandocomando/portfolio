@@ -27,30 +27,41 @@ jobs:
         run: |
           pip install -r scripts/security/requirements.txt
 
-      - name: Run Material Change Filter
+      - name: Run Unit Tests for AppSec Engine
+        run: |
+          pytest tests/security/ -v
+
+      - name: "Pillar 1: Run Material Change Detection Gate"
         id: filter
         run: |
-          python scripts/security/filter_diff.py --output-github-env
+          python scripts/security/filter_diff.py \
+            --output-github-env \
+            --output-json /tmp/materiality_gate.json
 
-      - name: Extract Infrastructure Context
+      - name: "Pillar 2: Extract In-Repo Terraform & Application Context"
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         run: |
-          python scripts/security/extract_context.py --output-file /tmp/tf_context.json
+          python scripts/security/extract_context.py \
+            --repo-root . \
+            --output-file /tmp/tf_context.json
 
-      - name: Run Agentic Threat Modeling & Verification Test Generator
+      - name: "Pillar 3 & 4: Run Agentic STRIDE Threat Modeling & Verification Test Generator"
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python scripts/security/run_agentic_eval.py \
             --context-file /tmp/tf_context.json \
+            --materiality-file /tmp/materiality_gate.json \
             --output-report /tmp/security_report.json
 
-      - name: Post PR Action Card
+      - name: Post 4-Pillar PR Action Card
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python scripts/security/post_pr_comment.py \
             --report-file /tmp/security_report.json \
+            --context-file /tmp/tf_context.json \
+            --materiality-file /tmp/materiality_gate.json \
             --pr-number ${{ github.event.pull_request.number }}

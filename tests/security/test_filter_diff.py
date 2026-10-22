@@ -305,6 +305,8 @@ def test_langgraph_pr_security_react_loop(tmp_path):
     assert report["overall_contextual_severity"] == "Low"
     assert len(report["agent_tool_trace"]) == 1
     assert "read_file" in report["agent_tool_trace"][0]
+    first_call_cfg = mock_client.models.generate_content.call_args_list[0].kwargs["config"]
+    assert first_call_cfg.automatic_function_calling.disable is True
 
 
 def test_secret_redaction_and_env_protection(tmp_path, monkeypatch):

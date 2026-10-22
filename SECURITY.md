@@ -73,13 +73,19 @@ This threat model documents the architectural risks across our five trust bounda
 
 ---
 
-## Automated DevSecOps PR Security Pipeline
+## Automated DevSecOps Security Pipelines
 
-Every pull request is automatically evaluated by `.github/workflows/appsec-agent.yml`:
-1. **Material-Change Detection (`scripts/security/filter_diff.py`):** Filters out non-material documentation/styling changes and triggers full analysis when `.tf`, dependency, auth/middleware, or application code is modified.
-2. **Infrastructure & Route Context Extraction (`scripts/security/extract_context.py`):** Parses co-located Terraform HCL2 definitions and FastAPI routes to extract ingress exposure, IAM bindings, Secret Manager references, and trust boundaries.
-3. **Contextual STRIDE Threat Modeling & Verification Test Synthesis (`scripts/security/run_agentic_eval.py`):** Combines the PR diff and extracted topology to produce context-adjusted risk assessments and runnable `pytest` / `curl` boundary verification tests.
+The repository operates two complementary DevSecOps workflows:
+
+### 1. PR Diff-Scoped Security Inspector (`.github/workflows/appsec-agent.yml`)
+Triggered on every pull request to evaluate **only the newly added or modified code/infrastructure lines** in the PR diff:
+1. **Material-Change Detection (`scripts/security/filter_diff.py`):** Filters out non-material documentation/styling changes and triggers analysis when `.tf`, dependency, auth/middleware, or application code is modified.
+2. **Infrastructure & Route Context Extraction (`scripts/security/extract_context.py`):** Parses co-located Terraform HCL2 definitions and FastAPI routes to supply background architectural context (reachability, IAM scope, middleware gates) without flagging untouched files.
+3. **Diff-Scoped STRIDE Threat Modeling & Test Synthesis (`scripts/security/run_agentic_eval.py`):** Evaluates the PR diff within its runtime context to produce context-adjusted severity ratings and runnable `pytest` verification stubs.
 4. **PR Security Action Card (`scripts/security/post_pr_comment.py`):** Minimizes outdated assessment comments and posts the latest Context Summary, STRIDE Threat Model, and Generated Verification Test Suite to the pull request.
+
+### 2. Full-Repository Security Audit & Issue Creator (`.github/workflows/appsec-full-scan.yml`)
+Triggered on a weekly schedule (`cron`) or manually (`workflow_dispatch`) to audit the entire repository (`infra/`, `backend/`, `.github/workflows/`) and automatically open deduplicated GitHub Issues (`scripts/security/run_full_repo_audit.py`) labeled `security` for architectural or IAM hardening findings.
 
 ---
 

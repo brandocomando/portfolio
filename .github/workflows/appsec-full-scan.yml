@@ -1,0 +1,62 @@
+name: "AppSec Full-Repository Audit & Issue Creator"
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_severity:
+        description: "Minimum contextual severity to open GitHub Issues for"
+        required: false
+        default: "Medium"
+        type: choice
+        options:
+          - Low
+          - Medium
+          - High
+          - Critical
+      max_issues:
+        description: "Maximum number of new GitHub Issues to open per run"
+        required: false
+        default: "5"
+  schedule:
+    # Runs weekly on Mondays at 09:00 UTC
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  full-security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r scripts/security/requirements.txt
+
+      - name: Extract Terraform & Application Context
+        run: |
+          python scripts/security/extract_context.py \
+            --repo-root . \
+            --output-file /tmp/tf_context.json
+
+      - name: Run Full-Repository STRIDE Audit & Create GitHub Issues
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/security/run_full_repo_audit.py \
+            --repo-root . \
+            --context-file /tmp/tf_context.json \
+            --output-report /tmp/full_security_audit.json \
+            --min-severity "${{ inputs.min_severity || 'Medium' }}" \
+            --max-issues "${{ inputs.max_issues || '5' }}" \
+            --create-issues

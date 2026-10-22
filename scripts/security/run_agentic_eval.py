@@ -219,13 +219,17 @@ PULL REQUEST GIT DIFF:
         synthesis_prompt = """
 Based on the Pull Request diff and all repository evidence gathered during your tool-calling investigation:
 1. Produce the final structured `SecurityReport` JSON.
-2. CRITICAL SCOPE RULE: Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
+2. CRITICAL SCOPE & NO-FALSE-POSITIVE RULES:
+   - Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
+   - **DO NOT report threats that are already mitigated or properly guarded in the current code!** For example, if a workflow already has `if: github.event.pull_request.head.repo.full_name == github.repository`, `contents: read`, `persist-credentials: false`, and `timeout-minutes`, or if a script already calls `redact_secrets()` and blocks `.env` / path traversal, DO NOT create a `ThreatItem` telling the author to "maintain" or "preserve" what is already written.
+   - Only include a `ThreatItem` in `threats` if there is a **genuine, unresolved security flaw or missing control** that requires a real code change (`Medium`, `High`, or `Critical` contextual severity, or an unmitigated `Low` defect).
+   - If the PR diff is well-hardened and has no remaining actionable flaws, return an empty list `threats: []` and set `overall_contextual_severity` to `"Low"` or `"Informational"`, summarizing the verified security controls in `context_summary_narrative`.
 3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, `list_files`, and any relevant ADRs in `docs/adr/` or `SECURITY.md`) to:
    - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
    - Verify whether the change aligns with or violates architectural decisions in `docs/adr/*.md` (citing the specific ADR when relevant).
    - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, documented ADR constraints, and execution environment.
    - Explicitly mention what repo context (and any ADR) was verified in `context_summary_narrative` and `context_rationale`.
-4. For every `ThreatItem`, populate `ai_agent_prompt` with a self-contained, copy-pasteable prompt formatted like CodeRabbit's "Prompt for AI Agents":
+4. For every unresolved `ThreatItem` (if any), populate `ai_agent_prompt` with a self-contained, copy-pasteable prompt formatted like CodeRabbit's "Prompt for AI Agents":
    - Start with: `In @<file_path> (around <function/resource/lines>), ...`
    - Instruct the coding agent to first **verify the finding** by inspecting the target file and related callers/configs to confirm whether the risk applies.
    - Specify the exact architectural or code modification needed to remediate the issue safely.

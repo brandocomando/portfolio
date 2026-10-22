@@ -74,12 +74,6 @@ class SecurityReport(BaseModel):
         description="Highest contextual severity remaining across threats introduced in this PR (Critical, High, Medium, Low, or Informational)"
     )
     threats: list[ThreatItem]
-    generated_verification_tests: str = Field(
-        description="Runnable pytest verification test stubs specifically testing the code, routes, or infrastructure invariants modified in this PR"
-    )
-    generated_adversarial_curl_probes: str = Field(
-        description="Optional curl or CLI adversarial test probes targeting the modified routes or scripts (leave empty string if not applicable)"
-    )
 
 
 class PRSecurityAgentState(TypedDict):
@@ -234,7 +228,6 @@ Based on the Pull Request diff and all repository evidence gathered during your 
    - Instruct the coding agent to first **verify the finding** by inspecting the target file and related callers/configs to confirm whether the risk applies.
    - Specify the exact architectural or code modification needed to remediate the issue safely.
    - Instruct the coding agent to run or add a `pytest` test to verify the fix.
-5. Generate runnable `pytest` verification tests (`generated_verification_tests`) and optional `curl`/CLI probes (`generated_adversarial_curl_probes`) tailored to the modified code in this PR.
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 
@@ -323,12 +316,6 @@ def main():
 
     with open(args.output_report, "w", encoding="utf-8") as fh:
         json.dump(report, fh, indent=2)
-
-    test_code = report.get("generated_verification_tests", "")
-    if test_code:
-        os.makedirs("tests/security", exist_ok=True)
-        with open("tests/security/test_generated_verification.py", "w", encoding="utf-8") as fh:
-            fh.write(redact_secrets(test_code))
 
     print(
         f"Report generated successfully at {args.output_report} "

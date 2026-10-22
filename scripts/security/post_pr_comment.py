@@ -98,24 +98,6 @@ def format_markdown(report: dict) -> str:
     else:
         md.append("✅ **No critical architectural or STRIDE threats identified in this diff.**\n")
 
-    # -------------------------------------------------------------------------
-    # 3. Generated Model-Based Test Suite
-    # -------------------------------------------------------------------------
-    md.append("### 3. Generated Model-Based Test Suite")
-    test_code = report.get("generated_verification_tests")
-    if test_code:
-        md.append(
-            "<details open><summary><b>Verification Test Stubs (<code>pytest</code>)</b></summary>\n"
-        )
-        md.append(f"```python\n{test_code}\n```\n</details>\n")
-
-    curl_probes = report.get("generated_adversarial_curl_probes")
-    if curl_probes:
-        md.append(
-            "<details><summary><b>Adversarial Boundary Probes (<code>curl</code>)</b></summary>\n"
-        )
-        md.append(f"```bash\n{curl_probes}\n```\n</details>\n")
-
     return "\n".join(md)
 
 

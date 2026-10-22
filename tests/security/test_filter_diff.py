@@ -109,7 +109,7 @@ def test_format_markdown_three_blocks():
     assert "### 2. STRIDE Threat Model" in md
     assert "Prompt for AI Agents" in md
     assert "In @scripts/security/filter_diff.py, verify git diff argument handling" in md
-    assert "### 3. Generated Model-Based Test Suite" in md
+    assert "Generated Model-Based Test Suite" not in md
     assert "scripts/security/filter_diff.py" in md
 
 

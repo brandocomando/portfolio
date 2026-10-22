@@ -3,7 +3,7 @@
 GitHub PR Action Card Formatter & Reporter.
 Formats the DevSecOps security evaluation into a clean, professional Markdown
 PR review card containing three core sections:
-  1. Context Summary (Infrastructure reachability, IAM scope, and severity adjustments)
+  1. Context Summary (Autonomous LangGraph repo investigation & severity adjustments)
   2. STRIDE Threat Model (Architectural threats, context adjustments, and remediation patches)
   3. Generated Model-Based Test Suite (Runnable pytest verification tests + curl probes)
 
@@ -24,14 +24,7 @@ LEGACY_HEADER_SIGNATURES = (
 )
 
 
-def format_markdown(
-    report: dict,
-    context: dict | None = None,
-    materiality: dict | None = None,
-) -> str:
-    context = context or {}
-    materiality = materiality or {}
-
+def format_markdown(report: dict) -> str:
     severity = report.get("overall_contextual_severity", "Informational")
     badge_emoji = (
         "🟢"
@@ -51,35 +44,9 @@ def format_markdown(
     md.append("### 1. Context Summary")
     context_narrative = report.get(
         "context_summary_narrative",
-        "Evaluated workload reachability, IAM role scoping, and middleware boundaries from co-located Terraform definitions.",
+        "Evaluated workload reachability, IAM role scoping, and middleware boundaries via autonomous repository inspection.",
     )
     md.append(f"> {context_narrative}\n")
-
-    if context:
-        is_pub = context.get("is_public_facing", False)
-        has_wc = context.get("iam_wildcard_detected", False)
-        md.append(
-            f"- **Network Reachability (`is_public_facing={is_pub}`):** "
-            + (
-                ", ".join(f"`{p}`" for p in context.get("public_ingress_points", [])[:4])
-                if context.get("public_ingress_points")
-                else "Isolated internal workload (Zero `0.0.0.0/0` or `allUsers` public ingress)."
-            )
-        )
-        md.append(
-            f"- **IAM Scope (`iam_wildcard_or_broad_role={has_wc}`):** "
-            + (
-                ", ".join(f"`{s}`" for s in context.get("iam_wildcard_statements", [])[:4])
-                if context.get("iam_wildcard_statements")
-                else "Strictly least-privilege IAM roles."
-            )
-        )
-        if context.get("security_middlewares"):
-            md.append(
-                "- **Active Security Controls:** "
-                + ", ".join(f"`{m}`" for m in context.get("security_middlewares", []))
-            )
-        md.append("")
 
     dfd = report.get("data_flow_diagram_ascii")
     if dfd:
@@ -210,31 +177,13 @@ def post_github_comment(pr_number: str, comment_body: str):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--report-file", required=True)
-    parser.add_argument("--context-file", default="/tmp/tf_context.json")
-    parser.add_argument("--materiality-file", default="/tmp/materiality_gate.json")
     parser.add_argument("--pr-number", default=None)
     args = parser.parse_args()
 
     with open(args.report_file, "r", encoding="utf-8") as fh:
         report = json.load(fh)
 
-    context = {}
-    if args.context_file and os.path.exists(args.context_file):
-        try:
-            with open(args.context_file, "r", encoding="utf-8") as fh:
-                context = json.load(fh)
-        except Exception:
-            pass
-
-    materiality = {}
-    if args.materiality_file and os.path.exists(args.materiality_file):
-        try:
-            with open(args.materiality_file, "r", encoding="utf-8") as fh:
-                materiality = json.load(fh)
-        except Exception:
-            pass
-
-    body = format_markdown(report, context=context, materiality=materiality)
+    body = format_markdown(report)
     print("Formatted PR Markdown:\n")
     print(body)
 

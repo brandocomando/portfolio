@@ -39,20 +39,12 @@ jobs:
             --output-github-env \
             --output-json /tmp/materiality_gate.json
 
-      - name: Extract Terraform & Application Context
-        if: steps.filter.outputs.IS_MATERIAL == 'true'
-        run: |
-          python scripts/security/extract_context.py \
-            --repo-root . \
-            --output-file /tmp/tf_context.json
-
-      - name: Run Agentic STRIDE Threat Modeling & Verification Test Generator
+      - name: Run LangGraph Agentic Threat Modeling & Verification Test Generator
         if: steps.filter.outputs.IS_MATERIAL == 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python scripts/security/run_agentic_eval.py \
-            --context-file /tmp/tf_context.json \
             --materiality-file /tmp/materiality_gate.json \
             --output-report /tmp/security_report.json
 
@@ -63,6 +55,4 @@ jobs:
         run: |
           python scripts/security/post_pr_comment.py \
             --report-file /tmp/security_report.json \
-            --context-file /tmp/tf_context.json \
-            --materiality-file /tmp/materiality_gate.json \
             --pr-number ${{ github.event.pull_request.number }}

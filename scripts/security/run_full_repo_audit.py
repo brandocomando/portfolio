@@ -65,7 +65,6 @@ class FullRepoAuditReport(BaseModel):
 
 class RepoAuditGraphState(TypedDict):
     repo_root: str
-    infra_baseline: dict[str, Any]
     contents: list[Any]
     tool_trace: list[str]
     iterations: int
@@ -112,10 +111,7 @@ Instead of relying on hardcoded paths, use your repository exploration tools to 
 - `read_file(file_path, start_line, end_line)`: Read key files to verify whether IAM permissions match actual code usage and whether security controls are properly enforced.
 - `inspect_terraform(tf_path)`: Parse `.tf` files into structured HCL2 JSON.
 
-BASELINE INFRASTRUCTURE SUMMARY:
-{json.dumps(state['infra_baseline'], indent=2)}
-
-Explore the repository using targeted tool calls (up to {state['max_iterations']} steps) so you can perform a comprehensive, evidence-backed STRIDE audit.
+Start by calling `list_files` or `inspect_terraform` and `search_code` to map the repository's architecture (up to {state['max_iterations']} steps) so you can perform a comprehensive, evidence-backed STRIDE audit.
 """
             contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
 
@@ -339,7 +335,6 @@ def create_github_issues(
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
-    parser.add_argument("--context-file", required=True)
     parser.add_argument("--output-report", default="/tmp/full_security_audit.json")
     parser.add_argument("--min-severity", default="Medium", choices=["Low", "Medium", "High", "Critical"])
     parser.add_argument("--max-issues", type=int, default=5)
@@ -353,17 +348,11 @@ def main():
         print("Error: GEMINI_API_KEY environment variable is required.", file=sys.stderr)
         sys.exit(1)
 
-    infra_context = {}
-    if os.path.exists(args.context_file):
-        with open(args.context_file, "r", encoding="utf-8") as fh:
-            infra_context = json.load(fh)
-
     client = genai.Client(api_key=api_key)
     graph = build_full_repo_audit_graph(client, args.repo_root)
 
     initial_state: RepoAuditGraphState = {
         "repo_root": args.repo_root,
-        "infra_baseline": infra_context,
         "contents": [],
         "tool_trace": [],
         "iterations": 0,

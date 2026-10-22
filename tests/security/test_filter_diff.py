@@ -101,15 +101,7 @@ def test_format_markdown_three_blocks():
         "generated_verification_tests": "def test_diff(): assert True",
         "generated_adversarial_curl_probes": "",
     }
-    context = {
-        "is_public_facing": True,
-        "public_ingress_points": ["google_cloud_run_v2_service.backend"],
-        "iam_wildcard_detected": True,
-        "iam_wildcard_statements": ["google_project_iam_member.terraform_editor"],
-        "security_middlewares": ["ClientVerificationMiddleware"],
-    }
-
-    md = format_markdown(report, context=context)
+    md = format_markdown(report)
     assert COMMENT_MARKER in md
     assert "### 1. Context Summary" in md
     assert "Autonomous LangGraph Repo Investigation (1 tool calls)" in md
@@ -271,7 +263,6 @@ def test_langgraph_pr_security_react_loop(tmp_path):
             "repo_root": str(tmp_path),
             "git_diff": "+def handle(): return 'ok'",
             "materiality_context": {},
-            "infra_baseline": {},
             "contents": [],
             "tool_trace": [],
             "iterations": 0,

@@ -3,10 +3,9 @@
 LangGraph ReAct Security Investigator & STRIDE Threat Modeler.
 Uses a stateful LangGraph workflow (`StateGraph`) with Gemini tool-calling so the
 LLM autonomously decides what additional repository context to inspect:
-  1. `investigate_node`: Analyzes the PR diff (or repo state) and decides whether
-     to call repository tools (`list_files`, `search_code`, `read_file`,
-     `inspect_terraform`) to verify IAM least-privilege, SDK usage, middleware gates,
-     or network reachability.
+  1. `investigate_node`: Analyzes the PR diff and decides which repository tools
+     (`list_files`, `search_code`, `read_file`, `inspect_terraform`) to call to verify
+     IAM least-privilege, SDK usage, middleware gates, or network reachability.
   2. `tools_node`: Executes the requested repository tools and appends observations
      back into the graph state.
   3. `synthesize_node`: Produces the final, schema-validated Pydantic security report
@@ -58,7 +57,7 @@ class SecurityReport(BaseModel):
         description="Executive summary of the security impact of the changes introduced in this pull request"
     )
     context_summary_narrative: str = Field(
-        description="2-3 sentence summary explaining what additional repo context was inspected and how the PR changes interact with existing code and infrastructure"
+        description="2-3 sentence summary explaining what additional repo context was inspected via tools (reachability, IAM scope, middleware, SDK usage) and how the PR changes interact with existing code and infrastructure"
     )
     data_flow_diagram_ascii: str = Field(
         description="Compact ASCII Data Flow Diagram (DFD) illustrating the data flow and trust boundaries of the components modified in this PR"
@@ -79,7 +78,6 @@ class PRSecurityAgentState(TypedDict):
     repo_root: str
     git_diff: str
     materiality_context: dict[str, Any]
-    infra_baseline: dict[str, Any]
     contents: list[Any]
     tool_trace: list[str]
     iterations: int
@@ -138,16 +136,13 @@ You have access to live repository exploration tools:
 
 HOW TO INVESTIGATE THIS PR:
 1. Review the `PULL REQUEST GIT DIFF` and `MODIFIED FILES SUMMARY` below.
-2. Decide what additional context from the repository you need to accurately threat-model the change:
+2. Autonomously decide what additional context from the repository you need to accurately threat-model the change:
    - If an IAM policy, role, or Terraform resource was modified: use `search_code` or `read_file` to check how the application code actually uses that service/permission (e.g., is the permission needed, or does it violate Least Privilege?).
    - If an application route, service, or script was modified: use `search_code`, `read_file`, or `inspect_terraform` to check how it is exposed (ingress, auth middleware, callers) and what runtime permissions it executes under.
 3. Call only the tools you need (typically 1 to 4 targeted tool calls). Once you have sufficient evidence, stop calling tools and summarize your findings.
 
 MODIFIED FILES SUMMARY:
 {json.dumps(state['materiality_context'], indent=2)}
-
-BASELINE INFRASTRUCTURE SUMMARY:
-{json.dumps(state['infra_baseline'], indent=2)}
 
 PULL REQUEST GIT DIFF:
 ```diff
@@ -219,10 +214,10 @@ PULL REQUEST GIT DIFF:
         """Final node that synthesizes all tool observations and the PR diff into a structured SecurityReport."""
         contents = list(state["contents"])
         synthesis_prompt = """
-Based on the Pull Request diff and all repository evidence gathered during your investigation:
+Based on the Pull Request diff and all repository evidence gathered during your tool-calling investigation:
 1. Produce the final structured `SecurityReport` JSON.
 2. CRITICAL SCOPE RULE: Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
-3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, and baseline topology) to:
+3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, `list_files`) to:
    - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
    - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, and execution environment.
    - Explicitly mention what repo context was verified in `context_summary_narrative` and `context_rationale`.
@@ -270,7 +265,6 @@ Based on the Pull Request diff and all repository evidence gathered during your 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--context-file", required=True)
     parser.add_argument("--materiality-file", default="/tmp/materiality_gate.json")
     parser.add_argument("--output-report", default="/tmp/security_report.json")
     parser.add_argument("--base-ref", default="origin/main")
@@ -282,11 +276,6 @@ def main():
     if not api_key:
         print("Error: GEMINI_API_KEY environment variable is required.", file=sys.stderr)
         sys.exit(1)
-
-    infra_context = {}
-    if os.path.exists(args.context_file):
-        with open(args.context_file, "r", encoding="utf-8") as fh:
-            infra_context = json.load(fh)
 
     materiality_context = {}
     if args.materiality_file and os.path.exists(args.materiality_file):
@@ -308,7 +297,6 @@ def main():
         "repo_root": args.repo_root,
         "git_diff": git_diff,
         "materiality_context": materiality_context,
-        "infra_baseline": infra_context,
         "contents": [],
         "tool_trace": [],
         "iterations": 0,

@@ -86,6 +86,13 @@ def format_markdown(
         md.append("<details><summary><b>Architecture & Trust Boundary Data Flow Diagram (DFD)</b></summary>\n")
         md.append(f"```text\n{dfd}\n```\n</details>\n")
 
+    tool_trace = report.get("agent_tool_trace", [])
+    if tool_trace:
+        md.append(f"<details><summary><b>Autonomous LangGraph Repo Investigation ({len(tool_trace)} tool calls)</b></summary>\n")
+        for idx, tc in enumerate(tool_trace, start=1):
+            md.append(f"{idx}. `{tc}`")
+        md.append("\n</details>\n")
+
     # -------------------------------------------------------------------------
     # 2. STRIDE Threat Model
     # -------------------------------------------------------------------------

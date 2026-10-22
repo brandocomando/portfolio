@@ -1,17 +1,20 @@
 """
 Unit tests for Material-Change Detection Filter (filter_diff.py),
 PR Action Card Formatter & Comment Minimizer (post_pr_comment.py),
-and Full-Repo Audit Issue Deduplication (run_full_repo_audit.py).
+Full-Repo Audit Issue Deduplication (run_full_repo_audit.py),
+and Autonomous LangGraph Repo Tools & StateGraph execution (repo_tools.py, run_agentic_eval.py).
 """
 import json
 import os
 import sys
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../scripts/security")))
 
 from filter_diff import categorize_files, evaluate_materiality
 from post_pr_comment import COMMENT_MARKER, format_markdown, hide_previous_pr_comments
+from repo_tools import list_repo_files, parse_terraform_hcl, read_repo_file, search_codebase
+from run_agentic_eval import build_pr_security_graph
 from run_full_repo_audit import create_github_issues, format_issue_body
 
 
@@ -82,6 +85,7 @@ def test_format_markdown_three_blocks():
         "context_summary_narrative": "Scripts run inside isolated GitHub Actions runner; downgraded subprocess risk from Medium to Low.",
         "data_flow_diagram_ascii": "[GitHub PR] --> [GitHub Actions Runner] --> [PR Comment API]",
         "overall_contextual_severity": "Low",
+        "agent_tool_trace": ['search_code({"regex_query": "firestore", "file_glob": "*.py"})'],
         "threats": [
             {
                 "category": "Tampering",
@@ -108,6 +112,7 @@ def test_format_markdown_three_blocks():
     md = format_markdown(report, context=context)
     assert COMMENT_MARKER in md
     assert "### 1. Context Summary" in md
+    assert "Autonomous LangGraph Repo Investigation (1 tool calls)" in md
     assert "### 2. STRIDE Threat Model" in md
     assert "### 3. Generated Model-Based Test Suite" in md
     assert "scripts/security/filter_diff.py" in md
@@ -194,5 +199,89 @@ def test_create_github_issues_deduplicates_and_filters_severity():
         urls = create_github_issues(sample_report, min_severity="Medium", max_issues=5)
         assert urls == ["https://github.com/brandocomando/portfolio/issues/35"]
         assert mock_create.call_count == 1
-        body_Check = format_issue_body(sample_report["findings"][1])
-        assert "SEC-FIRESTORE-DEL" in body_Check
+        body_check = format_issue_body(sample_report["findings"][1])
+        assert "SEC-FIRESTORE-DEL" in body_check
+
+
+def test_repo_tools_dynamic_discovery(tmp_path):
+    # Create a brand new arbitrary service directory and terraform module to prove zero hardcoding
+    new_service_dir = tmp_path / "billing_service"
+    new_service_dir.mkdir()
+    app_py = new_service_dir / "handler.py"
+    app_py.write_text("from google.cloud import storage\nclient = storage.Client()\n", encoding="utf-8")
+
+    new_tf_dir = tmp_path / "infra" / "modules" / "new_bucket"
+    new_tf_dir.mkdir(parents=True)
+    main_tf = new_tf_dir / "main.tf"
+    main_tf.write_text('resource "google_storage_bucket" "docs" {\n  name = "my-bucket"\n}\n', encoding="utf-8")
+
+    files_json = json.loads(list_repo_files(str(tmp_path), ".", "*.py"))
+    assert "billing_service/handler.py" in files_json["files"]
+
+    search_json = json.loads(search_codebase(str(tmp_path), "storage\\.Client"))
+    assert len(search_json["matches"]) == 1
+    assert search_json["matches"][0]["file"] == "billing_service/handler.py"
+
+    content = read_repo_file(str(tmp_path), "billing_service/handler.py", 1, 10)
+    assert "storage.Client()" in content
+
+    tf_parsed = json.loads(parse_terraform_hcl(str(tmp_path), "infra/modules/new_bucket"))
+    assert "infra/modules/new_bucket/main.tf" in tf_parsed
+
+
+def test_langgraph_pr_security_react_loop(tmp_path):
+    service_file = tmp_path / "service.py"
+    service_file.write_text("def handle(): return 'ok'\n", encoding="utf-8")
+
+    # Mock Gemini responses:
+    # Turn 1 (investigate): requests `read_file(file_path="service.py")`
+    mock_fc = MagicMock()
+    mock_fc.name = "read_file"
+    mock_fc.args = {"file_path": "service.py", "start_line": 1, "end_line": 20}
+
+    resp_turn_1 = MagicMock()
+    resp_turn_1.function_calls = [mock_fc]
+    resp_turn_1.candidates = [MagicMock(content=MagicMock())]
+
+    # Turn 2 (investigate after tool result): no more tool calls
+    resp_turn_2 = MagicMock()
+    resp_turn_2.function_calls = []
+    resp_turn_2.candidates = [MagicMock(content=MagicMock())]
+
+    # Turn 3 (synthesize): returns structured SecurityReport JSON
+    resp_turn_3 = MagicMock()
+    resp_turn_3.text = json.dumps(
+        {
+            "summary": "Verified service.py via autonomous LangGraph tool call.",
+            "context_summary_narrative": "Inspected service.py directly.",
+            "data_flow_diagram_ascii": "[Client] -> [service.py]",
+            "overall_contextual_severity": "Low",
+            "threats": [],
+            "generated_verification_tests": "def test_service(): assert True",
+            "generated_adversarial_curl_probes": "",
+        }
+    )
+
+    mock_client = MagicMock()
+    mock_client.models.generate_content.side_effect = [resp_turn_1, resp_turn_2, resp_turn_3]
+
+    graph = build_pr_security_graph(mock_client, str(tmp_path))
+    final_state = graph.invoke(
+        {
+            "repo_root": str(tmp_path),
+            "git_diff": "+def handle(): return 'ok'",
+            "materiality_context": {},
+            "infra_baseline": {},
+            "contents": [],
+            "tool_trace": [],
+            "iterations": 0,
+            "max_iterations": 4,
+            "pending_tool_calls": [],
+            "final_report": {},
+        }
+    )
+
+    report = final_state["final_report"]
+    assert report["overall_contextual_severity"] == "Low"
+    assert len(report["agent_tool_trace"]) == 1
+    assert "read_file" in report["agent_tool_trace"][0]

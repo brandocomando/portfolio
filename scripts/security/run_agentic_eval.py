@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """
-PR Diff-Scoped Agentic STRIDE Threat Modeling & Verification Test Generator.
-Evaluates the security impact of the Pull Request diff by cross-referencing
-the modified files against the rest of the repository:
-  - If Terraform/IAM is modified in the PR -> Cross-references application code
-    (`code_cloud_sdk_usage` & relevant source files) to verify whether the granted
-    IAM permissions, network exposure, or resources are actually required by the code
-    (least-privilege validation).
-  - If Application Code is modified in the PR -> Cross-references Terraform
-    (`public_ingress_points`, `iam_bindings`, `security_middlewares`) to determine
-    whether the modified code is publicly reachable and what IAM blast radius it runs with.
+LangGraph ReAct Security Investigator & STRIDE Threat Modeler.
+Uses a stateful LangGraph workflow (`StateGraph`) with Gemini tool-calling so the
+LLM autonomously decides what additional repository context to inspect:
+  1. `investigate_node`: Analyzes the PR diff (or repo state) and decides whether
+     to call repository tools (`list_files`, `search_code`, `read_file`,
+     `inspect_terraform`) to verify IAM least-privilege, SDK usage, middleware gates,
+     or network reachability.
+  2. `tools_node`: Executes the requested repository tools and appends observations
+     back into the graph state.
+  3. `synthesize_node`: Produces the final, schema-validated Pydantic security report
+     grounded in both the diff and the agent's autonomous tool discoveries.
 """
 import argparse
-import glob
 import json
 import os
 import subprocess
 import sys
+from typing import Any, TypedDict
 from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
+from langgraph.graph import StateGraph, END
+
+from repo_tools import make_agent_tools
 
 
 class ThreatItem(BaseModel):
@@ -39,10 +43,10 @@ class ThreatItem(BaseModel):
         description="Severity before cross-referencing repository context (Critical, High, Medium, Low)"
     )
     contextual_severity: str = Field(
-        description="Adjusted severity after cross-referencing how the rest of the repo's code and infrastructure interact with this change (Critical, High, Medium, Low)"
+        description="Adjusted severity after autonomous tool investigation of how the rest of the repo's code and infrastructure interact with this change (Critical, High, Medium, Low)"
     )
     context_rationale: str = Field(
-        description="How cross-referencing the repo's application code (SDK usage, middlewares) and Terraform topology (ingress, IAM bindings) justified downgrading, escalating, or flagging this change"
+        description="How the files/code/infrastructure discovered via tool calls justified downgrading, escalating, or flagging this change"
     )
     suggested_fix: str = Field(
         description="Actionable remediation snippet for the modified file in this PR"
@@ -54,7 +58,7 @@ class SecurityReport(BaseModel):
         description="Executive summary of the security impact of the changes introduced in this pull request"
     )
     context_summary_narrative: str = Field(
-        description="2-3 sentence summary explaining how the PR changes interact with existing repository code and infrastructure (e.g., whether an IAM/infra change matches actual SDK usage in code, or how existing ingress/IAM context affects modified application code)"
+        description="2-3 sentence summary explaining what additional repo context was inspected and how the PR changes interact with existing code and infrastructure"
     )
     data_flow_diagram_ascii: str = Field(
         description="Compact ASCII Data Flow Diagram (DFD) illustrating the data flow and trust boundaries of the components modified in this PR"
@@ -71,6 +75,19 @@ class SecurityReport(BaseModel):
     )
 
 
+class PRSecurityAgentState(TypedDict):
+    repo_root: str
+    git_diff: str
+    materiality_context: dict[str, Any]
+    infra_baseline: dict[str, Any]
+    contents: list[Any]
+    tool_trace: list[str]
+    iterations: int
+    max_iterations: int
+    pending_tool_calls: list[dict[str, Any]]
+    final_report: dict[str, Any]
+
+
 def get_git_diff(base_ref: str = "origin/main") -> str:
     try:
         cmd = ["git", "diff", f"{base_ref}...HEAD"]
@@ -80,52 +97,175 @@ def get_git_diff(base_ref: str = "origin/main") -> str:
         return subprocess.check_output(cmd, text=True)
 
 
-def gather_cross_reference_files(repo_root: str, materiality: dict) -> str:
-    """
-    Dynamically pulls relevant untouched repository files so the LLM can answer
-    cross-cutting questions about the diff:
-      - If `.tf` / IAM files are changed in the PR, pulls backend service code that
-        interacts with cloud resources to check if the IAM permission is actually needed.
-      - If backend/application files are changed in the PR, pulls the full content of
-        the modified files plus core auth/middleware and Cloud Run IAM `.tf` files.
-    """
-    cats = materiality.get("categories", {})
-    infra_changed = bool(cats.get("infrastructure"))
-    code_changed = bool(cats.get("security_and_auth") or cats.get("application_logic"))
+def call_gemini_with_fallback(
+    client: genai.Client,
+    contents: Any,
+    config: types.GenerateContentConfig,
+) -> Any:
+    primary = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")
+    candidates = list(dict.fromkeys([primary, "gemini-2.5-flash", "gemini-2.0-flash"]))
+    last_err = None
+    for model_name in candidates:
+        try:
+            return client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config,
+            )
+        except Exception as err:
+            print(f"Warning: Model '{model_name}' failed ({err}), trying next fallback...")
+            last_err = err
+    raise RuntimeError(f"All Gemini models failed. Last error: {last_err}")
 
-    target_globs = []
-    if infra_changed:
-        # Pull backend services & core config so the model can see what SDK calls the app actually makes
-        target_globs.extend([
-            "backend/app/services/*.py",
-            "backend/app/core/config.py",
-            "backend/app/core/security.py",
-        ])
-    if code_changed:
-        # Pull Cloud Run / IAM / Auth Terraform definitions so the model sees runtime identity & ingress
-        target_globs.extend([
-            "infra/modules/cloud_run/main.tf",
-            "infra/modules/secrets/main.tf",
-            "backend/app/core/client_auth.py",
-            "backend/app/core/security.py",
-        ])
 
-    snippets = []
-    seen = set()
-    for pattern in target_globs:
-        for path in sorted(glob.glob(os.path.join(repo_root, pattern))):
-            rel_path = os.path.relpath(path, repo_root)
-            if rel_path in seen:
-                continue
-            seen.add(rel_path)
-            try:
-                with open(path, "r", encoding="utf-8") as fh:
-                    content = fh.read()
-                snippets.append(f"--- CROSS-REFERENCED REPO FILE: {rel_path} ---\n{content[:3000]}\n")
-            except Exception:
-                continue
+def build_pr_security_graph(client: genai.Client, repo_root: str):
+    """Builds and compiles the LangGraph ReAct state machine for PR Security Evaluation."""
+    tool_bundle = make_agent_tools(repo_root)
+    tool_functions = tool_bundle["functions"]
+    tool_dispatch = tool_bundle["dispatch"]
 
-    return "\n".join(snippets)[:15000]
+    def investigate_node(state: PRSecurityAgentState) -> dict[str, Any]:
+        """LLM reasoning node that inspects the diff and decides which repo tools to invoke."""
+        contents = list(state["contents"])
+        if not contents:
+            initial_prompt = f"""
+You are an autonomous Principal DevSecOps & Application Security Agent investigating a Pull Request.
+You have access to live repository exploration tools:
+- `list_files(subdir, glob_pattern)`: Discover directories, modules, or services anywhere in the repo.
+- `search_code(regex_query, file_glob)`: Search across all code and Terraform files for SDK calls, IAM roles, routes, middlewares, or secrets.
+- `read_file(file_path, start_line, end_line)`: Read any file in the repository to verify implementation details.
+- `inspect_terraform(tf_path)`: Parse `.tf` files into structured HCL2 JSON.
+
+HOW TO INVESTIGATE THIS PR:
+1. Review the `PULL REQUEST GIT DIFF` and `MODIFIED FILES SUMMARY` below.
+2. Decide what additional context from the repository you need to accurately threat-model the change:
+   - If an IAM policy, role, or Terraform resource was modified: use `search_code` or `read_file` to check how the application code actually uses that service/permission (e.g., is the permission needed, or does it violate Least Privilege?).
+   - If an application route, service, or script was modified: use `search_code`, `read_file`, or `inspect_terraform` to check how it is exposed (ingress, auth middleware, callers) and what runtime permissions it executes under.
+3. Call only the tools you need (typically 1 to 4 targeted tool calls). Once you have sufficient evidence, stop calling tools and summarize your findings.
+
+MODIFIED FILES SUMMARY:
+{json.dumps(state['materiality_context'], indent=2)}
+
+BASELINE INFRASTRUCTURE SUMMARY:
+{json.dumps(state['infra_baseline'], indent=2)}
+
+PULL REQUEST GIT DIFF:
+```diff
+{state['git_diff'][:18000]}
+```
+"""
+            contents.append(types.Content(role="user", parts=[types.Part.from_text(text=initial_prompt)]))
+
+        response = call_gemini_with_fallback(
+            client=client,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                tools=tool_functions,
+                temperature=0.1,
+            ),
+        )
+
+        candidate_content = response.candidates[0].content
+        contents.append(candidate_content)
+
+        calls = []
+        if response.function_calls:
+            for fc in response.function_calls:
+                calls.append({"name": fc.name, "args": dict(fc.args) if fc.args else {}})
+
+        return {
+            "contents": contents,
+            "pending_tool_calls": calls,
+            "iterations": state["iterations"] + 1,
+        }
+
+    def tools_node(state: PRSecurityAgentState) -> dict[str, Any]:
+        """Executes every tool call requested by Gemini and feeds results back into graph state."""
+        contents = list(state["contents"])
+        trace = list(state["tool_trace"])
+        response_parts = []
+
+        for call in state.get("pending_tool_calls", []):
+            fn_name = call["name"]
+            fn_args = call["args"]
+            trace_entry = f"{fn_name}({json.dumps(fn_args)})"
+            print(f"[LangGraph Tool Call] {trace_entry}")
+            trace.append(trace_entry)
+
+            fn = tool_dispatch.get(fn_name)
+            if fn is None:
+                result_str = f"Error: Unknown tool '{fn_name}'."
+            else:
+                try:
+                    result_str = fn(**fn_args)
+                except Exception as e:
+                    result_str = f"Error executing {fn_name}: {e}"
+
+            response_parts.append(
+                types.Part.from_function_response(
+                    name=fn_name,
+                    response={"result": result_str},
+                )
+            )
+
+        contents.append(types.Content(role="tool", parts=response_parts))
+        return {
+            "contents": contents,
+            "tool_trace": trace,
+            "pending_tool_calls": [],
+        }
+
+    def synthesize_node(state: PRSecurityAgentState) -> dict[str, Any]:
+        """Final node that synthesizes all tool observations and the PR diff into a structured SecurityReport."""
+        contents = list(state["contents"])
+        synthesis_prompt = """
+Based on the Pull Request diff and all repository evidence gathered during your investigation:
+1. Produce the final structured `SecurityReport` JSON.
+2. CRITICAL SCOPE RULE: Every `ThreatItem.affected_component` MUST be a file, resource, or route modified in this PR diff. Do not report unrelated backlog issues on untouched files.
+3. Use the evidence you gathered from the repository (via `search_code`, `read_file`, `inspect_terraform`, and baseline topology) to:
+   - Verify whether IAM/Terraform changes are actually needed by the code (flagging over-privileged additions as Elevation of Privilege).
+   - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, and execution environment.
+   - Explicitly mention what repo context was verified in `context_summary_narrative` and `context_rationale`.
+4. Generate runnable `pytest` verification tests (`generated_verification_tests`) and optional `curl`/CLI probes (`generated_adversarial_curl_probes`) tailored to the modified code in this PR.
+"""
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
+
+        response = call_gemini_with_fallback(
+            client=client,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=SecurityReport,
+                temperature=0.1,
+            ),
+        )
+        parsed = json.loads(response.text)
+        parsed["agent_tool_trace"] = state.get("tool_trace", [])
+        return {"final_report": parsed}
+
+    def should_continue(state: PRSecurityAgentState) -> str:
+        if state.get("pending_tool_calls") and state["iterations"] < state["max_iterations"]:
+            return "tools"
+        return "synthesize"
+
+    workflow = StateGraph(PRSecurityAgentState)
+    workflow.add_node("investigate", investigate_node)
+    workflow.add_node("tools", tools_node)
+    workflow.add_node("synthesize", synthesize_node)
+
+    workflow.set_entry_point("investigate")
+    workflow.add_conditional_edges(
+        "investigate",
+        should_continue,
+        {
+            "tools": "tools",
+            "synthesize": "synthesize",
+        },
+    )
+    workflow.add_edge("tools", "investigate")
+    workflow.add_edge("synthesize", END)
+
+    return workflow.compile()
 
 
 def main():
@@ -135,6 +275,7 @@ def main():
     parser.add_argument("--output-report", default="/tmp/security_report.json")
     parser.add_argument("--base-ref", default="origin/main")
     parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--max-iterations", type=int, default=4)
     args = parser.parse_args()
 
     api_key = os.getenv("GEMINI_API_KEY")
@@ -142,8 +283,10 @@ def main():
         print("Error: GEMINI_API_KEY environment variable is required.", file=sys.stderr)
         sys.exit(1)
 
-    with open(args.context_file, "r", encoding="utf-8") as fh:
-        infra_context = json.load(fh)
+    infra_context = {}
+    if os.path.exists(args.context_file):
+        with open(args.context_file, "r", encoding="utf-8") as fh:
+            infra_context = json.load(fh)
 
     materiality_context = {}
     if args.materiality_file and os.path.exists(args.materiality_file):
@@ -158,103 +301,38 @@ def main():
         print("Empty git diff. Exiting.")
         sys.exit(0)
 
-    cross_ref_code = gather_cross_reference_files(args.repo_root, materiality_context)
-
     client = genai.Client(api_key=api_key)
+    graph = build_pr_security_graph(client, args.repo_root)
 
-    prompt = f"""
-You are a Staff Application Security & DevSecOps Engineer reviewing a Pull Request.
+    initial_state: PRSecurityAgentState = {
+        "repo_root": args.repo_root,
+        "git_diff": git_diff,
+        "materiality_context": materiality_context,
+        "infra_baseline": infra_context,
+        "contents": [],
+        "tool_trace": [],
+        "iterations": 0,
+        "max_iterations": args.max_iterations,
+        "pending_tool_calls": [],
+        "final_report": {},
+    }
 
-================================================================================
-HOW TO USE REPOSITORY CONTEXT TO EVALUATE THIS PR DIFF (BI-DIRECTIONAL ANALYSIS)
-================================================================================
-1. **Focus Findings on the PR Diff**:
-   Every reported threat (`ThreatItem.affected_component`) must be anchored to a file, resource, or route modified in `PULL REQUEST GIT DIFF` (`MODIFIED FILES IN THIS PR`). Do not file unrelated backlog findings on untouched files.
+    final_state = graph.invoke(initial_state)
+    report = final_state["final_report"]
 
-2. **Use Full Repo Context to Validate the Change**:
-   - **If this PR modifies Terraform / IAM / Infrastructure (`.tf`, workflows, Dockerfiles)**:
-     Inspect `code_cloud_sdk_usage`, `code_env_and_secret_reads`, and `CROSS-REFERENCED REPOSITORY FILES` to verify whether the infrastructure or IAM change is actually needed by the application code!
-     * *Example*: If a `.tf` change grants a service account `roles/datastore.owner`, `roles/storage.admin`, or `s3:*`, check `code_cloud_sdk_usage` to see what SDK methods `backend/` actually calls. If the code only performs Firestore reads/writes (`roles/datastore.user`) or doesn't use GCS/S3 at all, flag the new IAM change as an **Elevation of Privilege** violation of Least Privilege!
-   - **If this PR modifies Application Code (`.py`, routes, middleware, dependencies)**:
-     Inspect `public_ingress_points`, `iam_bindings`, `security_middlewares`, and `CROSS-REFERENCED REPOSITORY FILES` to evaluate the blast radius of the code change!
-     * *Example*: If a new route or function has a flaw, check whether it is publicly reachable (`is_public_facing = true`), gated by `ClientVerificationMiddleware`, or running under a scoped vs. overprivileged service account, and adjust `raw_severity` -> `contextual_severity` accordingly.
-
-================================================================================
-MODIFIED FILES IN THIS PR
-================================================================================
-{json.dumps(materiality_context, indent=2)}
-
-================================================================================
-EXTRACTED REPOSITORY TOPOLOGY & CODE SDK USAGE MAP
-================================================================================
-{json.dumps(infra_context, indent=2)}
-
-================================================================================
-CROSS-REFERENCED REPOSITORY FILES (FOR LEAST-PRIVILEGE & BLAST-RADIUS VERIFICATION)
-================================================================================
-{cross_ref_code if cross_ref_code else "No additional cross-reference files needed."}
-
-================================================================================
-PULL REQUEST GIT DIFF (PRIMARY REVIEW TARGET)
-================================================================================
-```diff
-{git_diff[:18000]}
-```
-
-================================================================================
-OUTPUT REQUIREMENTS
-================================================================================
-1. **Context Summary (`context_summary_narrative`)**:
-   Write a concise 2-3 sentence summary explaining how the PR's changes interact with the rest of the repository (e.g., whether modified permissions match actual code SDK usage, or how surrounding infrastructure/middleware controls affect the modified code's severity).
-2. **ASCII Data Flow Diagram (`data_flow_diagram_ascii`)**:
-   Produce a compact ASCII diagram showing the data flow and trust boundaries of the components modified in this PR.
-3. **STRIDE Threat Model (`threats`)**:
-   - Identify concrete STRIDE threats introduced or impacted by the PR diff.
-   - Show how cross-referencing the repo's code and infrastructure calibrated `raw_severity` -> `contextual_severity` in `context_rationale`.
-   - Provide actionable code or Terraform HCL remediation snippets in `suggested_fix`.
-4. **Generated Model-Based Test Suite (`generated_verification_tests` & `generated_adversarial_curl_probes`)**:
-   - Generate runnable `pytest` verification tests specifically exercising the code, routes, or security invariants modified in this PR.
-   - Provide targeted `curl` or CLI adversarial probes if applicable.
-"""
-
-    model_name = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")
-    fallback_models = [model_name, "gemini-2.5-flash", "gemini-2.0-flash"]
-    response = None
-    last_err = None
-
-    for candidate_model in dict.fromkeys(fallback_models):
-        try:
-            response = client.models.generate_content(
-                model=candidate_model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=SecurityReport,
-                    temperature=0.1,
-                ),
-            )
-            print(f"Successfully evaluated PR diff using model: {candidate_model}")
-            break
-        except Exception as err:
-            print(f"Warning: Model '{candidate_model}' failed ({err}), trying next fallback...")
-            last_err = err
-
-    if response is None:
-        print(f"Error: All Gemini model candidates failed. Last error: {last_err}", file=sys.stderr)
-        sys.exit(1)
-
-    report_data = response.text
     with open(args.output_report, "w", encoding="utf-8") as fh:
-        fh.write(report_data)
+        json.dump(report, fh, indent=2)
 
-    parsed = json.loads(report_data)
-    test_code = parsed.get("generated_verification_tests", "")
+    test_code = report.get("generated_verification_tests", "")
     if test_code:
         os.makedirs("tests/security", exist_ok=True)
         with open("tests/security/test_generated_verification.py", "w", encoding="utf-8") as fh:
             fh.write(test_code)
 
-    print(f"Report generated successfully at {args.output_report}")
+    print(
+        f"Report generated successfully at {args.output_report} "
+        f"(Autonomous tool calls executed: {len(report.get('agent_tool_trace', []))})"
+    )
 
 
 if __name__ == "__main__":

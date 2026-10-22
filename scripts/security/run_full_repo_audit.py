@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 """
-Full-Repository Agentic Security Scanner & GitHub Issue Reporter.
-Audits the entire repository's Terraform infrastructure (`infra/`), FastAPI application
-code (`backend/`), and CI/CD workflows (`.github/workflows/`) to identify actionable
-STRIDE architectural or security hardening findings and automatically creates
-deduplicated GitHub Issues for Medium/High/Critical findings.
+Full-Repository LangGraph Security Scanner & GitHub Issue Reporter.
+Uses a stateful LangGraph ReAct agent (`StateGraph`) equipped with dynamic repository
+discovery tools (`list_files`, `search_code`, `read_file`, `inspect_terraform`)
+to autonomously explore the entire repository without hardcoded directory paths,
+perform holistic STRIDE threat modeling, and create deduplicated GitHub Issues.
 """
 import argparse
-import glob
 import json
 import os
 import subprocess
 import sys
+from typing import Any, TypedDict
 from pydantic import BaseModel, Field
 from google import genai
 from google.genai import types
+from langgraph.graph import StateGraph, END
+
+from repo_tools import make_agent_tools
 
 
 class RepoSecurityFinding(BaseModel):
@@ -43,7 +46,7 @@ class RepoSecurityFinding(BaseModel):
         description="Detailed explanation of the architectural or code vulnerability/hardening gap"
     )
     context_rationale: str = Field(
-        description="How surrounding Terraform/application controls mitigate or amplify this risk"
+        description="How surrounding Terraform/application controls discovered via tools mitigate or amplify this risk"
     )
     remediation_patch: str = Field(
         description="Actionable code or Terraform HCL patch to resolve the finding"
@@ -60,32 +63,165 @@ class FullRepoAuditReport(BaseModel):
     findings: list[RepoSecurityFinding]
 
 
-def collect_repo_snapshots(repo_root: str) -> str:
-    """Collects key Terraform and backend security files for full-repo analysis."""
-    patterns = [
-        "infra/**/*.tf",
-        "backend/app/main.py",
-        "backend/app/core/*.py",
-        "backend/app/api/**/*.py",
-        ".github/workflows/*.yml",
-    ]
-    snippets = []
-    seen = set()
+class RepoAuditGraphState(TypedDict):
+    repo_root: str
+    infra_baseline: dict[str, Any]
+    contents: list[Any]
+    tool_trace: list[str]
+    iterations: int
+    max_iterations: int
+    pending_tool_calls: list[dict[str, Any]]
+    final_report: dict[str, Any]
 
-    for pattern in patterns:
-        for path in sorted(glob.glob(os.path.join(repo_root, pattern), recursive=True)):
-            rel_path = os.path.relpath(path, repo_root)
-            if rel_path in seen or ".worktrees" in rel_path or ".terraform" in rel_path:
-                continue
-            seen.add(rel_path)
-            try:
-                with open(path, "r", encoding="utf-8") as fh:
-                    content = fh.read()
-                snippets.append(f"--- FILE: {rel_path} ---\n{content[:4000]}\n")
-            except Exception:
-                continue
 
-    return "\n".join(snippets)[:45000]
+def call_gemini_with_fallback(
+    client: genai.Client,
+    contents: Any,
+    config: types.GenerateContentConfig,
+) -> Any:
+    primary = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")
+    candidates = list(dict.fromkeys([primary, "gemini-2.5-flash", "gemini-2.0-flash"]))
+    last_err = None
+    for model_name in candidates:
+        try:
+            return client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config,
+            )
+        except Exception as err:
+            print(f"Warning: Model '{model_name}' failed ({err}), trying next fallback...")
+            last_err = err
+    raise RuntimeError(f"All Gemini models failed. Last error: {last_err}")
+
+
+def build_full_repo_audit_graph(client: genai.Client, repo_root: str):
+    """Builds a LangGraph ReAct agent that autonomously explores the repository for full-scan auditing."""
+    tool_bundle = make_agent_tools(repo_root)
+    tool_functions = tool_bundle["functions"]
+    tool_dispatch = tool_bundle["dispatch"]
+
+    def explore_node(state: RepoAuditGraphState) -> dict[str, Any]:
+        contents = list(state["contents"])
+        if not contents:
+            prompt = f"""
+You are an autonomous Principal Cloud Security & DevSecOps Architect performing a Full-Repository Security Audit.
+Instead of relying on hardcoded paths, use your repository exploration tools to dynamically discover and inspect the codebase:
+- `list_files(subdir, glob_pattern)`: Discover all directories, Terraform modules, backend services, MLOps pipelines, and CI/CD workflows.
+- `search_code(regex_query, file_glob)`: Search for IAM bindings, SDK calls, authentication middlewares, rate limiters, or secret handling.
+- `read_file(file_path, start_line, end_line)`: Read key files to verify whether IAM permissions match actual code usage and whether security controls are properly enforced.
+- `inspect_terraform(tf_path)`: Parse `.tf` files into structured HCL2 JSON.
+
+BASELINE INFRASTRUCTURE SUMMARY:
+{json.dumps(state['infra_baseline'], indent=2)}
+
+Explore the repository using targeted tool calls (up to {state['max_iterations']} steps) so you can perform a comprehensive, evidence-backed STRIDE audit.
+"""
+            contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
+
+        response = call_gemini_with_fallback(
+            client=client,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                tools=tool_functions,
+                temperature=0.1,
+            ),
+        )
+        candidate_content = response.candidates[0].content
+        contents.append(candidate_content)
+
+        calls = []
+        if response.function_calls:
+            for fc in response.function_calls:
+                calls.append({"name": fc.name, "args": dict(fc.args) if fc.args else {}})
+
+        return {
+            "contents": contents,
+            "pending_tool_calls": calls,
+            "iterations": state["iterations"] + 1,
+        }
+
+    def tools_node(state: RepoAuditGraphState) -> dict[str, Any]:
+        contents = list(state["contents"])
+        trace = list(state["tool_trace"])
+        response_parts = []
+
+        for call in state.get("pending_tool_calls", []):
+            fn_name = call["name"]
+            fn_args = call["args"]
+            trace_entry = f"{fn_name}({json.dumps(fn_args)})"
+            print(f"[Full-Scan LangGraph Tool Call] {trace_entry}")
+            trace.append(trace_entry)
+
+            fn = tool_dispatch.get(fn_name)
+            if fn is None:
+                result_str = f"Error: Unknown tool '{fn_name}'."
+            else:
+                try:
+                    result_str = fn(**fn_args)
+                except Exception as e:
+                    result_str = f"Error executing {fn_name}: {e}"
+
+            response_parts.append(
+                types.Part.from_function_response(
+                    name=fn_name,
+                    response={"result": result_str},
+                )
+            )
+
+        contents.append(types.Content(role="tool", parts=response_parts))
+        return {
+            "contents": contents,
+            "tool_trace": trace,
+            "pending_tool_calls": [],
+        }
+
+    def synthesize_node(state: RepoAuditGraphState) -> dict[str, Any]:
+        contents = list(state["contents"])
+        synthesis_prompt = """
+Based on your autonomous exploration of the repository:
+1. Produce the structured `FullRepoAuditReport` JSON.
+2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls you verified in the codebase (e.g., OIDC `attribute_condition`, Secret Manager `secret_key_ref`, `ClientVerificationMiddleware`, Firebase JWT verification, and actual SDK usage vs IAM roles).
+3. Assign each finding a deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) for GitHub Issue deduplication.
+"""
+        contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
+
+        response = call_gemini_with_fallback(
+            client=client,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=FullRepoAuditReport,
+                temperature=0.1,
+            ),
+        )
+        parsed = json.loads(response.text)
+        parsed["agent_tool_trace"] = state.get("tool_trace", [])
+        return {"final_report": parsed}
+
+    def should_continue(state: RepoAuditGraphState) -> str:
+        if state.get("pending_tool_calls") and state["iterations"] < state["max_iterations"]:
+            return "tools"
+        return "synthesize"
+
+    workflow = StateGraph(RepoAuditGraphState)
+    workflow.add_node("explore", explore_node)
+    workflow.add_node("tools", tools_node)
+    workflow.add_node("synthesize", synthesize_node)
+
+    workflow.set_entry_point("explore")
+    workflow.add_conditional_edges(
+        "explore",
+        should_continue,
+        {
+            "tools": "tools",
+            "synthesize": "synthesize",
+        },
+    )
+    workflow.add_edge("tools", "explore")
+    workflow.add_edge("synthesize", END)
+
+    return workflow.compile()
 
 
 def get_existing_open_issues() -> list[dict]:
@@ -145,7 +281,7 @@ def format_issue_body(finding: dict) -> str:
 ```
 
 ---
-*Generated by the Full-Repository Agentic DevSecOps Audit workflow (`.github/workflows/appsec-full-scan.yml`).*
+*Generated by the Full-Repository LangGraph DevSecOps Audit workflow (`.github/workflows/appsec-full-scan.yml`).*
 """
 
 
@@ -171,7 +307,6 @@ def create_github_issues(
         fid = finding.get("finding_id", "")
         title = f"[Security][{sev}] {finding.get('title', fid)}"
 
-        # Check deduplication by finding_id marker or title
         already_exists = any(
             (fid and fid in (iss.get("body") or ""))
             or finding.get("title", "").lower() in (iss.get("title") or "").lower()
@@ -208,6 +343,7 @@ def main():
     parser.add_argument("--output-report", default="/tmp/full_security_audit.json")
     parser.add_argument("--min-severity", default="Medium", choices=["Low", "Medium", "High", "Critical"])
     parser.add_argument("--max-issues", type=int, default=5)
+    parser.add_argument("--max-iterations", type=int, default=6)
     parser.add_argument("--create-issues", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -217,60 +353,35 @@ def main():
         print("Error: GEMINI_API_KEY environment variable is required.", file=sys.stderr)
         sys.exit(1)
 
-    with open(args.context_file, "r", encoding="utf-8") as fh:
-        infra_context = json.load(fh)
+    infra_context = {}
+    if os.path.exists(args.context_file):
+        with open(args.context_file, "r", encoding="utf-8") as fh:
+            infra_context = json.load(fh)
 
-    code_snapshots = collect_repo_snapshots(args.repo_root)
     client = genai.Client(api_key=api_key)
+    graph = build_full_repo_audit_graph(client, args.repo_root)
 
-    prompt = f"""
-You are a Principal Cloud Security & DevSecOps Architect performing a Full-Repository Security & Threat Modeling Audit across both Terraform Infrastructure (`infra/`) and Application Code (`backend/`, `.github/workflows/`).
+    initial_state: RepoAuditGraphState = {
+        "repo_root": args.repo_root,
+        "infra_baseline": infra_context,
+        "contents": [],
+        "tool_trace": [],
+        "iterations": 0,
+        "max_iterations": args.max_iterations,
+        "pending_tool_calls": [],
+        "final_report": {},
+    }
 
-EXTRACTED TERRAFORM & APPLICATION TOPOLOGY:
-{json.dumps(infra_context, indent=2)}
+    final_state = graph.invoke(initial_state)
+    parsed = final_state["final_report"]
 
-REPOSITORY SOURCE & INFRASTRUCTURE SNAPSHOTS:
-{code_snapshots}
-
-AUDIT INSTRUCTIONS:
-1. Perform a holistic STRIDE threat model and security audit across the entire repository (Terraform modules, IAM bindings, Workload Identity Federation, Firestore settings, Cloud Run scaling/ingress, FastAPI auth/rate-limiting middlewares, and CI/CD workflows).
-2. Calibrate `raw_severity` vs `contextual_severity` using the real compensating controls present in the codebase (e.g., OIDC `attribute_condition`, Secret Manager `secret_key_ref`, `ClientVerificationMiddleware`, Firebase JWT verification).
-3. Surface concrete, high-signal architectural findings (such as broad CI/CD service account roles like `roles/editor` / `roles/secretmanager.admin`, Firestore `DELETE_PROTECTION_DISABLED`, or endpoint/middleware hardening opportunities) with exact file paths, copy-pasteable remediation patches, and verification tests.
-4. Assign each finding a stable, deterministic `finding_id` (e.g., `SEC-IAM-WIF-BROAD-ROLES`, `SEC-TF-FIRESTORE-DELETE-PROT`) so subsequent scans can deduplicate open GitHub Issues.
-"""
-
-    model_name = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")
-    fallback_models = [model_name, "gemini-2.5-flash", "gemini-2.0-flash"]
-    response = None
-    last_err = None
-
-    for candidate_model in dict.fromkeys(fallback_models):
-        try:
-            response = client.models.generate_content(
-                model=candidate_model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=FullRepoAuditReport,
-                    temperature=0.1,
-                ),
-            )
-            print(f"Successfully completed full-repo audit using model: {candidate_model}")
-            break
-        except Exception as err:
-            print(f"Warning: Model '{candidate_model}' failed ({err}), trying next fallback...")
-            last_err = err
-
-    if response is None:
-        print(f"Error: All Gemini model candidates failed. Last error: {last_err}", file=sys.stderr)
-        sys.exit(1)
-
-    report_data = response.text
     with open(args.output_report, "w", encoding="utf-8") as fh:
-        fh.write(report_data)
+        json.dump(parsed, fh, indent=2)
 
-    parsed = json.loads(report_data)
-    print(f"Full repo audit saved to {args.output_report} ({len(parsed.get('findings', []))} findings).")
+    print(
+        f"Full repo audit saved to {args.output_report} "
+        f"({len(parsed.get('findings', []))} findings, {len(parsed.get('agent_tool_trace', []))} tool calls)."
+    )
 
     if args.create_issues and os.getenv("GH_TOKEN"):
         create_github_issues(

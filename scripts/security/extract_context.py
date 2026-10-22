@@ -296,73 +296,71 @@ def inspect_hcl_data(data: dict, context: dict, file_path: str):
 
 
 def extract_fastapi_and_sdk_usage(repo_root: str, context: dict):
-    """Scans application code to map routes, middleware, AND actual cloud SDK/permission usage."""
-    scan_dirs = [
-        os.path.join(repo_root, "backend"),
-        os.path.join(repo_root, "mlops"),
-    ]
+    """Dynamically scans all Python files across the repository (excluding tests/virtualenvs)
+    to map routes, middleware, and cloud SDK usage without hardcoded directory names."""
     route_pattern = re.compile(
         r'@(?:\w+)\.(get|post|put|delete|patch)\(\s*["\']([^"\']+)["\']'
     )
     depends_pattern = re.compile(r"Depends\(\s*([a-zA-Z0-9_]+)\s*\)")
     env_pattern = re.compile(r'(?:os\.getenv|os\.environ\.get)\(\s*["\']([A-Z0-9_]+)["\']')
 
-    for base_dir in scan_dirs:
-        if not os.path.isdir(base_dir):
-            continue
-        for root, _, files in os.walk(base_dir):
-            if "__pycache__" in root:
+    for root, dirs, files in os.walk(repo_root):
+        dirs[:] = sorted(
+            d for d in dirs
+            if d not in {".git", ".terraform", ".venv", "venv", "node_modules", "__pycache__", ".worktrees", "tests"}
+        )
+        for file in sorted(files):
+            if not file.endswith(".py") or file.startswith("test_"):
                 continue
-            for file in sorted(files):
-                if not file.endswith(".py"):
-                    continue
-                path = os.path.join(root, file)
-                rel_path = os.path.relpath(path, repo_root)
-                try:
-                    with open(path, "r", encoding="utf-8") as fh:
-                        content = fh.read()
-                except Exception:
-                    continue
+            path = os.path.join(root, file)
+            rel_path = os.path.relpath(path, repo_root)
+            if rel_path.startswith("scripts/security/"):
+                continue
+            try:
+                with open(path, "r", encoding="utf-8") as fh:
+                    content = fh.read()
+            except Exception:
+                continue
 
-                # 1. Middleware registrations
-                for mw_match in re.finditer(r"add_middleware\(\s*([A-Za-z0-9_]+)", content):
-                    mw_name = mw_match.group(1)
-                    context["security_middlewares"].append(f"{mw_name} (registered in {rel_path})")
+            # 1. Middleware registrations
+            for mw_match in re.finditer(r"add_middleware\(\s*([A-Za-z0-9_]+)", content):
+                mw_name = mw_match.group(1)
+                context["security_middlewares"].append(f"{mw_name} (registered in {rel_path})")
 
-                # 2. FastAPI Routes
-                lines = content.splitlines()
-                for idx, line in enumerate(lines):
-                    m = route_pattern.search(line)
-                    if m:
-                        method = m.group(1).upper()
-                        route_path = m.group(2)
-                        window = "\n".join(lines[idx : min(idx + 12, len(lines))])
-                        deps = depends_pattern.findall(window)
-                        auth_dep = ", ".join(deps) if deps else "None (Public / Middleware-only)"
-                        context["application_routes"].append(
-                            f"{method} {route_path} [Auth/Deps: {auth_dep}] ({rel_path}:{idx + 1})"
-                        )
+            # 2. FastAPI Routes
+            lines = content.splitlines()
+            for idx, line in enumerate(lines):
+                m = route_pattern.search(line)
+                if m:
+                    method = m.group(1).upper()
+                    route_path = m.group(2)
+                    window = "\n".join(lines[idx : min(idx + 12, len(lines))])
+                    deps = depends_pattern.findall(window)
+                    auth_dep = ", ".join(deps) if deps else "None (Public / Middleware-only)"
+                    context["application_routes"].append(
+                        f"{method} {route_path} [Auth/Deps: {auth_dep}] ({rel_path}:{idx + 1})"
+                    )
 
-                # 3. Cloud SDK & Data Operations Usage (for IAM least-privilege cross-referencing)
-                for sig in CODE_SDK_SIGNATURES:
-                    if any(re.search(pat, content) for pat in sig["patterns"]):
-                        has_write = any(re.search(wp, content) for wp in sig["write_patterns"])
-                        has_read = any(re.search(rp, content) for rp in sig["read_patterns"])
-                        ops = []
-                        if has_read:
-                            ops.append("READ")
-                        if has_write:
-                            ops.append("WRITE/MUTATE")
-                        op_str = "/".join(ops) if ops else "CLIENT_INIT"
-                        expected = ", ".join(sig["expected_roles"])
-                        context["code_cloud_sdk_usage"].append(
-                            f"{sig['service']} used in {rel_path} [Operations: {op_str}] (Expected Least-Privilege Role: {expected})"
-                        )
+            # 3. Cloud SDK & Data Operations Usage
+            for sig in CODE_SDK_SIGNATURES:
+                if any(re.search(pat, content) for pat in sig["patterns"]):
+                    has_write = any(re.search(wp, content) for wp in sig["write_patterns"])
+                    has_read = any(re.search(rp, content) for rp in sig["read_patterns"])
+                    ops = []
+                    if has_read:
+                        ops.append("READ")
+                    if has_write:
+                        ops.append("WRITE/MUTATE")
+                    op_str = "/".join(ops) if ops else "CLIENT_INIT"
+                    expected = ", ".join(sig["expected_roles"])
+                    context["code_cloud_sdk_usage"].append(
+                        f"{sig['service']} used in {rel_path} [Operations: {op_str}] (Expected Least-Privilege Role: {expected})"
+                    )
 
-                # 4. Environment variable & secret consumption in code
-                for env_var in sorted(set(env_pattern.findall(content))):
-                    if any(k in env_var for k in ("KEY", "SECRET", "PASSWORD", "TOKEN", "PROJECT", "WEBHOOK")):
-                        context["code_env_and_secret_reads"].append(f"{env_var} (read in {rel_path})")
+            # 4. Environment variable & secret consumption in code
+            for env_var in sorted(set(env_pattern.findall(content))):
+                if any(k in env_var for k in ("KEY", "SECRET", "PASSWORD", "TOKEN", "PROJECT", "WEBHOOK")):
+                    context["code_env_and_secret_reads"].append(f"{env_var} (read in {rel_path})")
 
 
 def synthesize_trust_boundaries(context: dict):

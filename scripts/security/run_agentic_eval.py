@@ -160,6 +160,7 @@ PULL REQUEST GIT DIFF:
             contents=contents,
             config=types.GenerateContentConfig(
                 tools=tool_functions,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
                 temperature=0.1,
             ),
         )
@@ -207,7 +208,7 @@ PULL REQUEST GIT DIFF:
                 )
             )
 
-        contents.append(types.Content(role="tool", parts=response_parts))
+        contents.append(types.Content(role="user", parts=response_parts))
         return {
             "contents": contents,
             "tool_trace": trace,

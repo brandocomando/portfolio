@@ -128,6 +128,7 @@ Start by calling `list_files` (including `docs/adr`), `inspect_terraform`, and `
             contents=contents,
             config=types.GenerateContentConfig(
                 tools=tool_functions,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
                 temperature=0.1,
             ),
         )
@@ -173,7 +174,7 @@ Start by calling `list_files` (including `docs/adr`), `inspect_terraform`, and `
                 )
             )
 
-        contents.append(types.Content(role="tool", parts=response_parts))
+        contents.append(types.Content(role="user", parts=response_parts))
         return {
             "contents": contents,
             "tool_trace": trace,
@@ -185,9 +186,10 @@ Start by calling `list_files` (including `docs/adr`), `inspect_terraform`, and `
         synthesis_prompt = """
 Based on your autonomous exploration of the repository:
 1. Produce the structured `FullRepoAuditReport` JSON.
-2. Calibrate `raw_severity` vs `contextual_severity` using the compensating controls, runtime configurations, and Architecture Decision Records (`docs/adr/*.md`, `SECURITY.md`) you verified via tool calls in the codebase. Only report genuine, unresolved security findings rather than already-mitigated controls.
-3. For each finding, populate `ai_agent_prompt` with a copy-pasteable multiline "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
-4. Assign each finding a deterministic `finding_id` (e.g., `SEC-<CATEGORY>-<COMPONENT>`) for GitHub Issue deduplication.
+2. Identify concrete, actionable security findings, least-privilege gaps, and defense-in-depth hardening opportunities across the codebase (Terraform `infra/`, backend/frontend services, MLOps pipelines, and CI/CD workflows). Note: Even if a residual risk is mentioned in `SECURITY.md`, still report it if the underlying Terraform or code has not yet been hardened in the repository.
+3. Calibrate `raw_severity` vs `contextual_severity` using the compensating controls, runtime configurations, and Architecture Decision Records (`docs/adr/*.md`, `SECURITY.md`) you verified via tool calls in the codebase.
+4. For each finding, populate `ai_agent_prompt` with a copy-pasteable multiline "Prompt for AI Agents" that instructs a coding agent to first verify the finding in `@<file_path>`, implement the fix safely, and run/add verification tests.
+5. Assign each finding a deterministic `finding_id` (e.g., `SEC-<CATEGORY>-<COMPONENT>`) for GitHub Issue deduplication.
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 

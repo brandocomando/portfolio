@@ -2,11 +2,10 @@
 """
 GitHub PR Action Card Formatter & Reporter.
 Formats the DevSecOps security evaluation into a clean, professional Markdown
-PR review card containing three core sections:
+PR review card containing:
   1. Context Summary (Autonomous LangGraph repo investigation & severity adjustments)
-  2. STRIDE Threat Model (Architectural threats, context adjustments, and CodeRabbit-style
-     "🤖 Prompt for AI Agents" + Suggested Patch blocks)
-  3. Generated Model-Based Test Suite (Runnable pytest verification tests + curl probes)
+  2. STRIDE Threat Model (Architectural threats, context adjustments, and multiline
+     CodeRabbit-style "Prompt for AI Agents" + Suggested Patch blocks)
 
 Automatically hides (minimizes as OUTDATED) any previous DevSecOps security assessment
 comments on the PR before posting the latest assessment.
@@ -15,6 +14,7 @@ import argparse
 import json
 import os
 import subprocess
+import textwrap
 
 COMMENT_MARKER = "<!-- appsec-agentic-pr-comment -->"
 LEGACY_HEADER_SIGNATURES = (
@@ -23,6 +23,34 @@ LEGACY_HEADER_SIGNATURES = (
     "DevSecOps Agentic Security Card:",
     "DevSecOps Security Assessment",
 )
+
+
+def format_multiline_ai_prompt(raw_prompt: str, width: int = 88) -> str:
+    """
+    Wraps long single-line AI prompts into clean, readable multiline paragraphs
+    (max `width` chars per line) so GitHub's ```text code block never requires
+    horizontal scrolling while remaining 1-click copy-pasteable.
+    """
+    if not raw_prompt:
+        return ""
+    wrapped_lines = []
+    for paragraph in raw_prompt.strip().splitlines():
+        stripped = paragraph.strip()
+        if not stripped:
+            wrapped_lines.append("")
+            continue
+        # Preserve bullet/numbered list indentation when wrapping
+        subsequent_indent = "   " if stripped[:2] in {"- ", "* ", "1.", "2.", "3.", "4."} else ""
+        wrapped_lines.append(
+            textwrap.fill(
+                stripped,
+                width=width,
+                subsequent_indent=subsequent_indent,
+                break_long_words=False,
+                break_on_hyphens=False,
+            )
+        )
+    return "\n".join(wrapped_lines)
 
 
 def format_markdown(report: dict) -> str:
@@ -95,14 +123,16 @@ def format_markdown(report: dict) -> str:
             for idx, t in enumerate(actionable_threats, start=1):
                 comp = t.get("affected_component", "")
                 title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
-                ai_prompt = t.get("ai_agent_prompt") or (
-                    f"In @{comp}, verify the following {t['category']} finding: {t['description']}. "
-                    f"Confirm whether the issue is applicable in context ({t['context_rationale']}), "
-                    f"apply the remediation, and run pytest to verify."
+                raw_ai_prompt = t.get("ai_agent_prompt") or (
+                    f"Target: @{comp}\n"
+                    f"1. Verify Finding: Inspect @{comp} to confirm whether the {t['category']} risk applies ({t['description']}).\n"
+                    f"2. Context Check: {t['context_rationale']}\n"
+                    f"3. Remediate & Test: Apply the fix and run `pytest` to verify."
                 )
+                formatted_prompt = format_multiline_ai_prompt(raw_ai_prompt, width=88)
                 md.append(f"<details><summary><b>🤖 {title}</b></summary>\n")
                 md.append("##### 📋 Prompt for AI Agents *(Copy & paste into your coding agent)*")
-                md.append(f"```text\n{ai_prompt}\n```\n")
+                md.append(f"```text\n{formatted_prompt}\n```\n")
                 if t.get("suggested_fix"):
                     md.append("##### 🔧 Suggested Code / Configuration Patch")
                     md.append(f"```python\n{t['suggested_fix']}\n```")

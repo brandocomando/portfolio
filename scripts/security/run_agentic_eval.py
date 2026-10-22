@@ -230,11 +230,13 @@ Based on the Pull Request diff and all repository evidence gathered during your 
    - Verify whether the change aligns with or violates architectural decisions in `docs/adr/*.md` (citing the specific ADR when relevant).
    - Calibrate `raw_severity` -> `contextual_severity` based on actual reachability, middleware protection, documented ADR constraints, and execution environment.
    - Explicitly mention what repo context (and any ADR) was verified in `context_summary_narrative` and `context_rationale`.
-4. For every unresolved `ThreatItem` (if any), populate `ai_agent_prompt` with a self-contained, copy-pasteable prompt formatted like CodeRabbit's "Prompt for AI Agents":
-   - Start with: `In @<file_path> (around <function/resource/lines>), ...`
-   - Instruct the coding agent to first **verify the finding** by inspecting the target file and related callers/configs to confirm whether the risk applies.
-   - Specify the exact architectural or code modification needed to remediate the issue safely.
-   - Instruct the coding agent to run or add a `pytest` test to verify the fix.
+4. For every unresolved `ThreatItem` (where `is_remediation_required` is True), populate `ai_agent_prompt` as a **multiline** prompt broken across short, readable lines (under 85 characters per line) with newline (`\n`) separators:
+   ```
+   In @<file_path> (around <function/resource/lines>):
+   1. Verify: Inspect @<file_path> and related callers to confirm the finding.
+   2. Fix: <specific architectural or code change needed>.
+   3. Test: Run or add a pytest case in tests/ to verify the fix.
+   ```
 """
         contents.append(types.Content(role="user", parts=[types.Part.from_text(text=synthesis_prompt)]))
 

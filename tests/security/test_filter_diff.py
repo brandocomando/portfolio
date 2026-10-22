@@ -12,7 +12,12 @@ from unittest.mock import MagicMock, patch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../scripts/security")))
 
 from filter_diff import categorize_files, evaluate_materiality
-from post_pr_comment import COMMENT_MARKER, format_markdown, hide_previous_pr_comments
+from post_pr_comment import (
+    COMMENT_MARKER,
+    format_markdown,
+    format_multiline_ai_prompt,
+    hide_previous_pr_comments,
+)
 from repo_tools import list_repo_files, parse_terraform_hcl, read_repo_file, redact_secrets, search_codebase
 from run_agentic_eval import build_pr_security_graph
 from run_full_repo_audit import create_github_issues, format_issue_body
@@ -80,11 +85,19 @@ def test_material_application_code():
 
 
 def test_format_markdown_three_blocks():
+    long_prompt = (
+        "In @scripts/security/filter_diff.py (around line 42), verify git diff argument handling "
+        "to ensure base_ref cannot inject arbitrary git flags, and run pytest tests/security/ to confirm all tests pass."
+    )
+    wrapped = format_multiline_ai_prompt(long_prompt, width=88)
+    assert "\n" in wrapped
+    assert all(len(line) <= 88 for line in wrapped.splitlines())
+
     report = {
         "summary": "Assessed modified security scripts.",
         "context_summary_narrative": "Scripts run inside isolated GitHub Actions runner; downgraded subprocess risk from Medium to Low.",
         "data_flow_diagram_ascii": "[GitHub PR] --> [GitHub Actions Runner] --> [PR Comment API]",
-        "overall_contextual_severity": "Low",
+        "overall_contextual_severity": "Medium",
         "agent_tool_trace": ['search_code({"regex_query": "firestore", "file_glob": "*.py"})'],
         "threats": [
             {
@@ -93,14 +106,25 @@ def test_format_markdown_three_blocks():
                 "affected_component": "scripts/security/filter_diff.py",
                 "description": "Base ref argument passed to git diff command.",
                 "raw_severity": "Medium",
+                "contextual_severity": "Medium",
+                "context_rationale": "Needs '--' separator before paths.",
+                "is_remediation_required": True,
+                "ai_agent_prompt": long_prompt,
+                "suggested_fix": "cmd = ['git', 'diff', '--name-only', f'{base_ref}...HEAD', '--']",
+            },
+            {
+                "category": "Information Disclosure",
+                "trust_boundary": "Repo Tools -> LLM",
+                "affected_component": "scripts/security/repo_tools.py",
+                "description": "Secret scrubbing in tool output.",
+                "raw_severity": "High",
                 "contextual_severity": "Low",
-                "context_rationale": "Executed via subprocess list arguments without shell=True.",
-                "ai_agent_prompt": "In @scripts/security/filter_diff.py, verify git diff argument handling and add unit tests.",
-                "suggested_fix": "cmd = ['git', 'diff', '--name-only', f'{base_ref}...HEAD']",
-            }
+                "context_rationale": "Mitigated by redact_secrets() and .env block.",
+                "is_remediation_required": False,
+                "ai_agent_prompt": "",
+                "suggested_fix": "",
+            },
         ],
-        "generated_verification_tests": "def test_diff(): assert True",
-        "generated_adversarial_curl_probes": "",
     }
     md = format_markdown(report)
     assert COMMENT_MARKER in md
@@ -108,7 +132,9 @@ def test_format_markdown_three_blocks():
     assert "Autonomous LangGraph Repo Investigation (1 tool calls)" in md
     assert "### 2. STRIDE Threat Model" in md
     assert "Prompt for AI Agents" in md
-    assert "In @scripts/security/filter_diff.py, verify git diff argument handling" in md
+    assert "In @scripts/security/filter_diff.py" in md
+    assert "Remediation 1: Tampering" in md
+    assert "Remediation 2:" not in md
     assert "Generated Model-Based Test Suite" not in md
     assert "scripts/security/filter_diff.py" in md
 

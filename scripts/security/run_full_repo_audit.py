@@ -257,12 +257,19 @@ def ensure_security_label():
 
 
 def format_issue_body(finding: dict) -> str:
+    import textwrap
+
     files_md = ", ".join(f"`{f}`" for f in finding.get("affected_files", []))
-    ai_prompt = finding.get("ai_agent_prompt") or (
-        f"In {', '.join('@' + f for f in finding.get('affected_files', []))}, "
-        f"verify the {finding['stride_category']} finding ({finding['title']}): {finding['description']}. "
-        f"Confirm how it interacts with existing controls ({finding['context_rationale']}), "
-        f"apply the remediation, and verify with tests."
+    raw_ai_prompt = finding.get("ai_agent_prompt") or (
+        f"In {', '.join('@' + f for f in finding.get('affected_files', []))}:\n"
+        f"1. Verify: Confirm the {finding['stride_category']} finding ({finding['title']}): {finding['description']}\n"
+        f"2. Context: {finding['context_rationale']}\n"
+        f"3. Remediate & Test: Apply the remediation patch and verify with tests."
+    )
+    wrapped_prompt = "\n".join(
+        textwrap.fill(line.strip(), width=88, break_long_words=False, break_on_hyphens=False)
+        if line.strip() else ""
+        for line in raw_ai_prompt.strip().splitlines()
     )
     return f"""<!-- appsec-finding-id: {finding['finding_id']} -->
 ## 🛡️ Automated DevSecOps Security Finding: `{finding['finding_id']}`
@@ -283,7 +290,7 @@ def format_issue_body(finding: dict) -> str:
 
 ### 3. 🤖 Prompt for AI Agents *(Copy & paste into your coding agent)*
 ```text
-{ai_prompt}
+{wrapped_prompt}
 ```
 
 ### 4. Recommended Remediation Patch

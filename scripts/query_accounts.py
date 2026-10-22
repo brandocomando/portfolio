@@ -126,6 +126,8 @@ def main():
     parser.add_argument("--end", default=None, help="Explicit end ISO timestamp (e.g. 2026-10-13T00:00:00Z)")
     parser.add_argument("--project", default=DEFAULT_PROJECT, help=f"GCP Project ID (default: {DEFAULT_PROJECT})")
     parser.add_argument("--collection", default=DEFAULT_COLLECTION, help=f"Firestore collection name (default: {DEFAULT_COLLECTION})")
+    parser.add_argument("--created-only", action="store_true", help="Only show accounts created in the window (exclude logins)")
+    parser.add_argument("--logins-only", action="store_true", help="Only show logins in the window (exclude creations)")
     parser.add_argument("--raw", action="store_true", help="Output raw JSON array")
 
     args = parser.parse_args()
@@ -151,30 +153,59 @@ def main():
         sys.exit(1)
 
     matching_accounts = []
+    created_count = 0
+    login_count = 0
+
     for doc in docs:
         data = doc.to_dict() or {}
         created_dt = get_account_creation_time(doc, data)
+        last_login_dt = parse_iso_datetime(data.get("last_login")) or parse_iso_datetime(data.get("last_active"))
 
-        if created_dt and start_time <= created_dt <= end_time:
-            matching_accounts.append({
-                "uid": doc.id,
-                "email": data.get("email"),
-                "name": data.get("name"),
-                "provider": data.get("provider", "unknown"),
-                "created_at": created_dt.isoformat(),
-                "last_login": data.get("last_login"),
-                "last_active": data.get("last_active"),
-                "client_ip": data.get("client_ip"),
-                "login_count": data.get("login_count", 1),
-                "_created_dt": created_dt
-            })
+        created_in_window = bool(created_dt and start_time <= created_dt <= end_time)
+        login_in_window = bool(last_login_dt and start_time <= last_login_dt <= end_time)
 
-    # Sort descending by creation date
-    matching_accounts.sort(key=lambda x: x["_created_dt"], reverse=True)
+        if args.created_only and not created_in_window:
+            continue
+        if args.logins_only and not login_in_window:
+            continue
+        if not args.created_only and not args.logins_only and not (created_in_window or login_in_window):
+            continue
+
+        if created_in_window:
+            created_count += 1
+        if login_in_window:
+            login_count += 1
+
+        if created_in_window and login_in_window:
+            activity_type = "New Account & Login"
+        elif created_in_window:
+            activity_type = "New Account Created"
+        else:
+            activity_type = "Account Login (Existing)"
+
+        sort_candidates = [dt for dt in [last_login_dt, created_dt] if dt is not None]
+        sort_dt = max(sort_candidates) if sort_candidates else now_utc
+
+        matching_accounts.append({
+            "uid": doc.id,
+            "email": data.get("email"),
+            "name": data.get("name"),
+            "provider": data.get("provider", "unknown"),
+            "activity": activity_type,
+            "created_at": created_dt.isoformat() if created_dt else None,
+            "last_login": data.get("last_login"),
+            "last_active": data.get("last_active"),
+            "client_ip": data.get("client_ip"),
+            "login_count": data.get("login_count", 1),
+            "_sort_dt": sort_dt
+        })
+
+    # Sort descending by latest activity
+    matching_accounts.sort(key=lambda x: x["_sort_dt"], reverse=True)
 
     if args.raw:
         for acc in matching_accounts:
-            acc.pop("_created_dt", None)
+            acc.pop("_sort_dt", None)
         print(json.dumps(matching_accounts, indent=2))
         return
 
@@ -182,31 +213,39 @@ def main():
     end_str = end_time.strftime("%Y-%m-%d %H:%M:%S UTC")
 
     print("=" * 80)
-    print(f"Firestore DB Accounts [{args.collection}]")
+    print(f"Firestore DB Accounts & Logins [{args.collection}]")
     print(f"Time Range: {start_str} to {end_str} (past {args.since})")
     print(f"Project:    {args.project}")
     print("=" * 80)
 
     if not matching_accounts:
-        print(f"\nNo accounts were created during this time period (past {args.since}).")
+        print(f"\nNo account creations or logins found during this time period (past {args.since}).")
         print(f"Total registered accounts currently in collection '{args.collection}': {len(docs)}")
-        print(f"Tip: To check a wider time range, run: task accounts SINCE=7d (or task firestore:accounts SINCE=30d)\n")
+        print(f"Tip: To check a wider time range, run: task accounts SINCE=7d (or task activity SINCE=7d)\n")
         return
 
     for idx, acc in enumerate(matching_accounts, 1):
-        created_display = parse_iso_datetime(acc["created_at"]).strftime("%Y-%m-%d %H:%M:%S UTC")
+        created_display = (
+            parse_iso_datetime(acc["created_at"]).strftime("%Y-%m-%d %H:%M:%S UTC")
+            if acc["created_at"] else "Unknown"
+        )
+        login_display = (
+            parse_iso_datetime(acc["last_login"]).strftime("%Y-%m-%d %H:%M:%S UTC")
+            if acc["last_login"] else (acc.get("last_active") or "N/A")
+        )
         name_display = acc.get("name") or "(No Name)"
         email_display = acc.get("email") or "(No Email)"
         print(f"\n[{idx}] User: {name_display} <{email_display}>")
         print(f"    UID:          {acc['uid']}")
         print(f"    Provider:     {acc['provider']}")
+        print(f"    Activity:     {acc['activity']}")
         print(f"    Created At:   {created_display}")
-        print(f"    Last Active:  {acc.get('last_active') or acc.get('last_login') or 'N/A'}")
+        print(f"    Last Login:   {login_display}")
         print(f"    Client IP:    {acc.get('client_ip') or 'N/A'}")
         print(f"    Login Count:  {acc.get('login_count', 1)}")
 
     print("\n" + "-" * 80)
-    print(f"Found {len(matching_accounts)} new account(s) created in past {args.since}.")
+    print(f"Found {len(matching_accounts)} active account(s) in past {args.since} ({created_count} created, {login_count} logged in).")
     print(f"Total registered accounts in collection '{args.collection}': {len(docs)}")
     print("=" * 80)
 

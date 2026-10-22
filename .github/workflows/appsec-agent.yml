@@ -1,0 +1,56 @@
+name: "AppSec Agentic Assessment"
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          pip install -r scripts/security/requirements.txt
+
+      - name: Run Material Change Filter
+        id: filter
+        run: |
+          python scripts/security/filter_diff.py --output-github-env
+
+      - name: Extract Infrastructure Context
+        if: steps.filter.outputs.IS_MATERIAL == 'true'
+        run: |
+          python scripts/security/extract_context.py --output-file /tmp/tf_context.json
+
+      - name: Run Agentic Threat Modeling & Verification Test Generator
+        if: steps.filter.outputs.IS_MATERIAL == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python scripts/security/run_agentic_eval.py \
+            --context-file /tmp/tf_context.json \
+            --output-report /tmp/security_report.json
+
+      - name: Post PR Action Card
+        if: steps.filter.outputs.IS_MATERIAL == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/security/post_pr_comment.py \
+            --report-file /tmp/security_report.json \
+            --pr-number ${{ github.event.pull_request.number }}

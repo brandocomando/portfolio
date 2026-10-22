@@ -22,7 +22,7 @@ from google import genai
 from google.genai import types
 from langgraph.graph import StateGraph, END
 
-from repo_tools import make_agent_tools
+from repo_tools import make_agent_tools, redact_secrets
 
 
 class ThreatItem(BaseModel):
@@ -306,7 +306,7 @@ def main():
     }
 
     final_state = graph.invoke(initial_state)
-    report = final_state["final_report"]
+    report = json.loads(redact_secrets(json.dumps(final_state["final_report"])))
 
     with open(args.output_report, "w", encoding="utf-8") as fh:
         json.dump(report, fh, indent=2)
@@ -315,7 +315,7 @@ def main():
     if test_code:
         os.makedirs("tests/security", exist_ok=True)
         with open("tests/security/test_generated_verification.py", "w", encoding="utf-8") as fh:
-            fh.write(test_code)
+            fh.write(redact_secrets(test_code))
 
     print(
         f"Report generated successfully at {args.output_report} "

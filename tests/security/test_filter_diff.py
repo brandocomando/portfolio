@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.
 
 from filter_diff import categorize_files, evaluate_materiality
 from post_pr_comment import COMMENT_MARKER, format_markdown, hide_previous_pr_comments
-from repo_tools import list_repo_files, parse_terraform_hcl, read_repo_file, search_codebase
+from repo_tools import list_repo_files, parse_terraform_hcl, read_repo_file, redact_secrets, search_codebase
 from run_agentic_eval import build_pr_security_graph
 from run_full_repo_audit import create_github_issues, format_issue_body
 
@@ -276,3 +276,18 @@ def test_langgraph_pr_security_react_loop(tmp_path):
     assert report["overall_contextual_severity"] == "Low"
     assert len(report["agent_tool_trace"]) == 1
     assert "read_file" in report["agent_tool_trace"][0]
+
+
+def test_secret_redaction_and_env_protection(tmp_path, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "super-secret-gemini-key-value")
+    raw = "Error calling API with key super-secret-gemini-key-value and token ghp_1234567890abcdefghijklmnopqrstuvwxyzABCD"
+    scrubbed = redact_secrets(raw)
+    assert "super-secret-gemini-key-value" not in scrubbed
+    assert "[REDACTED_GEMINI_API_KEY]" in scrubbed
+    assert "[REDACTED_SECRET]" in scrubbed
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("GEMINI_API_KEY=secret\n", encoding="utf-8")
+    res = read_repo_file(str(tmp_path), ".env", 1, 10)
+    assert "prohibited" in res
+

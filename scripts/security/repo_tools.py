@@ -4,6 +4,8 @@ Repository Exploration & HCL/Code Inspection Tooling for the LangGraph Security 
 Provides dynamic, zero-maintenance tools that allow the LLM to autonomously
 discover directories, search code/infrastructure patterns, read files, and parse
 Terraform (.tf) definitions on demand without hardcoded directory paths.
+Includes automatic secret/token redaction so sensitive values are never leaked into
+logs, LLM prompts, or serialized report artifacts.
 """
 import fnmatch
 import json
@@ -25,13 +27,37 @@ IGNORED_DIRS = {
     "build",
 }
 
+SENSITIVE_PATTERNS = [
+    re.compile(r"AIza[0-9A-Za-z\-_]{35}"),
+    re.compile(r"gh[pousr]_[A-Za-z0-9_]{36,255}"),
+    re.compile(r"github_pat_[A-Za-z0-9_]{22,255}"),
+    re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----"),
+]
+
+
+def redact_secrets(text: str) -> str:
+    """Scrubs runtime environment secrets and common token patterns from text before logging or serializing."""
+    if not text:
+        return text
+    sanitized = text
+    for env_key in ("GEMINI_API_KEY", "GH_TOKEN", "GITHUB_TOKEN", "CLIENT_VERIFICATION_SECRET", "SMTP_PASSWORD"):
+        secret_val = os.getenv(env_key)
+        if secret_val and len(secret_val) >= 6 and secret_val in sanitized:
+            sanitized = sanitized.replace(secret_val, f"[REDACTED_{env_key}]")
+    for pat in SENSITIVE_PATTERNS:
+        sanitized = pat.sub("[REDACTED_SECRET]", sanitized)
+    return sanitized
+
 
 def _safe_resolve(repo_root: str, rel_path: str) -> str:
-    """Resolves a path inside repo_root and prevents directory traversal outside the repo."""
+    """Resolves a path inside repo_root, blocks traversal, and blocks reading .env / credential files."""
     abs_root = os.path.abspath(repo_root)
     target = os.path.abspath(os.path.join(abs_root, rel_path.lstrip("/")))
     if not (target == abs_root or target.startswith(abs_root + os.sep)):
         raise ValueError(f"Path '{rel_path}' escapes repository root.")
+    base = os.path.basename(target)
+    if base == ".env" or (base.startswith(".env.") and not base.endswith(".example")):
+        raise ValueError(f"Reading local environment secret file '{rel_path}' is prohibited.")
     return target
 
 
@@ -69,6 +95,8 @@ def list_repo_files(repo_root: str, subdir: str = ".", glob_pattern: str = "*") 
     for root, dirs, files in os.walk(start_dir):
         dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS)
         for f in sorted(files):
+            if f == ".env" or (f.startswith(".env.") and not f.endswith(".example")):
+                continue
             rel = os.path.relpath(os.path.join(root, f), repo_root)
             if fnmatch.fnmatch(f, glob_pattern) or fnmatch.fnmatch(rel, glob_pattern):
                 matched.append(rel)
@@ -89,7 +117,7 @@ def search_codebase(
     """
     Searches across the repository for a regex pattern (e.g., SDK usage, IAM roles,
     route decorators, secret references, middleware classes) and returns matching
-    file paths, line numbers, and code snippets.
+    file paths, line numbers, and redacted code snippets.
     """
     try:
         pattern = re.compile(regex_query, re.IGNORECASE)
@@ -100,6 +128,8 @@ def search_codebase(
     for root, dirs, files in os.walk(repo_root):
         dirs[:] = sorted(d for d in dirs if d not in IGNORED_DIRS)
         for f in sorted(files):
+            if f == ".env" or (f.startswith(".env.") and not f.endswith(".example")):
+                continue
             rel = os.path.relpath(os.path.join(root, f), repo_root)
             if file_glob != "*" and not (
                 fnmatch.fnmatch(f, file_glob) or fnmatch.fnmatch(rel, file_glob)
@@ -114,7 +144,7 @@ def search_codebase(
                                 {
                                     "file": rel,
                                     "line": idx,
-                                    "snippet": line.strip()[:240],
+                                    "snippet": redact_secrets(line.strip()[:240]),
                                 }
                             )
                             if len(results) >= max_matches:
@@ -156,7 +186,7 @@ def read_repo_file(
         numbered = "".join(
             f"{idx}: {line}" for idx, line in enumerate(selected, start=start_line)
         )
-        return (
+        return redact_secrets(
             f"--- {file_path} (lines {start_line}-{min(end_line, len(lines))} of {len(lines)}) ---\n"
             + numbered[:12000]
         )
@@ -196,7 +226,7 @@ def parse_terraform_hcl(repo_root: str, tf_path: str = ".") -> str:
         except Exception as e:
             parsed_files[rel] = {"parse_error": str(e)}
 
-    return json.dumps(parsed_files, indent=2)[:15000]
+    return redact_secrets(json.dumps(parsed_files, indent=2)[:15000])
 
 
 def make_agent_tools(repo_root: str) -> dict[str, Any]:

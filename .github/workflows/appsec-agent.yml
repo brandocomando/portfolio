@@ -4,19 +4,25 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Default to minimal read-only permissions at the workflow level
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 jobs:
   assess:
     runs-on: ubuntu-latest
+    # Isolate fork PRs and narrow token scopes strictly to PR comment & issue minimization
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -44,6 +50,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
+          echo "::add-mask::$GEMINI_API_KEY"
           python scripts/security/run_agentic_eval.py \
             --materiality-file /tmp/materiality_gate.json \
             --output-report /tmp/security_report.json
@@ -53,6 +60,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "::add-mask::$GH_TOKEN"
           python scripts/security/post_pr_comment.py \
             --report-file /tmp/security_report.json \
             --pr-number ${{ github.event.pull_request.number }}

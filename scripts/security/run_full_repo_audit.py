@@ -17,7 +17,7 @@ from google import genai
 from google.genai import types
 from langgraph.graph import StateGraph, END
 
-from repo_tools import make_agent_tools
+from repo_tools import make_agent_tools, redact_secrets
 
 
 class RepoSecurityFinding(BaseModel):
@@ -362,7 +362,7 @@ def main():
     }
 
     final_state = graph.invoke(initial_state)
-    parsed = final_state["final_report"]
+    parsed = json.loads(redact_secrets(json.dumps(final_state["final_report"])))
 
     with open(args.output_report, "w", encoding="utf-8") as fh:
         json.dump(parsed, fh, indent=2)

@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 """
-PR Diff-Scoped STRIDE Threat Modeling & Security Verification Test Generator.
-Evaluates ONLY the code and infrastructure lines modified in the pull request diff,
-using the repository's extracted Terraform and middleware topology strictly as
-background context to calibrate severity (downgrading or escalating findings
-introduced in the diff).
+PR Diff-Scoped Agentic STRIDE Threat Modeling & Verification Test Generator.
+Evaluates the security impact of the Pull Request diff by cross-referencing
+the modified files against the rest of the repository:
+  - If Terraform/IAM is modified in the PR -> Cross-references application code
+    (`code_cloud_sdk_usage` & relevant source files) to verify whether the granted
+    IAM permissions, network exposure, or resources are actually required by the code
+    (least-privilege validation).
+  - If Application Code is modified in the PR -> Cross-references Terraform
+    (`public_ingress_points`, `iam_bindings`, `security_middlewares`) to determine
+    whether the modified code is publicly reachable and what IAM blast radius it runs with.
 """
 import argparse
+import glob
 import json
 import os
 import subprocess
@@ -21,22 +27,22 @@ class ThreatItem(BaseModel):
         description="STRIDE category: Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, or Elevation of Privilege"
     )
     trust_boundary: str = Field(
-        description="Trust boundary crossed by the modified code in this PR"
+        description="Trust boundary crossed or impacted by the change in this PR"
     )
     affected_component: str = Field(
-        description="Specific file, function, route, or resource modified in this PR diff"
+        description="Specific file, resource, or route modified in this PR diff"
     )
     description: str = Field(
-        description="Concrete security threat introduced or modified by the changes in this PR diff"
+        description="Concrete architectural or code-level threat introduced or modified by this PR diff"
     )
     raw_severity: str = Field(
-        description="Severity before infrastructure context adjustment (Critical, High, Medium, Low)"
+        description="Severity before cross-referencing repository context (Critical, High, Medium, Low)"
     )
     contextual_severity: str = Field(
-        description="Adjusted severity after evaluating runtime/infrastructure context (Critical, High, Medium, Low)"
+        description="Adjusted severity after cross-referencing how the rest of the repo's code and infrastructure interact with this change (Critical, High, Medium, Low)"
     )
     context_rationale: str = Field(
-        description="Why the severity of this diff finding was adjusted based on runtime environment, execution context, or surrounding security controls"
+        description="How cross-referencing the repo's application code (SDK usage, middlewares) and Terraform topology (ingress, IAM bindings) justified downgrading, escalating, or flagging this change"
     )
     suggested_fix: str = Field(
         description="Actionable remediation snippet for the modified file in this PR"
@@ -48,20 +54,20 @@ class SecurityReport(BaseModel):
         description="Executive summary of the security impact of the changes introduced in this pull request"
     )
     context_summary_narrative: str = Field(
-        description="2-3 sentence summary explaining the runtime context of the modified files in this PR and how surrounding infrastructure/middleware controls affect their risk"
+        description="2-3 sentence summary explaining how the PR changes interact with existing repository code and infrastructure (e.g., whether an IAM/infra change matches actual SDK usage in code, or how existing ingress/IAM context affects modified application code)"
     )
     data_flow_diagram_ascii: str = Field(
-        description="Compact ASCII Data Flow Diagram (DFD) illustrating the data flow of the components modified in this PR"
+        description="Compact ASCII Data Flow Diagram (DFD) illustrating the data flow and trust boundaries of the components modified in this PR"
     )
     overall_contextual_severity: str = Field(
         description="Highest contextual severity remaining across threats introduced in this PR (Critical, High, Medium, Low, or Informational)"
     )
     threats: list[ThreatItem]
     generated_verification_tests: str = Field(
-        description="Runnable pytest verification test stubs specifically testing the code/functions/routes added or modified in this PR"
+        description="Runnable pytest verification test stubs specifically testing the code, routes, or infrastructure invariants modified in this PR"
     )
     generated_adversarial_curl_probes: str = Field(
-        description="Optional curl or CLI adversarial test probes if the PR modifies API routes or CLI scripts (leave empty string if not applicable)"
+        description="Optional curl or CLI adversarial test probes targeting the modified routes or scripts (leave empty string if not applicable)"
     )
 
 
@@ -74,12 +80,61 @@ def get_git_diff(base_ref: str = "origin/main") -> str:
         return subprocess.check_output(cmd, text=True)
 
 
+def gather_cross_reference_files(repo_root: str, materiality: dict) -> str:
+    """
+    Dynamically pulls relevant untouched repository files so the LLM can answer
+    cross-cutting questions about the diff:
+      - If `.tf` / IAM files are changed in the PR, pulls backend service code that
+        interacts with cloud resources to check if the IAM permission is actually needed.
+      - If backend/application files are changed in the PR, pulls the full content of
+        the modified files plus core auth/middleware and Cloud Run IAM `.tf` files.
+    """
+    cats = materiality.get("categories", {})
+    infra_changed = bool(cats.get("infrastructure"))
+    code_changed = bool(cats.get("security_and_auth") or cats.get("application_logic"))
+
+    target_globs = []
+    if infra_changed:
+        # Pull backend services & core config so the model can see what SDK calls the app actually makes
+        target_globs.extend([
+            "backend/app/services/*.py",
+            "backend/app/core/config.py",
+            "backend/app/core/security.py",
+        ])
+    if code_changed:
+        # Pull Cloud Run / IAM / Auth Terraform definitions so the model sees runtime identity & ingress
+        target_globs.extend([
+            "infra/modules/cloud_run/main.tf",
+            "infra/modules/secrets/main.tf",
+            "backend/app/core/client_auth.py",
+            "backend/app/core/security.py",
+        ])
+
+    snippets = []
+    seen = set()
+    for pattern in target_globs:
+        for path in sorted(glob.glob(os.path.join(repo_root, pattern))):
+            rel_path = os.path.relpath(path, repo_root)
+            if rel_path in seen:
+                continue
+            seen.add(rel_path)
+            try:
+                with open(path, "r", encoding="utf-8") as fh:
+                    content = fh.read()
+                snippets.append(f"--- CROSS-REFERENCED REPO FILE: {rel_path} ---\n{content[:3000]}\n")
+            except Exception:
+                continue
+
+    return "\n".join(snippets)[:15000]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--context-file", required=True)
     parser.add_argument("--materiality-file", default="/tmp/materiality_gate.json")
     parser.add_argument("--output-report", default="/tmp/security_report.json")
     parser.add_argument("--base-ref", default="origin/main")
+    parser.add_argument("--repo-root", default=".")
     args = parser.parse_args()
 
     api_key = os.getenv("GEMINI_API_KEY")
@@ -103,41 +158,63 @@ def main():
         print("Empty git diff. Exiting.")
         sys.exit(0)
 
+    cross_ref_code = gather_cross_reference_files(args.repo_root, materiality_context)
+
     client = genai.Client(api_key=api_key)
 
     prompt = f"""
 You are a Staff Application Security & DevSecOps Engineer reviewing a Pull Request.
 
-CRITICAL SCOPE RULE — DIFF-ONLY REVIEW:
-- You MUST ONLY report threats, vulnerabilities, or risks that are directly introduced or modified inside the `PULL REQUEST GIT DIFF` below.
-- Every `ThreatItem.affected_component` MUST be one of the files modified in this PR (`MODIFIED FILES IN THIS PR`).
-- DO NOT report findings, IAM recommendations, or hardening advice for untouched repository files that appear only in `BACKGROUND INFRASTRUCTURE & APPLICATION CONTEXT`.
-- The `BACKGROUND INFRASTRUCTURE & APPLICATION CONTEXT` is provided strictly so you understand the environment (e.g., whether a modified route is exposed via public ingress, protected by `ClientVerificationMiddleware`, or running as a scoped service account, or whether a modified CI script runs in an isolated GitHub Actions runner) and can accurately adjust `raw_severity` -> `contextual_severity`.
-- If the PR only modifies CI/CD scripts, tests, or safe code with low risk, reflect that honestly (`Low` or `Informational` overall severity) and focus any threats strictly on the new/changed code itself (e.g., subprocess command handling, token handling, API response parsing, or file I/O in the modified files).
+================================================================================
+HOW TO USE REPOSITORY CONTEXT TO EVALUATE THIS PR DIFF (BI-DIRECTIONAL ANALYSIS)
+================================================================================
+1. **Focus Findings on the PR Diff**:
+   Every reported threat (`ThreatItem.affected_component`) must be anchored to a file, resource, or route modified in `PULL REQUEST GIT DIFF` (`MODIFIED FILES IN THIS PR`). Do not file unrelated backlog findings on untouched files.
 
-MODIFIED FILES IN THIS PR:
+2. **Use Full Repo Context to Validate the Change**:
+   - **If this PR modifies Terraform / IAM / Infrastructure (`.tf`, workflows, Dockerfiles)**:
+     Inspect `code_cloud_sdk_usage`, `code_env_and_secret_reads`, and `CROSS-REFERENCED REPOSITORY FILES` to verify whether the infrastructure or IAM change is actually needed by the application code!
+     * *Example*: If a `.tf` change grants a service account `roles/datastore.owner`, `roles/storage.admin`, or `s3:*`, check `code_cloud_sdk_usage` to see what SDK methods `backend/` actually calls. If the code only performs Firestore reads/writes (`roles/datastore.user`) or doesn't use GCS/S3 at all, flag the new IAM change as an **Elevation of Privilege** violation of Least Privilege!
+   - **If this PR modifies Application Code (`.py`, routes, middleware, dependencies)**:
+     Inspect `public_ingress_points`, `iam_bindings`, `security_middlewares`, and `CROSS-REFERENCED REPOSITORY FILES` to evaluate the blast radius of the code change!
+     * *Example*: If a new route or function has a flaw, check whether it is publicly reachable (`is_public_facing = true`), gated by `ClientVerificationMiddleware`, or running under a scoped vs. overprivileged service account, and adjust `raw_severity` -> `contextual_severity` accordingly.
+
+================================================================================
+MODIFIED FILES IN THIS PR
+================================================================================
 {json.dumps(materiality_context, indent=2)}
 
-BACKGROUND INFRASTRUCTURE & APPLICATION CONTEXT (DO NOT AUDIT UNTOUCHED RESOURCES):
+================================================================================
+EXTRACTED REPOSITORY TOPOLOGY & CODE SDK USAGE MAP
+================================================================================
 {json.dumps(infra_context, indent=2)}
 
-PULL REQUEST GIT DIFF (AUDIT ONLY THIS DIFF):
+================================================================================
+CROSS-REFERENCED REPOSITORY FILES (FOR LEAST-PRIVILEGE & BLAST-RADIUS VERIFICATION)
+================================================================================
+{cross_ref_code if cross_ref_code else "No additional cross-reference files needed."}
+
+================================================================================
+PULL REQUEST GIT DIFF (PRIMARY REVIEW TARGET)
+================================================================================
 ```diff
 {git_diff[:18000]}
 ```
 
-EVALUATION RULES:
+================================================================================
+OUTPUT REQUIREMENTS
+================================================================================
 1. **Context Summary (`context_summary_narrative`)**:
-   Write a concise 2-3 sentence summary of the execution context for the files modified in this PR and how surrounding controls (e.g. GitHub Actions runner permissions, Secret Manager / GitHub Secrets injection, or Cloud Run/FastAPI middleware if backend routes were touched) adjust the severity of the diff.
+   Write a concise 2-3 sentence summary explaining how the PR's changes interact with the rest of the repository (e.g., whether modified permissions match actual code SDK usage, or how surrounding infrastructure/middleware controls affect the modified code's severity).
 2. **ASCII Data Flow Diagram (`data_flow_diagram_ascii`)**:
-   Produce a compact ASCII diagram showing the data flow of the components modified in this PR.
+   Produce a compact ASCII diagram showing the data flow and trust boundaries of the components modified in this PR.
 3. **STRIDE Threat Model (`threats`)**:
-   - Identify STRIDE threats strictly within the modified files in the diff.
-   - Show how runtime context adjusts `raw_severity` to `contextual_severity` in `context_rationale`.
-   - Provide actionable remediation code snippets for the modified files in `suggested_fix`.
+   - Identify concrete STRIDE threats introduced or impacted by the PR diff.
+   - Show how cross-referencing the repo's code and infrastructure calibrated `raw_severity` -> `contextual_severity` in `context_rationale`.
+   - Provide actionable code or Terraform HCL remediation snippets in `suggested_fix`.
 4. **Generated Model-Based Test Suite (`generated_verification_tests` & `generated_adversarial_curl_probes`)**:
-   - Generate runnable `pytest` verification tests targeting the functions, routes, or modules modified in this PR.
-   - If the PR modifies HTTP endpoints, include targeted `curl` boundary probes in `generated_adversarial_curl_probes` (or CLI invocation probes if the PR modifies CLI scripts).
+   - Generate runnable `pytest` verification tests specifically exercising the code, routes, or security invariants modified in this PR.
+   - Provide targeted `curl` or CLI adversarial probes if applicable.
 """
 
     model_name = os.getenv("GEMINI_SECURITY_MODEL", "gemini-3.5-flash")

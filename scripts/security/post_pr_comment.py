@@ -79,22 +79,36 @@ def format_markdown(report: dict) -> str:
             )
         md.append("")
 
-        md.append("#### Remediation & AI Agent Prompts")
-        for idx, t in enumerate(threats, start=1):
-            comp = t.get("affected_component", "")
-            title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
-            ai_prompt = t.get("ai_agent_prompt") or (
-                f"In @{comp}, verify the following {t['category']} finding: {t['description']}. "
-                f"Confirm whether the issue is applicable in context ({t['context_rationale']}), "
-                f"apply the remediation, and run pytest to verify."
+        actionable_threats = [
+            t for t in threats
+            if t.get("is_remediation_required", True)
+            and t.get("contextual_severity") not in {"Informational"}
+            and (t.get("ai_agent_prompt") or t.get("suggested_fix"))
+            and not any(
+                phrase in (t.get("suggested_fix") or "").lower()
+                for phrase in ("maintained in", "verified categorization", "already mitigated")
             )
-            md.append(f"<details><summary><b>🤖 {title}</b></summary>\n")
-            md.append("##### 📋 Prompt for AI Agents *(Copy & paste into your coding agent)*")
-            md.append(f"```text\n{ai_prompt}\n```\n")
-            if t.get("suggested_fix"):
-                md.append("##### 🔧 Suggested Code / Configuration Patch")
-                md.append(f"```python\n{t['suggested_fix']}\n```")
-            md.append("</details>\n")
+        ]
+
+        if actionable_threats:
+            md.append("#### Remediation & AI Agent Prompts")
+            for idx, t in enumerate(actionable_threats, start=1):
+                comp = t.get("affected_component", "")
+                title = f"Remediation {idx}: {t['category']} ({comp})" if comp else f"Remediation {idx}: {t['category']}"
+                ai_prompt = t.get("ai_agent_prompt") or (
+                    f"In @{comp}, verify the following {t['category']} finding: {t['description']}. "
+                    f"Confirm whether the issue is applicable in context ({t['context_rationale']}), "
+                    f"apply the remediation, and run pytest to verify."
+                )
+                md.append(f"<details><summary><b>🤖 {title}</b></summary>\n")
+                md.append("##### 📋 Prompt for AI Agents *(Copy & paste into your coding agent)*")
+                md.append(f"```text\n{ai_prompt}\n```\n")
+                if t.get("suggested_fix"):
+                    md.append("##### 🔧 Suggested Code / Configuration Patch")
+                    md.append(f"```python\n{t['suggested_fix']}\n```")
+                md.append("</details>\n")
+        else:
+            md.append("✅ **All identified STRIDE surfaces in this diff are mitigated by in-repo controls; no code remediation required.**\n")
     else:
         md.append("✅ **No critical architectural or STRIDE threats identified in this diff.**\n")
 

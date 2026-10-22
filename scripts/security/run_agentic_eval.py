@@ -47,16 +47,17 @@ class ThreatItem(BaseModel):
     context_rationale: str = Field(
         description="How the files/code/infrastructure discovered via tool calls justified downgrading, escalating, or flagging this change"
     )
+    is_remediation_required: bool = Field(
+        description="True ONLY if the code in the PR diff still has an unmitigated flaw requiring a code change. False if the threat is already mitigated/guarded by the code in the PR diff."
+    )
     ai_agent_prompt: str = Field(
         description=(
-            "Copy-pasteable CodeRabbit-style 'Prompt for AI Agents' instructing a coding agent to: "
-            "(1) inspect the exact file/lines/functions in `affected_component` and verify the finding against surrounding context, "
-            "(2) apply the specific security fix without breaking existing functionality, and "
-            "(3) run or add a pytest verification test to confirm the fix."
+            "If is_remediation_required is True, provide a copy-pasteable 'Prompt for AI Agents' to fix the unmitigated flaw. "
+            "If is_remediation_required is False (already mitigated in the PR), leave as an empty string ''."
         )
     )
     suggested_fix: str = Field(
-        description="Actionable code or Terraform HCL remediation snippet for the modified file in this PR"
+        description="If is_remediation_required is True, provide the code/HCL patch. If False, leave as an empty string ''."
     )
 
 

@@ -11,6 +11,7 @@ permissions:
 jobs:
   assess:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     # Isolate fork PRs and narrow token scopes strictly to PR comment & issue minimization
     if: github.event.pull_request.head.repo.full_name == github.repository
     permissions:

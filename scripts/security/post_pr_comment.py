@@ -88,7 +88,7 @@ def format_markdown(report: dict) -> str:
                 f"Confirm whether the issue is applicable in context ({t['context_rationale']}), "
                 f"apply the remediation, and run pytest to verify."
             )
-            md.append(f"<details><summary><b>🤖 {title} — Prompt for AI Agents & Patch</b></summary>\n")
+            md.append(f"<details><summary><b>🤖 {title}</b></summary>\n")
             md.append("##### 📋 Prompt for AI Agents *(Copy & paste into your coding agent)*")
             md.append(f"```text\n{ai_prompt}\n```\n")
             if t.get("suggested_fix"):

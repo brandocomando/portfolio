@@ -31,12 +31,16 @@ SENSITIVE_PATTERNS = [
     re.compile(r"AIza[0-9A-Za-z\-_]{35}"),
     re.compile(r"gh[pousr]_[A-Za-z0-9_]{36,255}"),
     re.compile(r"github_pat_[A-Za-z0-9_]{22,255}"),
+    re.compile(r"ya29\.[0-9A-Za-z\-_]+"),
+    re.compile(r"(?i)(authorization\s*[:=]\s*(?:bearer|token|basic)\s+)[^\s\"',;]+"),
+    re.compile(r"(?i)(bearer\s+)[A-Za-z0-9\-._~+/]+=*"),
+    re.compile(r"(?i)(x-portfolio-client\s*[:=]\s*)[^\s\"',;]+"),
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----"),
 ]
 
 
 def redact_secrets(text: str) -> str:
-    """Scrubs runtime environment secrets and common token patterns from text before logging or serializing."""
+    """Scrubs runtime environment secrets, API keys, tokens, and authorization headers from text."""
     if not text:
         return text
     sanitized = text
@@ -45,7 +49,10 @@ def redact_secrets(text: str) -> str:
         if secret_val and len(secret_val) >= 6 and secret_val in sanitized:
             sanitized = sanitized.replace(secret_val, f"[REDACTED_{env_key}]")
     for pat in SENSITIVE_PATTERNS:
-        sanitized = pat.sub("[REDACTED_SECRET]", sanitized)
+        sanitized = pat.sub(
+            lambda m: f"{m.group(1)}[REDACTED_SECRET]" if m.lastindex and m.lastindex >= 1 else "[REDACTED_SECRET]",
+            sanitized,
+        )
     return sanitized
 
 

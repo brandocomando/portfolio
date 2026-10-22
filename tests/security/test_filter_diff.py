@@ -283,9 +283,15 @@ def test_langgraph_pr_security_react_loop(tmp_path):
 
 def test_secret_redaction_and_env_protection(tmp_path, monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "super-secret-gemini-key-value")
-    raw = "Error calling API with key super-secret-gemini-key-value and token ghp_1234567890abcdefghijklmnopqrstuvwxyzABCD"
+    raw = (
+        "Error calling API with key super-secret-gemini-key-value, "
+        "token ghp_1234567890abcdefghijklmnopqrstuvwxyzABCD, "
+        "and header Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.secret.sig"
+    )
     scrubbed = redact_secrets(raw)
     assert "super-secret-gemini-key-value" not in scrubbed
+    assert "ghp_1234567890abcdefghijklmnopqrstuvwxyzABCD" not in scrubbed
+    assert "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9" not in scrubbed
     assert "[REDACTED_GEMINI_API_KEY]" in scrubbed
     assert "[REDACTED_SECRET]" in scrubbed
 

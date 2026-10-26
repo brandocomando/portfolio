@@ -4,7 +4,7 @@
 # ==========================================
 # Stage 1: Build Dependencies
 # ==========================================
-FROM python:3.10-slim as builder
+FROM python:3.12-slim as builder
 
 WORKDIR /build
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -21,7 +21,7 @@ RUN pip install --no-cache-dir --prefix=/install -r backend-requirements.txt -r 
 # ==========================================
 # Stage 2: Final Minimal Runtime
 # ==========================================
-FROM python:3.10-slim as runtime
+FROM python:3.12-slim as runtime
 
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
